@@ -1,22 +1,22 @@
-import { Keyboard } from "lucide-react"
-import { IconButton } from "@/components/ui/button"
-import { useToggle } from "@uidotdev/usehooks"
+import { Keyboard } from "lucide-react";
+import { IconButton } from "@/components/ui/button";
+import { useToggle } from "@uidotdev/usehooks";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "./ui/dialog"
-import useHotKey from "@/hooks/useHotkey"
+} from "./ui/dialog";
+import useHotKey from "@/hooks/useHotkey";
 
 interface ShortcutProps {
-  content: string
-  keys: string[]
+  content: string;
+  keys: string[];
 }
 
 function ShortCut(props: ShortcutProps) {
-  const { content, keys } = props
+  const { content, keys } = props;
 
   return (
     <div className="flex justify-between">
@@ -30,23 +30,23 @@ function ShortCut(props: ShortcutProps) {
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 const isMac = function () {
-  return /macintosh|mac os x/i.test(navigator.userAgent)
-}
+  return /macintosh|mac os x/i.test(navigator.userAgent);
+};
 
 const CmdOrCtrl = () => {
-  return isMac() ? "Cmd" : "Ctrl"
-}
+  return isMac() ? "Cmd" : "Ctrl";
+};
 
 export function Shortcuts() {
-  const [open, toggleOpen] = useToggle(false)
+  const [open, toggleOpen] = useToggle(false);
 
   useHotKey("h", () => {
-    toggleOpen()
-  })
+    toggleOpen();
+  });
 
   return (
     <Dialog open={open} onOpenChange={toggleOpen}>
@@ -80,7 +80,7 @@ export function Shortcuts() {
         </DialogHeader>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
-export default Shortcuts
+export default Shortcuts;

@@ -5,18 +5,18 @@ import {
   PowerPaintTask,
   Rect,
   ServerConfig,
-} from "@/lib/types"
-import { Settings } from "@/lib/states"
-import { convertToBase64, srcToFile } from "@/lib/utils"
-import axios from "axios"
+} from "@/lib/types";
+import { Settings } from "@/lib/states";
+import { convertToBase64, srcToFile } from "@/lib/utils";
+import axios from "axios";
 
 export const API_ENDPOINT = import.meta.env.DEV
   ? import.meta.env.VITE_BACKEND + "/api/v1"
-  : "/api/v1"
+  : "/api/v1";
 
 const api = axios.create({
   baseURL: API_ENDPOINT,
-})
+});
 
 export default async function inpaint(
   imageFile: File,
@@ -24,13 +24,13 @@ export default async function inpaint(
   croperRect: Rect,
   extenderState: Rect,
   mask: File | Blob,
-  paintByExampleImage: File | null = null
+  paintByExampleImage: File | null = null,
 ) {
-  const imageBase64 = await convertToBase64(imageFile)
-  const maskBase64 = await convertToBase64(mask)
+  const imageBase64 = await convertToBase64(imageFile);
+  const maskBase64 = await convertToBase64(mask);
   const exampleImageBase64 = paintByExampleImage
     ? await convertToBase64(paintByExampleImage)
-    : null
+    : null;
 
   const res = await fetch(`${API_ENDPOINT}/inpaint`, {
     method: "POST",
@@ -82,38 +82,38 @@ export default async function inpaint(
         ? PowerPaintTask.outpainting
         : settings.powerpaintTask,
     }),
-  })
+  });
   if (res.ok) {
-    const blob = await res.blob()
+    const blob = await res.blob();
     return {
       blob: URL.createObjectURL(blob),
       seed: res.headers.get("X-Seed"),
-    }
+    };
   }
-  const errors = await res.json()
-  throw new Error(`Something went wrong: ${errors.errors}`)
+  const errors = await res.json();
+  throw new Error(`Something went wrong: ${errors.errors}`);
 }
 
 export async function getServerConfig(): Promise<ServerConfig> {
-  const res = await api.get(`/server-config`)
-  return res.data
+  const res = await api.get(`/server-config`);
+  return res.data;
 }
 
 export async function switchModel(name: string): Promise<ModelInfo> {
-  const res = await api.post(`/model`, { name })
-  return res.data
+  const res = await api.post(`/model`, { name });
+  return res.data;
 }
 
 export async function switchPluginModel(
   plugin_name: string,
-  model_name: string
+  model_name: string,
 ) {
-  return api.post(`/switch_plugin_model`, { plugin_name, model_name })
+  return api.post(`/switch_plugin_model`, { plugin_name, model_name });
 }
 
 export async function currentModel(): Promise<ModelInfo> {
-  const res = await api.get("/model")
-  return res.data
+  const res = await api.get("/model");
+  return res.data;
 }
 
 export async function runPlugin(
@@ -121,10 +121,10 @@ export async function runPlugin(
   name: string,
   imageFile: File,
   upscale?: number,
-  clicks?: number[][]
+  clicks?: number[][],
 ) {
-  const imageBase64 = await convertToBase64(imageFile)
-  const p = genMask ? "run_plugin_gen_mask" : "run_plugin_gen_image"
+  const imageBase64 = await convertToBase64(imageFile);
+  const p = genMask ? "run_plugin_gen_mask" : "run_plugin_gen_image";
   const res = await fetch(`${API_ENDPOINT}/${p}`, {
     method: "POST",
     headers: {
@@ -136,81 +136,81 @@ export async function runPlugin(
       upscale,
       clicks,
     }),
-  })
+  });
   if (res.ok) {
-    const blob = await res.blob()
-    return { blob: URL.createObjectURL(blob) }
+    const blob = await res.blob();
+    return { blob: URL.createObjectURL(blob) };
   }
-  const errMsg = await res.json()
-  throw new Error(errMsg)
+  const errMsg = await res.json();
+  throw new Error(errMsg);
 }
 
 export async function getMediaFile(tab: string, filename: string) {
   const res = await fetch(
     `${API_ENDPOINT}/media_file?tab=${tab}&filename=${encodeURIComponent(
-      filename
+      filename,
     )}`,
     {
       method: "GET",
-    }
-  )
+    },
+  );
   if (res.ok) {
-    const blob = await res.blob()
+    const blob = await res.blob();
     const file = new File([blob], filename, {
       type: res.headers.get("Content-Type") ?? "image/png",
-    })
-    return file
+    });
+    return file;
   }
-  const errMsg = await res.json()
-  throw new Error(errMsg.errors)
+  const errMsg = await res.json();
+  throw new Error(errMsg.errors);
 }
 
 export async function getMedias(tab: string): Promise<Filename[]> {
-  const res = await api.get(`medias`, { params: { tab } })
-  return res.data
+  const res = await api.get(`medias`, { params: { tab } });
+  return res.data;
 }
 
 export async function downloadToOutput(
   image: HTMLImageElement,
   filename: string,
-  mimeType: string
+  mimeType: string,
 ) {
-  const file = await srcToFile(image.src, filename, mimeType)
-  const fd = new FormData()
-  fd.append("file", file)
+  const file = await srcToFile(image.src, filename, mimeType);
+  const fd = new FormData();
+  fd.append("file", file);
 
   try {
     const res = await fetch(`${API_ENDPOINT}/save_image`, {
       method: "POST",
       body: fd,
-    })
+    });
     if (!res.ok) {
-      const errMsg = await res.text()
-      throw new Error(errMsg)
+      const errMsg = await res.text();
+      throw new Error(errMsg);
     }
   } catch (error) {
-    throw new Error(`Something went wrong: ${error}`)
+    throw new Error(`Something went wrong: ${error}`);
   }
 }
 
 export async function getGenInfo(file: File): Promise<GenInfo> {
-  const fd = new FormData()
-  fd.append("file", file)
-  const res = await api.post(`/gen-info`, fd)
-  return res.data
+  const fd = new FormData();
+  fd.append("file", file);
+  const res = await api.post(`/gen-info`, fd);
+  return res.data;
 }
 
 export async function getSamplers(): Promise<string[]> {
-  const res = await api.post("/samplers")
-  return res.data
+  const res = await api.post("/samplers");
+  return res.data;
 }
 
 export async function postAdjustMask(
   mask: File | Blob,
   operate: "expand" | "shrink" | "reverse",
-  kernel_size: number
+  kernel_size: number,
 ) {
-  const maskBase64 = await convertToBase64(mask)
+  const maskBase64 = await convertToBase64(mask);
   const res = await fetch(`${API_ENDPOINT}/adjust_mask`, {
     method: "POST",
     headers: {
@@ -221,11 +221,11 @@ export async function postAdjustMask(
       operate: operate,
       kernel_size: kernel_size,
     }),
-  })
+  });
   if (res.ok) {
-    const blob = await res.blob()
-    return blob
+    const blob = await res.blob();
+    return blob;
   }
-  const errMsg = await res.json()
-  throw new Error(errMsg)
+  const errMsg = await res.json();
+  throw new Error(errMsg);
 }
