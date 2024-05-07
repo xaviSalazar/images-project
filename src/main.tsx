@@ -14,7 +14,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="dark" disableTransitionOnChange>
 
-      <TooltipProvider>
+    <TooltipProvider>
 
     <App />
     </TooltipProvider>
