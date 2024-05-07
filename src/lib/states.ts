@@ -854,26 +854,26 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         }),
 
       setFile: async (file: File) => {
-        if (get().settings.enableAutoExtractPrompt) {
-          try {
-            const res = await getGenInfo(file);
-            if (res.prompt) {
-              set((state) => {
-                state.settings.prompt = res.prompt;
-              });
-            }
-            if (res.negative_prompt) {
-              set((state) => {
-                state.settings.negativePrompt = res.negative_prompt;
-              });
-            }
-          } catch (e: any) {
-            toast({
-              variant: "destructive",
-              description: e.message ? e.message : e.toString(),
-            });
-          }
-        }
+        // if (get().settings.enableAutoExtractPrompt) {
+        //   try {
+        //     const res = await getGenInfo(file);
+        //     if (res.prompt) {
+        //       set((state) => {
+        //         state.settings.prompt = res.prompt;
+        //       });
+        //     }
+        //     if (res.negative_prompt) {
+        //       set((state) => {
+        //         state.settings.negativePrompt = res.negative_prompt;
+        //       });
+        //     }
+        //   } catch (e: any) {
+        //     toast({
+        //       variant: "destructive",
+        //       description: e.message ? e.message : e.toString(),
+        //     });
+        //   }
+        // }
         set((state) => {
           state.file = file;
           state.interactiveSegState = castDraft(
