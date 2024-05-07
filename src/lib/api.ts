@@ -170,6 +170,15 @@ export async function getMedias(tab: string): Promise<Filename[]> {
   return res.data;
 }
 
+/**
+ * Asynchronously downloads an image from an HTMLImageElement to the server.
+ * @param {HTMLImageElement} image - The HTMLImageElement from which the image will be downloaded.
+ * @param {string} filename - The desired filename for the downloaded image.
+ * @param {string} mimeType - The MIME type of the image.
+ * @throws {Error} Throws an error if the download process fails.
+ * @returns {Promise<void>} A Promise that resolves when the download is successful.
+ */
+
 export async function downloadToOutput(
   image: HTMLImageElement,
   filename: string,
