@@ -14,13 +14,13 @@ const Workspace = () => {
     state.updateSettings,
   ]);
 
-  useEffect(() => {
-    const fetchCurrentModel = async () => {
-      const model = await currentModel();
-      updateSettings({ model });
-    };
-    fetchCurrentModel();
-  }, []);
+  // useEffect(() => {
+  //   const fetchCurrentModel = async () => {
+  //     const model = await currentModel();
+  //     updateSettings({ model });
+  //   };
+  //   fetchCurrentModel();
+  // }, []);
 
   return (
     <>
