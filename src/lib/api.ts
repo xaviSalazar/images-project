@@ -11,7 +11,7 @@ import { convertToBase64, srcToFile } from "@/lib/utils";
 import axios from "axios";
 
 export const API_ENDPOINT = import.meta.env.VITE_BACKEND;
-export const TOKEN = import.meta.env.VITE_RUNPOD ;
+export const TOKEN = import.meta.env.VITE_RUNPOD;
 
 const api = axios.create({
   baseURL: API_ENDPOINT,
