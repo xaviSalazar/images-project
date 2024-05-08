@@ -973,7 +973,19 @@ export default function Editor(props: EditorProps) {
             <Download />
           </IconButton>
 
-          {settings.enableManualInpainting &&
+          <IconButton
+            tooltip="Run Inpainting"
+            disabled={
+              isProcessing || (!hadDrawSomething() && extraMasks.length === 0)
+            }
+            onClick={() => {
+              runInpainting();
+            }}
+          >
+            <Eraser />
+          </IconButton>
+
+          {/* {settings.enableManualInpainting &&
           settings.model.model_type === "inpaint" ? (
             <IconButton
               tooltip="Run Inpainting"
@@ -988,7 +1000,7 @@ export default function Editor(props: EditorProps) {
             </IconButton>
           ) : (
             <></>
-          )}
+          )} */}
         </div>
       </div>
     </div>

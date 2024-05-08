@@ -11,8 +11,10 @@ import { convertToBase64, srcToFile } from "@/lib/utils";
 import axios from "axios";
 
 export const API_ENDPOINT = import.meta.env.DEV
-  ? import.meta.env.VITE_BACKEND + "/api/v1"
+  ? import.meta.env.VITE_BACKEND
   : "/api/v1";
+
+export const TOKEN = import.meta.env.DEV ? import.meta.env.VITE_RUNPOD : "";
 
 const api = axios.create({
   baseURL: API_ENDPOINT,
@@ -26,68 +28,87 @@ export default async function inpaint(
   mask: File | Blob,
   paintByExampleImage: File | null = null,
 ) {
+  console.log(TOKEN);
+  console.log(API_ENDPOINT);
   const imageBase64 = await convertToBase64(imageFile);
   const maskBase64 = await convertToBase64(mask);
   const exampleImageBase64 = paintByExampleImage
     ? await convertToBase64(paintByExampleImage)
     : null;
 
-  const res = await fetch(`${API_ENDPOINT}/inpaint`, {
+  const res = await fetch(`${API_ENDPOINT}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${TOKEN}`,
     },
     body: JSON.stringify({
-      image: imageBase64,
-      mask: maskBase64,
-      ldm_steps: settings.ldmSteps,
-      ldm_sampler: settings.ldmSampler,
-      zits_wireframe: settings.zitsWireframe,
-      cv2_flag: settings.cv2Flag,
-      cv2_radius: settings.cv2Radius,
-      hd_strategy: "Crop",
-      hd_strategy_crop_triger_size: 640,
-      hd_strategy_crop_margin: 128,
-      hd_trategy_resize_imit: 2048,
-      prompt: settings.prompt,
-      negative_prompt: settings.negativePrompt,
-      use_croper: settings.showCropper,
-      croper_x: croperRect.x,
-      croper_y: croperRect.y,
-      croper_height: croperRect.height,
-      croper_width: croperRect.width,
-      use_extender: settings.showExtender,
-      extender_x: extenderState.x,
-      extender_y: extenderState.y,
-      extender_height: extenderState.height,
-      extender_width: extenderState.width,
-      sd_mask_blur: settings.sdMaskBlur,
-      sd_strength: settings.sdStrength,
-      sd_steps: settings.sdSteps,
-      sd_guidance_scale: settings.sdGuidanceScale,
-      sd_sampler: settings.sdSampler,
-      sd_seed: settings.seedFixed ? settings.seed : -1,
-      sd_match_histograms: settings.sdMatchHistograms,
-      sd_freeu: settings.enableFreeu,
-      sd_freeu_config: settings.freeuConfig,
-      sd_lcm_lora: settings.enableLCMLora,
-      paint_by_example_example_image: exampleImageBase64,
-      p2p_image_guidance_scale: settings.p2pImageGuidanceScale,
-      enable_controlnet: settings.enableControlnet,
-      controlnet_conditioning_scale: settings.controlnetConditioningScale,
-      controlnet_method: settings.controlnetMethod
-        ? settings.controlnetMethod
-        : "",
-      powerpaint_task: settings.showExtender
-        ? PowerPaintTask.outpainting
-        : settings.powerpaintTask,
+      id: "some-id",
+      input: {
+        image: imageBase64,
+        mask: maskBase64,
+        ldm_steps: settings.ldmSteps,
+        ldm_sampler: settings.ldmSampler,
+        zits_wireframe: settings.zitsWireframe,
+        cv2_flag: settings.cv2Flag,
+        cv2_radius: settings.cv2Radius,
+        hd_strategy: "Crop",
+        hd_strategy_crop_triger_size: 640,
+        hd_strategy_crop_margin: 128,
+        hd_trategy_resize_imit: 2048,
+        prompt: settings.prompt,
+        negative_prompt: settings.negativePrompt,
+        use_croper: settings.showCropper,
+        croper_x: croperRect.x,
+        croper_y: croperRect.y,
+        croper_height: croperRect.height,
+        croper_width: croperRect.width,
+        use_extender: settings.showExtender,
+        extender_x: extenderState.x,
+        extender_y: extenderState.y,
+        extender_height: extenderState.height,
+        extender_width: extenderState.width,
+        sd_mask_blur: settings.sdMaskBlur,
+        sd_strength: settings.sdStrength,
+        sd_steps: settings.sdSteps,
+        sd_guidance_scale: settings.sdGuidanceScale,
+        sd_sampler: settings.sdSampler,
+        sd_seed: settings.seedFixed ? settings.seed : -1,
+        sd_match_histograms: settings.sdMatchHistograms,
+        sd_freeu: settings.enableFreeu,
+        sd_freeu_config: settings.freeuConfig,
+        sd_lcm_lora: settings.enableLCMLora,
+        paint_by_example_example_image: exampleImageBase64,
+        p2p_image_guidance_scale: settings.p2pImageGuidanceScale,
+        enable_controlnet: settings.enableControlnet,
+        controlnet_conditioning_scale: settings.controlnetConditioningScale,
+        controlnet_method: settings.controlnetMethod
+          ? settings.controlnetMethod
+          : "",
+        powerpaint_task: settings.showExtender
+          ? PowerPaintTask.outpainting
+          : settings.powerpaintTask,
+      },
     }),
   });
+
   if (res.ok) {
-    const blob = await res.blob();
+    const responseData = await res.json(); // Parse JSON response
+    console.log(responseData);
+    const { output } = responseData;
+    // Convert base64 image data to a Blob object
+    const byteCharacters = atob(output);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: "image/png" });
+
+    // const blob = await res.blob();
     return {
       blob: URL.createObjectURL(blob),
-      seed: res.headers.get("X-Seed"),
+      seed: "42", // Return the id from the response
     };
   }
   const errors = await res.json();
