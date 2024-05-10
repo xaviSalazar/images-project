@@ -108,6 +108,11 @@ export function srcToFile(src: string, fileName: string, mimeType: string) {
     });
 }
 
+export function randomNumberInRange(min: number, max: number) {
+  return Math.floor(Math.random()
+      * (max - min + 1)) + min;
+};
+
 export async function askWritePermission() {
   try {
     // The clipboard-write permission is granted automatically to pages
@@ -132,6 +137,19 @@ function canvasToBlob(canvas: HTMLCanvasElement, mime: string): Promise<any> {
       }
     }, mime),
   );
+}
+
+export function base64ToBlob(base64String : string) {
+
+  const byteCharacters = atob(base64String);
+    const byteNumbers = new Array(byteCharacters.length);
+    for (let i = 0; i < byteCharacters.length; i++) {
+      byteNumbers[i] = byteCharacters.charCodeAt(i);
+    }
+    const byteArray = new Uint8Array(byteNumbers);
+    const blob = new Blob([byteArray], { type: "image/png" });
+
+    return blob;
 }
 
 const setToClipboard = async (blob: any) => {

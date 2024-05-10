@@ -287,10 +287,11 @@ const defaultValues: AppState = {
     outputDirectory: "",
   },
   serverConfig: {
-    plugins: [],
+    plugins: [{name: "RemoveBG", support_gen_image: true, support_gen_mask: true}],
     modelInfos: [],
-    removeBGModel: "briaai/RMBG-1.4",
-    removeBGModels: [],
+    //removeBGModel: "briaai/RMBG-1.4",
+    removeBGModel: "u2net_human_seg",
+    removeBGModels: ["u2net","u2netp","u2net_human_seg","u2net_cloth_seg","silueta","isnet-general-use","briaai/RMBG-1.4"],
     realesrganModel: "realesr-general-x4v3",
     realesrganModels: [],
     interactiveSegModel: "vit_b",
@@ -566,6 +567,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
             genMask,
             pluginName,
             targetFile,
+            get().serverConfig,
             params.upscale,
           );
           const { blob } = res;
