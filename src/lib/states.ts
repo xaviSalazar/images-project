@@ -195,6 +195,7 @@ type AppAction = {
   setServerConfig: (newValue: ServerConfig) => void;
   setSeed: (newValue: number) => void;
   updateSettings: (newSettings: Partial<Settings>) => void;
+  updateServerConfig: (newServerConfig: Partial<ServerConfig>) => void;
   setModel: (newModel: ModelInfo) => void;
   updateFileManagerState: (newState: Partial<FileManagerState>) => void;
   updateInteractiveSegState: (newState: Partial<InteractiveSegState>) => void;
@@ -787,6 +788,16 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           state.serverConfig = newValue;
           state.settings.enableControlnet = newValue.enableControlnet;
           state.settings.controlnetMethod = newValue.controlnetMethod;
+        });
+      },
+
+      updateServerConfig: (newServerConfig: Partial<ServerConfig>) => {
+        set((state) => {
+          state.serverConfig = {
+            ...state.serverConfig,
+            ...newServerConfig,
+          };
+          console.log(state.serverConfig)
         });
       },
 
