@@ -1,0 +1,174 @@
+import {
+    ServerConfig,
+  } from "./types";
+
+export const paintByExampleConfig: ServerConfig = {
+    "plugins": [],
+    "modelInfos": [
+      {
+        "name": "lama",
+        "path": "lama",
+        "model_type": "inpaint",
+        "is_single_file_diffusers": false,
+        "need_prompt": false,
+        "controlnets": [],
+        "support_strength": false,
+        "support_outpainting": false,
+        "support_lcm_lora": false,
+        "support_controlnet": false,
+        "support_freeu": false
+      },
+      {
+        "name": "cv2",
+        "path": "cv2",
+        "model_type": "inpaint",
+        "is_single_file_diffusers": false,
+        "need_prompt": false,
+        "controlnets": [],
+        "support_strength": false,
+        "support_outpainting": false,
+        "support_lcm_lora": false,
+        "support_controlnet": false,
+        "support_freeu": false
+      },
+      {
+        "name": "runwayml/stable-diffusion-v1-5",
+        "path": "runwayml/stable-diffusion-v1-5",
+        "model_type": "diffusers_sd",
+        "is_single_file_diffusers": false,
+        "need_prompt": true,
+        "controlnets": [
+          "lllyasviel/control_v11p_sd15_canny",
+          "lllyasviel/control_v11p_sd15_openpose",
+          "lllyasviel/control_v11p_sd15_inpaint",
+          "lllyasviel/control_v11f1p_sd15_depth"
+        ],
+        "support_strength": true,
+        "support_outpainting": true,
+        "support_lcm_lora": true,
+        "support_controlnet": true,
+        "support_freeu": true
+      },
+      {
+        "name": "Sanster/PowerPaint-V1-stable-diffusion-inpainting",
+        "path": "Sanster/PowerPaint-V1-stable-diffusion-inpainting",
+        "model_type": "diffusers_other",
+        "is_single_file_diffusers": false,
+        "need_prompt": true,
+        "controlnets": [
+          "lllyasviel/control_v11p_sd15_canny",
+          "lllyasviel/control_v11p_sd15_openpose",
+          "lllyasviel/control_v11p_sd15_inpaint",
+          "lllyasviel/control_v11f1p_sd15_depth"
+        ],
+        "support_strength": true,
+        "support_outpainting": true,
+        "support_lcm_lora": false,
+        "support_controlnet": false,
+        "support_freeu": false
+      },
+      {
+        "name": "redstonehero/ReV_Animated_Inpainting",
+        "path": "redstonehero/ReV_Animated_Inpainting",
+        "model_type": "diffusers_sd",
+        "is_single_file_diffusers": false,
+        "need_prompt": true,
+        "controlnets": [
+          "lllyasviel/control_v11p_sd15_canny",
+          "lllyasviel/control_v11p_sd15_openpose",
+          "lllyasviel/control_v11p_sd15_inpaint",
+          "lllyasviel/control_v11f1p_sd15_depth"
+        ],
+        "support_strength": true,
+        "support_outpainting": true,
+        "support_lcm_lora": true,
+        "support_controlnet": true,
+        "support_freeu": true
+      },
+      {
+        "name": "Fantasy-Studio/Paint-by-Example",
+        "path": "Fantasy-Studio/Paint-by-Example",
+        "model_type": "diffusers_other",
+        "is_single_file_diffusers": false,
+        "need_prompt": false,
+        "controlnets": [],
+        "support_strength": false,
+        "support_outpainting": false,
+        "support_lcm_lora": false,
+        "support_controlnet": false,
+        "support_freeu": false
+      }
+    ],
+    "removeBGModel": "briaai/RMBG-1.4",
+    "removeBGModels": [
+      "u2net",
+      "u2netp",
+      "u2net_human_seg",
+      "u2net_cloth_seg",
+      "silueta",
+      "isnet-general-use",
+      "briaai/RMBG-1.4"
+    ],
+    "realesrganModel": "realesr-general-x4v3",
+    "realesrganModels": [
+      "realesr-general-x4v3",
+      "RealESRGAN_x4plus",
+      "RealESRGAN_x4plus_anime_6B"
+    ],
+    "interactiveSegModel": "vit_b",
+    "interactiveSegModels": [
+      "vit_b",
+      "vit_l",
+      "vit_h",
+      "sam_hq_vit_b",
+      "sam_hq_vit_l",
+      "sam_hq_vit_h",
+      "mobile_sam"
+    ],
+    "enableFileManager": false,
+    "enableAutoSaving": false,
+    "enableControlnet": false,
+    "controlnetMethod": "",
+    "disableModelSwitch": false,
+    "isDesktop": false,
+    "samplers": [
+      "DPM++ 2M",
+      "DPM++ 2M Karras",
+      "DPM++ 2M SDE",
+      "DPM++ 2M SDE Karras",
+      "DPM++ SDE",
+      "DPM++ SDE Karras",
+      "DPM2",
+      "DPM2 Karras",
+      "DPM2 a",
+      "DPM2 a Karras",
+      "Euler",
+      "Euler a",
+      "Heun",
+      "LMS",
+      "LMS Karras",
+      "DDIM",
+      "PNDM",
+      "UniPC",
+      "LCM"
+    ]
+  }
+
+  export const removeBGConfig: ServerConfig = {
+    plugins: [{name: "RemoveBG", support_gen_image: true, support_gen_mask: true}],
+    modelInfos: [],
+    //removeBGModel: "briaai/RMBG-1.4",
+    removeBGModel: "u2net_human_seg",
+    removeBGModels: ["u2net","u2netp","u2net_human_seg","u2net_cloth_seg","silueta","isnet-general-use","briaai/RMBG-1.4"],
+    realesrganModel: "realesr-general-x4v3",
+    realesrganModels: [],
+    interactiveSegModel: "vit_b",
+    interactiveSegModels: [],
+    enableFileManager: false,
+    enableAutoSaving: false,
+    enableControlnet: false,
+    controlnetMethod: "lllyasviel/control_v11p_sd15_canny",
+    disableModelSwitch: false,
+    isDesktop: false,
+    samplers: ["DPM++ 2M SDE Karras"],
+  }

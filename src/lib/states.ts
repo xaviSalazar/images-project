@@ -21,6 +21,10 @@ import {
   SortOrder,
 } from "./types";
 import {
+  paintByExampleConfig,
+  removeBGConfig
+} from "./models";
+import {
   BRUSH_COLOR,
   DEFAULT_BRUSH_SIZE,
   DEFAULT_NEGATIVE_PROMPT,
@@ -39,6 +43,8 @@ import {
 import inpaint, { getGenInfo, postAdjustMask, runPlugin } from "./api";
 import { toast } from "@/components/ui/use-toast";
 
+
+//
 type FileManagerState = {
   sortBy: SortBy;
   sortOrder: SortOrder;
@@ -287,24 +293,9 @@ const defaultValues: AppState = {
     inputDirectory: "",
     outputDirectory: "",
   },
-  serverConfig: {
-    plugins: [{name: "RemoveBG", support_gen_image: true, support_gen_mask: true}],
-    modelInfos: [],
-    //removeBGModel: "briaai/RMBG-1.4",
-    removeBGModel: "u2net_human_seg",
-    removeBGModels: ["u2net","u2netp","u2net_human_seg","u2net_cloth_seg","silueta","isnet-general-use","briaai/RMBG-1.4"],
-    realesrganModel: "realesr-general-x4v3",
-    realesrganModels: [],
-    interactiveSegModel: "vit_b",
-    interactiveSegModels: [],
-    enableFileManager: false,
-    enableAutoSaving: false,
-    enableControlnet: false,
-    controlnetMethod: "lllyasviel/control_v11p_sd15_canny",
-    disableModelSwitch: false,
-    isDesktop: false,
-    samplers: ["DPM++ 2M SDE Karras"],
-  },
+
+  serverConfig: paintByExampleConfig,
+
   settings: {
     model: {
       name: "lama",
