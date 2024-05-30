@@ -294,7 +294,7 @@ const defaultValues: AppState = {
     outputDirectory: "",
   },
 
-  serverConfig: paintByExampleConfig,
+  serverConfig: removeBGConfig,
 
   settings: {
     model: {
