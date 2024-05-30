@@ -22,7 +22,6 @@ import {
 } from "./types";
 import {
   paintByExampleConfig,
-  removeBGConfig
 } from "./models";
 import {
   BRUSH_COLOR,
@@ -294,7 +293,7 @@ const defaultValues: AppState = {
     outputDirectory: "",
   },
 
-  serverConfig: removeBGConfig,
+  serverConfig: paintByExampleConfig,
 
   settings: {
     model: {

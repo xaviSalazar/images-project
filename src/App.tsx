@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Workspace from "@/components/Workspace";
 import { useStore } from "./lib/states";
 import FileSelect from "@/components/FileSelect";
+import { useWindowSize } from "react-use"
 
 const SUPPORTED_FILE_TYPE = [
   "image/jpeg",
@@ -20,6 +21,12 @@ function Home() {
     state.setServerConfig,
     state.setFile,
   ]);
+
+  const windowSize = useWindowSize()
+
+  useEffect(() => {
+    updateAppState({ windowSize })
+  }, [windowSize])
 
   const dragCounter = useRef(0);
 
