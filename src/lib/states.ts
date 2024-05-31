@@ -206,7 +206,7 @@ type AppAction = {
   handleInteractiveSegAccept: () => void;
   showPromptInput: () => boolean;
 
-  runInpainting: () => Promise<void>;
+  runInpainting: (modelToCall: string) => Promise<void>;
   showPrevMask: () => Promise<void>;
   hidePrevMask: () => void;
   runRenderablePlugin: (
@@ -402,7 +402,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         return targetFile;
       },
 
-      runInpainting: async () => {
+      runInpainting: async (modelToCall: String) => {
         const {
           isInpainting,
           file,
@@ -512,6 +512,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
             extenderState,
             dataURItoBlob(maskCanvas.toDataURL()),
             paintByExampleFile,
+            modelToCall,
           );
 
           const { blob, seed } = res;

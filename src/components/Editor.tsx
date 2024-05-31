@@ -617,15 +617,15 @@ export default function Editor(props: EditorProps) {
   );
 
   // Manual Inpainting Hotkey
-  useHotKey(
-    "shift+r",
-    () => {
-      if (runMannually && hadDrawSomething()) {
-        runInpainting();
-      }
-    },
-    [runMannually, runInpainting, hadDrawSomething],
-  );
+  // useHotKey(
+  //   "shift+r",
+  //   () => {
+  //     if (runMannually && hadDrawSomething()) {
+  //       runInpainting();
+  //     }
+  //   },
+  //   [runMannually, runInpainting, hadDrawSomething],
+  // );
 
   useHotKey(
     "ctrl+c,meta+c",
@@ -979,7 +979,7 @@ export default function Editor(props: EditorProps) {
               isProcessing || (!hadDrawSomething() && extraMasks.length === 0)
             }
             onClick={() => {
-              runInpainting();
+              runInpainting("lama");
             }}
           >
             <Eraser />

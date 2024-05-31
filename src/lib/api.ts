@@ -29,12 +29,13 @@ export default async function inpaint(
   extenderState: Rect,
   mask: File | Blob,
   paintByExampleImage: File | null = null,
+  modelToCall: String,
 ) {
   const imageBase64 = await convertToBase64(imageFile);
   const maskBase64 = await convertToBase64(mask);
-  // const exampleImageBase64 = paintByExampleImage
-  //   ? await convertToBase64(paintByExampleImage)
-  //   : null;
+  const exampleImageBase64 = paintByExampleImage
+    ? await convertToBase64(paintByExampleImage)
+    : null;
 
   const res = await fetch(`${API_ENDPOINT}`, {
     method: "POST",
@@ -50,47 +51,48 @@ export default async function inpaint(
         call_to_api: {
           api_call: "inpainting",
         },
-        // ldm_steps: settings.ldmSteps,
-        // ldm_sampler: settings.ldmSampler,
-        // zits_wireframe: settings.zitsWireframe,
-        // cv2_flag: settings.cv2Flag,
-        // cv2_radius: settings.cv2Radius,
-        // hd_strategy: "Crop",
-        // hd_strategy_crop_triger_size: 640,
-        // hd_strategy_crop_margin: 128,
-        // hd_trategy_resize_imit: 2048,
-        // prompt: settings.prompt,
-        // negative_prompt: settings.negativePrompt,
-        // use_croper: settings.showCropper,
-        // croper_x: croperRect.x,
-        // croper_y: croperRect.y,
-        // croper_height: croperRect.height,
-        // croper_width: croperRect.width,
-        // use_extender: settings.showExtender,
-        // extender_x: extenderState.x,
-        // extender_y: extenderState.y,
-        // extender_height: extenderState.height,
-        // extender_width: extenderState.width,
-        // sd_mask_blur: settings.sdMaskBlur,
-        // sd_strength: settings.sdStrength,
-        // sd_steps: settings.sdSteps,
-        // sd_guidance_scale: settings.sdGuidanceScale,
-        // sd_sampler: settings.sdSampler,
-        // sd_seed: settings.seedFixed ? settings.seed : -1,
-        // sd_match_histograms: settings.sdMatchHistograms,
-        // sd_freeu: settings.enableFreeu,
-        // sd_freeu_config: settings.freeuConfig,
-        // sd_lcm_lora: settings.enableLCMLora,
-        // paint_by_example_example_image: exampleImageBase64,
-        // p2p_image_guidance_scale: settings.p2pImageGuidanceScale,
-        // enable_controlnet: settings.enableControlnet,
-        // controlnet_conditioning_scale: settings.controlnetConditioningScale,
-        // controlnet_method: settings.controlnetMethod
-        //   ? settings.controlnetMethod
-        //   : "",
-        // powerpaint_task: settings.showExtender
-        //   ? PowerPaintTask.outpainting
-        //   : settings.powerpaintTask,
+        model: modelToCall,
+        ldm_steps: settings.ldmSteps,
+        ldm_sampler: settings.ldmSampler,
+        zits_wireframe: settings.zitsWireframe,
+        cv2_flag: settings.cv2Flag,
+        cv2_radius: settings.cv2Radius,
+        hd_strategy: "Crop",
+        hd_strategy_crop_triger_size: 640,
+        hd_strategy_crop_margin: 128,
+        hd_trategy_resize_imit: 2048,
+        prompt: settings.prompt,
+        negative_prompt: settings.negativePrompt,
+        use_croper: settings.showCropper,
+        croper_x: croperRect.x,
+        croper_y: croperRect.y,
+        croper_height: croperRect.height,
+        croper_width: croperRect.width,
+        use_extender: settings.showExtender,
+        extender_x: extenderState.x,
+        extender_y: extenderState.y,
+        extender_height: extenderState.height,
+        extender_width: extenderState.width,
+        sd_mask_blur: settings.sdMaskBlur,
+        sd_strength: settings.sdStrength,
+        sd_steps: settings.sdSteps,
+        sd_guidance_scale: settings.sdGuidanceScale,
+        sd_sampler: settings.sdSampler,
+        sd_seed: settings.seedFixed ? settings.seed : -1,
+        sd_match_histograms: settings.sdMatchHistograms,
+        sd_freeu: settings.enableFreeu,
+        sd_freeu_config: settings.freeuConfig,
+        sd_lcm_lora: settings.enableLCMLora,
+        paint_by_example_example_image: exampleImageBase64,
+        p2p_image_guidance_scale: settings.p2pImageGuidanceScale,
+        enable_controlnet: settings.enableControlnet,
+        controlnet_conditioning_scale: settings.controlnetConditioningScale,
+        controlnet_method: settings.controlnetMethod
+          ? settings.controlnetMethod
+          : "",
+        powerpaint_task: settings.showExtender
+          ? PowerPaintTask.outpainting
+          : settings.powerpaintTask,
       },
     }),
   });
