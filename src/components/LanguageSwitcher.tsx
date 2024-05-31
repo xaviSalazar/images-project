@@ -18,8 +18,8 @@ import {
 } from "@/components/ui/popover";
 
 const languages = [
-  { label: "English", value: "eng" },
-  { label: "Español", value: "esp" },
+  { label: "English", value: "en" },
+  { label: "Español", value: "es" },
 ];
 
 export function LanguageSwitcher() {
@@ -47,6 +47,8 @@ export function LanguageSwitcher() {
             role="combobox"
             className="w-[150px] justify-between"
           >
+            
+            {console.log(language)}
             {language
               ? languages.find((lang) => lang.value === language)?.label
               : "Select language"}

@@ -343,7 +343,7 @@ const defaultValues: AppState = {
 };
 
 export const useLanguageStore = createWithEqualityFn<LanguageState>((set) => ({
-  language: "eng",
+  language: "",
   setLanguage: (lang) => set({ language: lang }),
 }));
 
