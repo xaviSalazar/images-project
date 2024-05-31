@@ -1,10 +1,10 @@
-import { Button } from "../ui/button"
-import { Label } from "../ui/label"
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
+import { Button } from "../ui/button";
+import { Label } from "../ui/label";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 const RowContainer = ({ children }: { children: React.ReactNode }) => (
   <div className="flex justify-between items-center pr-2">{children}</div>
-)
+);
 
 const LabelTitle = ({
   text,
@@ -13,11 +13,11 @@ const LabelTitle = ({
   htmlFor,
   disabled = false,
 }: {
-  text: string
-  toolTip?: string
-  url?: string
-  htmlFor?: string
-  disabled?: boolean
+  text: string;
+  toolTip?: string;
+  url?: string;
+  htmlFor?: string;
+  disabled?: boolean;
 }) => {
   return (
     <Tooltip>
@@ -47,7 +47,7 @@ const LabelTitle = ({
         <></>
       )}
     </Tooltip>
-  )
-}
+  );
+};
 
-export { LabelTitle, RowContainer }
+export { LabelTitle, RowContainer };

@@ -1,0 +1,26 @@
+{
+  "translation": {
+    "Image load": "Click here or drag an image file",
+
+    "Pan": "Pan",
+    "Reset Zoom/Pan": "Reset Zoom/Pan",
+    "Decrease Brush Size": "Decrease Brush Size",
+    "Increase Brush Size": "Increase Brush Size",
+    "View Original Image": "View Original Image",
+    "Undo": "Undo",
+    "Redo": "Redo",
+    "Copy Result": "Copy Result",
+    "Paste Image": "Paste Image",
+    "Trigger Manually Inpainting": "Trigger Manually Inpainting",
+    "Toggle Hotkeys Dialog": "Toggle Hotkeys Dialog",
+    "Toggle Settings Dialog": "Toggle Settings Dialog",
+    "Toggle File Manager": "Toggle File Manager",
+
+    "Cropper": "Cropper",
+    "Adjust Mask": "Adjust Mask",
+    "Expand": "Expand",
+    "Shrink": "Shrink",
+    "Reverse": "Reverse",
+    "Clear": "Clear"
+  }
+}

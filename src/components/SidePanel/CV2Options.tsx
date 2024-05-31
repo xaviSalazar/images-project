@@ -1,7 +1,7 @@
-import { useStore } from "@/lib/states"
-import { LabelTitle, RowContainer } from "./LabelTitle"
-import { NumberInput } from "../ui/input"
-import { Slider } from "../ui/slider"
+import { useStore } from "@/lib/states";
+import { LabelTitle, RowContainer } from "./LabelTitle";
+import { NumberInput } from "../ui/input";
+import { Slider } from "../ui/slider";
 import {
   Select,
   SelectContent,
@@ -9,14 +9,14 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select"
-import { CV2Flag } from "@/lib/types"
+} from "../ui/select";
+import { CV2Flag } from "@/lib/types";
 
 const CV2Options = () => {
   const [settings, updateSettings] = useStore((state) => [
     state.settings,
     state.updateSettings,
-  ])
+  ]);
 
   return (
     <div className="flex flex-col gap-4 mt-4">
@@ -28,8 +28,8 @@ const CV2Options = () => {
         <Select
           value={settings.cv2Flag as string}
           onValueChange={(value) => {
-            const flag = value as CV2Flag
-            updateSettings({ cv2Flag: flag })
+            const flag = value as CV2Flag;
+            updateSettings({ cv2Flag: flag });
           }}
         >
           <SelectTrigger className="w-[160px]">
@@ -66,12 +66,12 @@ const CV2Options = () => {
           numberValue={settings.cv2Radius}
           allowFloat={false}
           onNumberValueChange={(val) => {
-            updateSettings({ cv2Radius: val })
+            updateSettings({ cv2Radius: val });
           }}
         />
       </RowContainer>
     </div>
-  )
-}
+  );
+};
 
-export default CV2Options
+export default CV2Options;

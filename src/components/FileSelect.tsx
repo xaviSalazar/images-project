@@ -1,5 +1,6 @@
 import { useState } from "react";
 import useResolution from "@/hooks/useResolution";
+import { useTranslation } from "react-i18next";
 
 type FileSelectProps = {
   onSelection: (file: File) => void;
@@ -7,6 +8,8 @@ type FileSelectProps = {
 
 export default function FileSelect(props: FileSelectProps) {
   const { onSelection } = props;
+
+  const { t } = useTranslation();
 
   const [uploadElemId] = useState(`file-upload-${Math.random().toString()}`);
 
@@ -59,9 +62,10 @@ export default function FileSelect(props: FileSelectProps) {
             }}
             accept="image/png, image/jpeg"
           />
+
           <p className="text-center">
             {resolution === "desktop"
-              ? "Click here or drag an image file"
+              ? t("Image load")
               : "Tap here to load your picture"}
           </p>
         </div>

@@ -109,9 +109,8 @@ export function srcToFile(src: string, fileName: string, mimeType: string) {
 }
 
 export function randomNumberInRange(min: number, max: number) {
-  return Math.floor(Math.random()
-      * (max - min + 1)) + min;
-};
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 export async function askWritePermission() {
   try {
@@ -139,17 +138,16 @@ function canvasToBlob(canvas: HTMLCanvasElement, mime: string): Promise<any> {
   );
 }
 
-export function base64ToBlob(base64String : string) {
-
+export function base64ToBlob(base64String: string) {
   const byteCharacters = atob(base64String);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], { type: "image/png" });
+  const byteNumbers = new Array(byteCharacters.length);
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: "image/png" });
 
-    return blob;
+  return blob;
 }
 
 const setToClipboard = async (blob: any) => {

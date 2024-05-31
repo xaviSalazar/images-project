@@ -133,4 +133,9 @@ export enum PowerPaintTask {
   outpainting = "outpainting",
 }
 
+export interface LanguageState {
+  language: string;
+  setLanguage: (lang: string) => void;
+}
+
 export type AdjustMaskOperate = "expand" | "shrink" | "reverse";

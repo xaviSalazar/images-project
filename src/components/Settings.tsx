@@ -1,12 +1,12 @@
-import { IconButton } from "@/components/ui/button"
-import { useToggle } from "@uidotdev/usehooks"
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog"
-import { Settings } from "lucide-react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
+import { IconButton } from "@/components/ui/button";
+import { useToggle } from "@uidotdev/usehooks";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { Settings } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import {
   Form,
   FormControl,
@@ -14,22 +14,22 @@ import {
   FormField,
   FormItem,
   FormLabel,
-} from "@/components/ui/form"
-import { Switch } from "./ui/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
-import { useEffect, useState } from "react"
-import { cn } from "@/lib/utils"
-import { useQuery } from "@tanstack/react-query"
-import { getServerConfig, switchModel, switchPluginModel } from "@/lib/api"
-import { ModelInfo, PluginName } from "@/lib/types"
-import { useStore } from "@/lib/states"
-import { ScrollArea } from "./ui/scroll-area"
-import { useToast } from "./ui/use-toast"
+} from "@/components/ui/form";
+import { Switch } from "./ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { getServerConfig, switchModel, switchPluginModel } from "@/lib/api";
+import { ModelInfo, PluginName } from "@/lib/types";
+import { useStore } from "@/lib/states";
+import { ScrollArea } from "./ui/scroll-area";
+import { useToast } from "./ui/use-toast";
 import {
   AlertDialog,
   AlertDialogContent,
   AlertDialogHeader,
-} from "./ui/alert-dialog"
+} from "./ui/alert-dialog";
 import {
   MODEL_TYPE_DIFFUSERS_SD,
   MODEL_TYPE_DIFFUSERS_SDXL,
@@ -37,8 +37,8 @@ import {
   MODEL_TYPE_DIFFUSERS_SD_INPAINT,
   MODEL_TYPE_INPAINT,
   MODEL_TYPE_OTHER,
-} from "@/lib/const"
-import useHotKey from "@/hooks/useHotkey"
+} from "@/lib/const";
+import useHotKey from "@/hooks/useHotkey";
 import {
   Select,
   SelectContent,
@@ -46,7 +46,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select"
+} from "./ui/select";
 
 const formSchema = z.object({
   enableFileManager: z.boolean(),
@@ -59,18 +59,18 @@ const formSchema = z.object({
   removeBGModel: z.string(),
   realesrganModel: z.string(),
   interactiveSegModel: z.string(),
-})
+});
 
-const TAB_GENERAL = "General"
-const TAB_MODEL = "Model"
-const TAB_PLUGINS = "Plugins"
+const TAB_GENERAL = "General";
+const TAB_MODEL = "Model";
+const TAB_PLUGINS = "Plugins";
 // const TAB_FILE_MANAGER = "File Manager"
 
-const TAB_NAMES = [TAB_MODEL, TAB_GENERAL, TAB_PLUGINS]
+const TAB_NAMES = [TAB_MODEL, TAB_GENERAL, TAB_PLUGINS];
 
 export function SettingsDialog() {
-  const [open, toggleOpen] = useToggle(false)
-  const [tab, setTab] = useState(TAB_MODEL)
+  const [open, toggleOpen] = useToggle(false);
+  const [tab, setTab] = useState(TAB_MODEL);
   const [
     updateAppState,
     settings,
@@ -89,15 +89,15 @@ export function SettingsDialog() {
     state.serverConfig,
     state.updateServerConfig,
     state.setServerConfig,
-  ])
-  const { toast } = useToast()
-  const [model, setModel] = useState<ModelInfo>(settings.model)
-  const [modelSwitchingTexts, setModelSwitchingTexts] = useState<string[]>([])
-  const openModelSwitching = modelSwitchingTexts.length > 0
+  ]);
+  const { toast } = useToast();
+  const [model, setModel] = useState<ModelInfo>(settings.model);
+  const [modelSwitchingTexts, setModelSwitchingTexts] = useState<string[]>([]);
+  const openModelSwitching = modelSwitchingTexts.length > 0;
 
   useEffect(() => {
-    setModel(settings.model)
-  }, [settings.model])
+    setModel(settings.model);
+  }, [settings.model]);
 
   // const {
   //   data: serverConfig,
@@ -122,16 +122,16 @@ export function SettingsDialog() {
       realesrganModel: serverConfig?.realesrganModel,
       interactiveSegModel: serverConfig?.interactiveSegModel,
     },
-  })
+  });
 
   useEffect(() => {
     if (serverConfig) {
-      setServerConfig(serverConfig)
-      form.setValue("removeBGModel", serverConfig.removeBGModel)
-      form.setValue("realesrganModel", serverConfig.realesrganModel)
-      form.setValue("interactiveSegModel", serverConfig.interactiveSegModel)
+      setServerConfig(serverConfig);
+      form.setValue("removeBGModel", serverConfig.removeBGModel);
+      form.setValue("realesrganModel", serverConfig.realesrganModel);
+      form.setValue("interactiveSegModel", serverConfig.interactiveSegModel);
     }
-  }, [form, serverConfig])
+  }, [form, serverConfig]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     // Do something with the form values. ✅ This will be type-safe and validated.
@@ -140,7 +140,7 @@ export function SettingsDialog() {
       enableManualInpainting: values.enableManualInpainting,
       enableUploadMask: values.enableUploadMask,
       enableAutoExtractPrompt: values.enableAutoExtractPrompt,
-    })
+    });
 
     // TODO: validate input/output Directory
     // updateFileManagerState({
@@ -148,71 +148,70 @@ export function SettingsDialog() {
     //   outputDirectory: values.outputDirectory,
     // })
 
-    const shouldSwitchModel = model.name !== settings.model.name
+    const shouldSwitchModel = model.name !== settings.model.name;
     const shouldSwitchRemoveBGModel =
-      serverConfig?.removeBGModel !== values.removeBGModel && removeBGEnabled
+      serverConfig?.removeBGModel !== values.removeBGModel && removeBGEnabled;
     const shouldSwitchRealesrganModel =
       serverConfig?.realesrganModel !== values.realesrganModel &&
-      realesrganEnabled
+      realesrganEnabled;
     const shouldSwitchInteractiveModel =
       serverConfig?.interactiveSegModel !== values.interactiveSegModel &&
-      interactiveSegEnabled
+      interactiveSegEnabled;
 
     const showModelSwitching =
       shouldSwitchModel ||
       shouldSwitchRemoveBGModel ||
       shouldSwitchRealesrganModel ||
-      shouldSwitchInteractiveModel
+      shouldSwitchInteractiveModel;
 
     if (showModelSwitching) {
-      const newModelSwitchingTexts: string[] = []
+      const newModelSwitchingTexts: string[] = [];
       if (shouldSwitchModel) {
         newModelSwitchingTexts.push(
-          `Switching model from ${settings.model.name} to ${model.name}`
-        )
+          `Switching model from ${settings.model.name} to ${model.name}`,
+        );
       }
       if (shouldSwitchRemoveBGModel) {
         newModelSwitchingTexts.push(
-          `Switching RemoveBG model from ${serverConfig?.removeBGModel} to ${values.removeBGModel}`
-        )
+          `Switching RemoveBG model from ${serverConfig?.removeBGModel} to ${values.removeBGModel}`,
+        );
       }
       if (shouldSwitchRealesrganModel) {
         newModelSwitchingTexts.push(
-          `Switching RealESRGAN model from ${serverConfig?.realesrganModel} to ${values.realesrganModel}`
-        )
+          `Switching RealESRGAN model from ${serverConfig?.realesrganModel} to ${values.realesrganModel}`,
+        );
       }
       if (shouldSwitchInteractiveModel) {
         newModelSwitchingTexts.push(
-          `Switching ${PluginName.InteractiveSeg} model from ${serverConfig?.interactiveSegModel} to ${values.interactiveSegModel}`
-        )
+          `Switching ${PluginName.InteractiveSeg} model from ${serverConfig?.interactiveSegModel} to ${values.interactiveSegModel}`,
+        );
       }
-      setModelSwitchingTexts(newModelSwitchingTexts)
+      setModelSwitchingTexts(newModelSwitchingTexts);
 
-      updateAppState({ disableShortCuts: true })
+      updateAppState({ disableShortCuts: true });
 
       if (shouldSwitchModel) {
         try {
-          const newModel = await switchModel(model.name)
+          const newModel = await switchModel(model.name);
           toast({
             title: `Switch to ${newModel.name} success`,
-          })
-          setAppModel(model)
+          });
+          setAppModel(model);
         } catch (error: any) {
           toast({
             variant: "destructive",
             title: `Switch to ${model.name} failed: ${error}`,
-          })
-          setModel(settings.model)
+          });
+          setModel(settings.model);
         }
       }
 
       if (shouldSwitchRemoveBGModel) {
         try {
-
-          console.log(values.removeBGModel)
+          console.log(values.removeBGModel);
           updateServerConfig({
-            removeBGModel: values.removeBGModel
-          })
+            removeBGModel: values.removeBGModel,
+          });
           // const res = await switchPluginModel(
           //   PluginName.RemoveBG,
           //   values.removeBGModel
@@ -224,7 +223,7 @@ export function SettingsDialog() {
           toast({
             variant: "destructive",
             title: `Switch RemoveBG model to ${values.removeBGModel} failed: ${error}`,
-          })
+          });
         }
       }
 
@@ -232,16 +231,16 @@ export function SettingsDialog() {
         try {
           const res = await switchPluginModel(
             PluginName.RealESRGAN,
-            values.realesrganModel
-          )
+            values.realesrganModel,
+          );
           if (res.status !== 200) {
-            throw new Error(res.statusText)
+            throw new Error(res.statusText);
           }
         } catch (error: any) {
           toast({
             variant: "destructive",
             title: `Switch RealESRGAN model to ${values.realesrganModel} failed: ${error}`,
-          })
+          });
         }
       }
 
@@ -249,68 +248,68 @@ export function SettingsDialog() {
         try {
           const res = await switchPluginModel(
             PluginName.InteractiveSeg,
-            values.interactiveSegModel
-          )
+            values.interactiveSegModel,
+          );
           if (res.status !== 200) {
-            throw new Error(res.statusText)
+            throw new Error(res.statusText);
           }
         } catch (error: any) {
           toast({
             variant: "destructive",
             title: `Switch ${PluginName.InteractiveSeg} model to ${values.interactiveSegModel} failed: ${error}`,
-          })
+          });
         }
       }
 
-      setModelSwitchingTexts([])
-      updateAppState({ disableShortCuts: false })
+      setModelSwitchingTexts([]);
+      updateAppState({ disableShortCuts: false });
 
       // refetch()
     }
   }
 
-  // useHotKey(
-  //   "s",
-  //   () => {
-  //     toggleOpen()
-  //     if (open) {
-  //       onSubmit(form.getValues())
-  //     }
-  //   },
-  //   [open, form, model, serverConfig]
-  // )
+  useHotKey(
+    "s",
+    () => {
+      toggleOpen();
+      if (open) {
+        onSubmit(form.getValues());
+      }
+    },
+    [open, form, model, serverConfig],
+  );
 
   // HERE USED TO RENDER THE ICON I GUESS
   // if (status !== "success") {
   //   return <></>
   // }
 
-  const modelInfos = serverConfig.modelInfos
-  const plugins = serverConfig.plugins
+  const modelInfos = serverConfig.modelInfos;
+  const plugins = serverConfig.plugins;
   const removeBGEnabled = plugins.some(
-    (plugin) => plugin.name === PluginName.RemoveBG
-  )
+    (plugin) => plugin.name === PluginName.RemoveBG,
+  );
   const realesrganEnabled = plugins.some(
-    (plugin) => plugin.name === PluginName.RealESRGAN
-  )
+    (plugin) => plugin.name === PluginName.RealESRGAN,
+  );
   const interactiveSegEnabled = plugins.some(
-    (plugin) => plugin.name === PluginName.InteractiveSeg
-  )
+    (plugin) => plugin.name === PluginName.InteractiveSeg,
+  );
 
   function onOpenChange(value: boolean) {
-    toggleOpen()
+    toggleOpen();
     if (!value) {
-      onSubmit(form.getValues())
+      onSubmit(form.getValues());
     }
   }
 
   function onModelSelect(info: ModelInfo) {
-    setModel(info)
+    setModel(info);
   }
 
   function renderModelList(model_types: string[]) {
     if (!modelInfos) {
-      return <div>Please download model first</div>
+      return <div>Please download model first</div>;
     }
     return modelInfos
       .filter((info) => model_types.includes(info.model_type))
@@ -332,22 +331,22 @@ export function SettingsDialog() {
             </div>
             <Separator className="my-1" />
           </div>
-        )
-      })
+        );
+      });
   }
 
   function renderModelSettings() {
-    let defaultTab = MODEL_TYPE_INPAINT
+    let defaultTab = MODEL_TYPE_INPAINT;
     for (let info of modelInfos) {
       if (model.name === info.name) {
-        defaultTab = info.model_type
+        defaultTab = info.model_type;
         if (defaultTab === MODEL_TYPE_DIFFUSERS_SDXL) {
-          defaultTab = MODEL_TYPE_DIFFUSERS_SD
+          defaultTab = MODEL_TYPE_DIFFUSERS_SD;
         }
         if (defaultTab === MODEL_TYPE_DIFFUSERS_SDXL_INPAINT) {
-          defaultTab = MODEL_TYPE_DIFFUSERS_SD_INPAINT
+          defaultTab = MODEL_TYPE_DIFFUSERS_SD_INPAINT;
         }
-        break
+        break;
       }
     }
 
@@ -403,7 +402,7 @@ export function SettingsDialog() {
           </Tabs>
         </div>
       </div>
-    )
+    );
   }
 
   function renderGeneralSettings() {
@@ -500,7 +499,7 @@ export function SettingsDialog() {
         />
         <Separator /> */}
       </div>
-    )
+    );
   }
 
   function renderPluginsSettings() {
@@ -611,7 +610,7 @@ export function SettingsDialog() {
           )}
         />
       </div>
-    )
+    );
   }
   // function renderFileManagerSettings() {
   //   return (
@@ -741,7 +740,7 @@ export function SettingsDialog() {
                   onClick={() => setTab(item)}
                   className={cn(
                     tab === item ? "bg-muted " : "hover:bg-muted",
-                    "justify-start"
+                    "justify-start",
                   )}
                 >
                   {item}
@@ -771,7 +770,7 @@ export function SettingsDialog() {
         </DialogContent>
       </Dialog>
     </>
-  )
+  );
 }
 
-export default SettingsDialog
+export default SettingsDialog;

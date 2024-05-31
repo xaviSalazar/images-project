@@ -1,7 +1,7 @@
-import { useStore } from "@/lib/states"
-import { LabelTitle, RowContainer } from "./LabelTitle"
-import { NumberInput } from "../ui/input"
-import { Slider } from "../ui/slider"
+import { useStore } from "@/lib/states";
+import { LabelTitle, RowContainer } from "./LabelTitle";
+import { NumberInput } from "../ui/input";
+import { Slider } from "../ui/slider";
 import {
   Select,
   SelectContent,
@@ -9,14 +9,14 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select"
-import { LDMSampler } from "@/lib/types"
+} from "../ui/select";
+import { LDMSampler } from "@/lib/types";
 
 const LDMOptions = () => {
   const [settings, updateSettings] = useStore((state) => [
     state.settings,
     state.updateSettings,
-  ])
+  ]);
 
   return (
     <div className="flex flex-col gap-4 mt-4">
@@ -42,7 +42,7 @@ const LDMOptions = () => {
             numberValue={settings.ldmSteps}
             allowFloat={false}
             onNumberValueChange={(val) => {
-              updateSettings({ ldmSteps: val })
+              updateSettings({ ldmSteps: val });
             }}
           />
         </RowContainer>
@@ -52,8 +52,8 @@ const LDMOptions = () => {
         <Select
           value={settings.ldmSampler as string}
           onValueChange={(value) => {
-            const sampler = value as LDMSampler
-            updateSettings({ ldmSampler: sampler })
+            const sampler = value as LDMSampler;
+            updateSettings({ ldmSampler: sampler });
           }}
         >
           <SelectTrigger className="w-[100px]">
@@ -71,7 +71,7 @@ const LDMOptions = () => {
         </Select>
       </RowContainer>
     </div>
-  )
-}
+  );
+};
 
-export default LDMOptions
+export default LDMOptions;

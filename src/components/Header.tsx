@@ -3,7 +3,8 @@ import { useState } from "react";
 import Shortcuts from "@/components/Shortcuts";
 import { useStore } from "@/lib/states";
 import { RotateCw, Image, Upload } from "lucide-react";
-import SettingsDialog from "./Settings"
+import SettingsDialog from "./Settings";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 import { IconButton, ImageUploadButton } from "@/components/ui/button";
 
@@ -54,10 +55,10 @@ const Header = () => {
       </div>
 
       <div className="flex gap-1">
-          <Shortcuts />
-          <SettingsDialog />
-
-        </div>
+        <LanguageSwitcher />
+        <Shortcuts />
+        <SettingsDialog />
+      </div>
     </header>
   );
 };

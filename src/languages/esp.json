@@ -1,0 +1,25 @@
+{
+  "translation": {
+    "Image load": "Click aqui o arrastra una imagen",
+    "Pan": "Acercar o alejar zoom",
+    "Reset Zoom/Pan": "Resetear Zoom/Pan",
+    "Decrease Brush Size": "Disminuir pincel",
+    "Increase Brush Size": "Incrementar pincel",
+    "View Original Image": "Ver imagen original",
+    "Undo": "Deshacer",
+    "Redo": "Rehacer",
+    "Copy Result": "Copiar resultado",
+    "Paste Image": "Pegar imagen",
+    "Trigger Manually Inpainting": "Activar Inpainting manualmente",
+    "Toggle Hotkeys Dialog": "Activar dialogo de instrucciones de teclas",
+    "Toggle Settings Dialog": "Acivar dialogo de parametros",
+    "Toggle File Manager": "Activar dialogo de gestor de archivos",
+
+    "Cropper": "Recortar imagen",
+    "Adjust Mask": "Ajustar mascara",
+    "Expand": "Expandir",
+    "Shrink": "Disminuir",
+    "Reverse": "Reversar",
+    "Clear": "Borrar"
+  }
+}

@@ -19,10 +19,9 @@ import {
   Size,
   SortBy,
   SortOrder,
+  LanguageState,
 } from "./types";
-import {
-  paintByExampleConfig,
-} from "./models";
+import { paintByExampleConfig } from "./models";
 import {
   BRUSH_COLOR,
   DEFAULT_BRUSH_SIZE,
@@ -41,7 +40,6 @@ import {
 } from "./utils";
 import inpaint, { getGenInfo, postAdjustMask, runPlugin } from "./api";
 import { toast } from "@/components/ui/use-toast";
-
 
 //
 type FileManagerState = {
@@ -343,6 +341,11 @@ const defaultValues: AppState = {
     adjustMaskKernelSize: 12,
   },
 };
+
+export const useLanguageStore = createWithEqualityFn<LanguageState>((set) => ({
+  language: "eng",
+  setLanguage: (lang) => set({ language: lang }),
+}));
 
 export const useStore = createWithEqualityFn<AppState & AppAction>()(
   persist(
@@ -787,7 +790,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
             ...state.serverConfig,
             ...newServerConfig,
           };
-          console.log(state.serverConfig)
+          console.log(state.serverConfig);
         });
       },
 

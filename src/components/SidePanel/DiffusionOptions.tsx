@@ -1,7 +1,9 @@
-import { FormEvent, useRef } from "react"
-import { useStore } from "@/lib/states"
-import { Switch } from "../ui/switch"
-import { NumberInput } from "../ui/input"
+import { FormEvent, useRef } from "react";
+import { useStore } from "@/lib/states";
+import { Switch } from "../ui/switch";
+import { NumberInput } from "../ui/input";
+import { useTranslation } from "react-i18next";
+
 import {
   Select,
   SelectContent,
@@ -9,31 +11,31 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select"
-import { Textarea } from "../ui/textarea"
-import { ExtenderDirection, PowerPaintTask } from "@/lib/types"
-import { Separator } from "../ui/separator"
-import { Button, ImageUploadButton } from "../ui/button"
-import { Slider } from "../ui/slider"
-import { useImage } from "@/hooks/useImage"
+} from "../ui/select";
+import { Textarea } from "../ui/textarea";
+import { ExtenderDirection, PowerPaintTask } from "@/lib/types";
+import { Separator } from "../ui/separator";
+import { Button, ImageUploadButton } from "../ui/button";
+import { Slider } from "../ui/slider";
+import { useImage } from "@/hooks/useImage";
 import {
   ANYTEXT,
   INSTRUCT_PIX2PIX,
   PAINT_BY_EXAMPLE,
   POWERPAINT,
-} from "@/lib/const"
-import { RowContainer, LabelTitle } from "./LabelTitle"
-import { Upload } from "lucide-react"
-import { useClickAway } from "react-use"
+} from "@/lib/const";
+import { RowContainer, LabelTitle } from "./LabelTitle";
+import { Upload } from "lucide-react";
+import { useClickAway } from "react-use";
 
 const ExtenderButton = ({
   text,
   onClick,
 }: {
-  text: string
-  onClick: () => void
+  text: string;
+  onClick: () => void;
 }) => {
-  const [showExtender] = useStore((state) => [state.settings.showExtender])
+  const [showExtender] = useStore((state) => [state.settings.showExtender]);
   return (
     <Button
       variant="outline"
@@ -43,8 +45,8 @@ const ExtenderButton = ({
     >
       <div className="flex items-center gap-1">{text}</div>
     </Button>
-  )
-}
+  );
+};
 
 const DiffusionOptions = () => {
   const [
@@ -71,47 +73,49 @@ const DiffusionOptions = () => {
     state.updateExtenderDirection,
     state.adjustMask,
     state.clearMask,
-  ])
-  const [exampleImage, isExampleImageLoaded] = useImage(paintByExampleFile)
-  const negativePromptRef = useRef(null)
+  ]);
+  const [exampleImage, isExampleImageLoaded] = useImage(paintByExampleFile);
+  const negativePromptRef = useRef(null);
+  const { t } = useTranslation();
+
   useClickAway<MouseEvent>(negativePromptRef, () => {
     if (negativePromptRef?.current) {
-      const input = negativePromptRef.current as HTMLInputElement
-      input.blur()
+      const input = negativePromptRef.current as HTMLInputElement;
+      input.blur();
     }
-  })
+  });
 
   const onKeyUp = (e: React.KeyboardEvent) => {
     // negativePrompt 回车触发 inpainting
     if (e.key === "Enter" && e.ctrlKey && settings.prompt.length !== 0) {
-      runInpainting()
+      runInpainting();
     }
-  }
+  };
 
   const renderCropper = () => {
     return (
       <RowContainer>
         <LabelTitle
-          text="Cropper"
+          text={t("Cropper")}
           toolTip="Inpainting on part of image, improve inference speed and reduce memory usage."
         />
         <Switch
           id="cropper"
           checked={settings.showCropper}
           onCheckedChange={(value) => {
-            updateSettings({ showCropper: value })
+            updateSettings({ showCropper: value });
             if (value) {
-              updateSettings({ showExtender: false })
+              updateSettings({ showExtender: false });
             }
           }}
         />
       </RowContainer>
-    )
-  }
+    );
+  };
 
   const renderConterNetSetting = () => {
     if (!settings.model.support_controlnet) {
-      return null
+      return null;
     }
 
     return (
@@ -127,7 +131,7 @@ const DiffusionOptions = () => {
               id="controlnet"
               checked={settings.enableControlnet}
               onCheckedChange={(value) => {
-                updateSettings({ enableControlnet: value })
+                updateSettings({ enableControlnet: value });
               }}
             />
           </div>
@@ -153,7 +157,7 @@ const DiffusionOptions = () => {
                 numberValue={settings.controlnetConditioningScale}
                 allowFloat={false}
                 onNumberValueChange={(val) => {
-                  updateSettings({ controlnetConditioningScale: val })
+                  updateSettings({ controlnetConditioningScale: val });
                 }}
               />
             </RowContainer>
@@ -164,7 +168,7 @@ const DiffusionOptions = () => {
               defaultValue={settings.controlnetMethod}
               value={settings.controlnetMethod}
               onValueChange={(value) => {
-                updateSettings({ controlnetMethod: value })
+                updateSettings({ controlnetMethod: value });
               }}
               disabled={!settings.enableControlnet}
             >
@@ -185,12 +189,12 @@ const DiffusionOptions = () => {
         </div>
         <Separator />
       </div>
-    )
-  }
+    );
+  };
 
   const renderLCMLora = () => {
     if (!settings.model.support_lcm_lora) {
-      return null
+      return null;
     }
 
     return (
@@ -205,18 +209,18 @@ const DiffusionOptions = () => {
             id="lcm-lora"
             checked={settings.enableLCMLora}
             onCheckedChange={(value) => {
-              updateSettings({ enableLCMLora: value })
+              updateSettings({ enableLCMLora: value });
             }}
           />
         </RowContainer>
         <Separator />
       </>
-    )
-  }
+    );
+  };
 
   const renderFreeu = () => {
     if (!settings.model.support_freeu) {
-      return null
+      return null;
     }
 
     return (
@@ -231,7 +235,7 @@ const DiffusionOptions = () => {
             id="freeu"
             checked={settings.enableFreeu}
             onCheckedChange={(value) => {
-              updateSettings({ enableFreeu: value })
+              updateSettings({ enableFreeu: value });
             }}
           />
         </div>
@@ -252,7 +256,7 @@ const DiffusionOptions = () => {
                 onNumberValueChange={(value) => {
                   updateSettings({
                     freeuConfig: { ...settings.freeuConfig, s1: value },
-                  })
+                  });
                 }}
               />
             </div>
@@ -271,7 +275,7 @@ const DiffusionOptions = () => {
                 onNumberValueChange={(value) => {
                   updateSettings({
                     freeuConfig: { ...settings.freeuConfig, s2: value },
-                  })
+                  });
                 }}
               />
             </div>
@@ -293,7 +297,7 @@ const DiffusionOptions = () => {
                 onNumberValueChange={(value) => {
                   updateSettings({
                     freeuConfig: { ...settings.freeuConfig, b1: value },
-                  })
+                  });
                 }}
               />
             </div>
@@ -312,7 +316,7 @@ const DiffusionOptions = () => {
                 onNumberValueChange={(value) => {
                   updateSettings({
                     freeuConfig: { ...settings.freeuConfig, b2: value },
-                  })
+                  });
                 }}
               />
             </div>
@@ -320,12 +324,12 @@ const DiffusionOptions = () => {
         </div>
         <Separator />
       </div>
-    )
-  }
+    );
+  };
 
   const renderNegativePrompt = () => {
     if (!settings.model.need_prompt) {
-      return null
+      return null;
     }
 
     return (
@@ -345,20 +349,20 @@ const DiffusionOptions = () => {
             id="negative-prompt"
             value={settings.negativePrompt}
             onInput={(evt: FormEvent<HTMLTextAreaElement>) => {
-              evt.preventDefault()
-              evt.stopPropagation()
-              const target = evt.target as HTMLTextAreaElement
-              updateSettings({ negativePrompt: target.value })
+              evt.preventDefault();
+              evt.stopPropagation();
+              const target = evt.target as HTMLTextAreaElement;
+              updateSettings({ negativePrompt: target.value });
             }}
           />
         </div>
       </div>
-    )
-  }
+    );
+  };
 
   const renderPaintByExample = () => {
     if (settings.model.name !== PAINT_BY_EXAMPLE) {
-      return null
+      return null;
     }
 
     return (
@@ -371,7 +375,7 @@ const DiffusionOptions = () => {
           <ImageUploadButton
             tooltip="Upload example image"
             onFileUpload={(file) => {
-              updateAppState({ paintByExampleFile: file })
+              updateAppState({ paintByExampleFile: file });
             }}
           >
             <Upload />
@@ -393,18 +397,18 @@ const DiffusionOptions = () => {
           className="w-full"
           disabled={isProcessing || !isExampleImageLoaded}
           onClick={() => {
-            runInpainting()
+            runInpainting();
           }}
         >
           Paint
         </Button>
       </div>
-    )
-  }
+    );
+  };
 
   const renderP2PImageGuidanceScale = () => {
     if (settings.model.name !== INSTRUCT_PIX2PIX) {
-      return null
+      return null;
     }
     return (
       <div className="flex flex-col gap-1">
@@ -431,17 +435,17 @@ const DiffusionOptions = () => {
             numberValue={settings.p2pImageGuidanceScale}
             allowFloat
             onNumberValueChange={(val) => {
-              updateSettings({ p2pImageGuidanceScale: val })
+              updateSettings({ p2pImageGuidanceScale: val });
             }}
           />
         </RowContainer>
       </div>
-    )
-  }
+    );
+  };
 
   const renderStrength = () => {
     if (!settings.model.support_strength) {
-      return null
+      return null;
     }
 
     return (
@@ -469,17 +473,17 @@ const DiffusionOptions = () => {
             numberValue={settings.sdStrength}
             allowFloat
             onNumberValueChange={(val) => {
-              updateSettings({ sdStrength: val })
+              updateSettings({ sdStrength: val });
             }}
           />
         </RowContainer>
       </div>
-    )
-  }
+    );
+  };
 
   const renderExtender = () => {
     if (!settings.model.support_outpainting) {
-      return null
+      return null;
     }
     return (
       <>
@@ -493,9 +497,9 @@ const DiffusionOptions = () => {
               id="extender"
               checked={settings.showExtender}
               onCheckedChange={(value) => {
-                updateSettings({ showExtender: value })
+                updateSettings({ showExtender: value });
                 if (value) {
-                  updateSettings({ showCropper: false })
+                  updateSettings({ showCropper: false });
                 }
               }}
             />
@@ -506,7 +510,7 @@ const DiffusionOptions = () => {
               defaultValue={settings.extenderDirection}
               value={settings.extenderDirection}
               onValueChange={(value) => {
-                updateExtenderDirection(value as ExtenderDirection)
+                updateExtenderDirection(value as ExtenderDirection);
               }}
             >
               <SelectTrigger
@@ -556,12 +560,12 @@ const DiffusionOptions = () => {
         </div>
         <Separator />
       </>
-    )
-  }
+    );
+  };
 
   const renderPowerPaintTaskType = () => {
     if (settings.model.name !== POWERPAINT) {
-      return null
+      return null;
     }
 
     return (
@@ -574,7 +578,7 @@ const DiffusionOptions = () => {
           defaultValue={settings.powerpaintTask}
           value={settings.powerpaintTask}
           onValueChange={(value: PowerPaintTask) => {
-            updateSettings({ powerpaintTask: value })
+            updateSettings({ powerpaintTask: value });
           }}
           disabled={settings.showExtender}
         >
@@ -596,8 +600,8 @@ const DiffusionOptions = () => {
           </SelectContent>
         </Select>
       </RowContainer>
-    )
-  }
+    );
+  };
 
   const renderSteps = () => {
     return (
@@ -623,13 +627,13 @@ const DiffusionOptions = () => {
             numberValue={settings.sdSteps}
             allowFloat={false}
             onNumberValueChange={(val) => {
-              updateSettings({ sdSteps: val })
+              updateSettings({ sdSteps: val });
             }}
           />
         </RowContainer>
       </div>
-    )
-  }
+    );
+  };
 
   const renderGuidanceScale = () => {
     return (
@@ -657,17 +661,17 @@ const DiffusionOptions = () => {
             numberValue={settings.sdGuidanceScale}
             allowFloat
             onNumberValueChange={(val) => {
-              updateSettings({ sdGuidanceScale: val })
+              updateSettings({ sdGuidanceScale: val });
             }}
           />
         </RowContainer>
       </div>
-    )
-  }
+    );
+  };
 
   const renderSampler = () => {
     if (settings.model.name === ANYTEXT) {
-      return null
+      return null;
     }
 
     return (
@@ -677,7 +681,7 @@ const DiffusionOptions = () => {
           defaultValue={settings.sdSampler}
           value={settings.sdSampler}
           onValueChange={(value) => {
-            updateSettings({ sdSampler: value })
+            updateSettings({ sdSampler: value });
           }}
         >
           <SelectTrigger className="w-[175px] text-xs">
@@ -694,8 +698,8 @@ const DiffusionOptions = () => {
           </SelectContent>
         </Select>
       </RowContainer>
-    )
-  }
+    );
+  };
 
   const renderSeed = () => {
     return (
@@ -711,7 +715,7 @@ const DiffusionOptions = () => {
             id="seed"
             checked={settings.seedFixed}
             onCheckedChange={(value) => {
-              updateSettings({ seedFixed: value })
+              updateSettings({ seedFixed: value });
             }}
           />
           <NumberInput
@@ -721,13 +725,13 @@ const DiffusionOptions = () => {
             numberValue={settings.seed}
             allowFloat={false}
             onNumberValueChange={(val) => {
-              updateSettings({ seed: val })
+              updateSettings({ seed: val });
             }}
           />
         </div>
       </RowContainer>
-    )
-  }
+    );
+  };
 
   const renderMaskBlur = () => {
     return (
@@ -752,13 +756,13 @@ const DiffusionOptions = () => {
             numberValue={settings.sdMaskBlur}
             allowFloat={false}
             onNumberValueChange={(value) => {
-              updateSettings({ sdMaskBlur: value })
+              updateSettings({ sdMaskBlur: value });
             }}
           />
         </RowContainer>
       </div>
-    )
-  }
+    );
+  };
 
   const renderMatchHistograms = () => {
     return (
@@ -773,14 +777,14 @@ const DiffusionOptions = () => {
             id="match-histograms"
             checked={settings.sdMatchHistograms}
             onCheckedChange={(value) => {
-              updateSettings({ sdMatchHistograms: value })
+              updateSettings({ sdMatchHistograms: value });
             }}
           />
         </RowContainer>
         <Separator />
       </>
-    )
-  }
+    );
+  };
 
   const renderMaskAdjuster = () => {
     return (
@@ -788,7 +792,7 @@ const DiffusionOptions = () => {
         <div className="flex flex-col gap-1">
           <LabelTitle
             htmlFor="adjustMaskKernelSize"
-            text="Adjust Mask"
+            text={t("Adjust Mask")}
             toolTip="Expand or shrink mask. Using the slider to adjust the kernel size for dilation or erosion."
           />
           <RowContainer>
@@ -809,7 +813,7 @@ const DiffusionOptions = () => {
               numberValue={settings.adjustMaskKernelSize}
               allowFloat={false}
               onNumberValueChange={(val) => {
-                updateSettings({ adjustMaskKernelSize: val })
+                updateSettings({ adjustMaskKernelSize: val });
               }}
             />
           </RowContainer>
@@ -824,7 +828,7 @@ const DiffusionOptions = () => {
               >
                 <div className="flex items-center gap-1 select-none">
                   {/* <Plus size={16} /> */}
-                  Expand
+                  {t("Expand")}
                 </div>
               </Button>
 
@@ -836,7 +840,7 @@ const DiffusionOptions = () => {
               >
                 <div className="flex items-center gap-1 select-none">
                   {/* <Minus size={16} /> */}
-                  Shrink
+                  {t("Shrink")}
                 </div>
               </Button>
 
@@ -847,7 +851,7 @@ const DiffusionOptions = () => {
                 disabled={isProcessing}
               >
                 <div className="flex items-center gap-1 select-none">
-                  Reverse
+                  {t("Reverse")}
                 </div>
               </Button>
             </div>
@@ -858,14 +862,16 @@ const DiffusionOptions = () => {
               onClick={clearMask}
               disabled={isProcessing}
             >
-              <div className="flex items-center gap-1 select-none">Clear</div>
+              <div className="flex items-center gap-1 select-none">
+                {t("Clear")}
+              </div>
             </Button>
           </RowContainer>
         </div>
         <Separator />
       </>
-    )
-  }
+    );
+  };
 
   return (
     <div className="flex flex-col gap-4 mt-4">
@@ -888,7 +894,7 @@ const DiffusionOptions = () => {
       {renderFreeu()}
       {renderPaintByExample()}
     </div>
-  )
-}
+  );
+};
 
-export default DiffusionOptions
+export default DiffusionOptions;

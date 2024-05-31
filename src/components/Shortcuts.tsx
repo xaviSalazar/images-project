@@ -9,6 +9,7 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import useHotKey from "@/hooks/useHotkey";
+import { useTranslation } from "react-i18next";
 
 interface ShortcutProps {
   content: string;
@@ -43,6 +44,7 @@ const CmdOrCtrl = () => {
 
 export function Shortcuts() {
   const [open, toggleOpen] = useToggle(false);
+  const { t } = useTranslation();
 
   useHotKey("h", () => {
     toggleOpen();
@@ -59,23 +61,23 @@ export function Shortcuts() {
         <DialogHeader>
           <DialogTitle>Hotkeys</DialogTitle>
           <div className="flex gap-2 flex-col pt-4">
-            <ShortCut content="Pan" keys={["Space + Drag"]} />
-            <ShortCut content="Reset Zoom/Pan" keys={["Esc"]} />
-            <ShortCut content="Decrease Brush Size" keys={["["]} />
-            <ShortCut content="Increase Brush Size" keys={["]"]} />
-            <ShortCut content="View Original Image" keys={["Hold Tab"]} />
+            <ShortCut content={t("Pan")} keys={["Space + Drag"]} />
+            <ShortCut content={t("Reset Zoom/Pan")} keys={["Esc"]} />
+            <ShortCut content={t("Decrease Brush Size")} keys={["["]} />
+            <ShortCut content={t("Increase Brush Size")} keys={["]"]} />
+            <ShortCut content={t("View Original Image")} keys={["Hold Tab"]} />
 
-            <ShortCut content="Undo" keys={[CmdOrCtrl(), "Z"]} />
-            <ShortCut content="Redo" keys={[CmdOrCtrl(), "Shift", "Z"]} />
-            <ShortCut content="Copy Result" keys={[CmdOrCtrl(), "C"]} />
-            <ShortCut content="Paste Image" keys={[CmdOrCtrl(), "V"]} />
+            <ShortCut content={t("Undo")} keys={[CmdOrCtrl(), "Z"]} />
+            <ShortCut content={t("Redo")} keys={[CmdOrCtrl(), "Shift", "Z"]} />
+            <ShortCut content={t("Copy Result")} keys={[CmdOrCtrl(), "C"]} />
+            <ShortCut content={t("Paste Image")} keys={[CmdOrCtrl(), "V"]} />
             <ShortCut
-              content="Trigger Manually Inpainting"
+              content={t("Trigger Manually Inpainting")}
               keys={["Shift", "R"]}
             />
-            <ShortCut content="Toggle Hotkeys Dialog" keys={["H"]} />
-            <ShortCut content="Toggle Settings Dialog" keys={["S"]} />
-            <ShortCut content="Toggle File Manager" keys={["F"]} />
+            <ShortCut content={t("Toggle Hotkeys Dialog")} keys={["H"]} />
+            <ShortCut content={t("Toggle Settings Dialog")} keys={["S"]} />
+            <ShortCut content={t("Toggle File Manager")} keys={["F"]} />
           </div>
         </DialogHeader>
       </DialogContent>

@@ -7,7 +7,12 @@ import {
   ServerConfig,
 } from "@/lib/types";
 import { Settings } from "@/lib/states";
-import { convertToBase64, srcToFile, randomNumberInRange, base64ToBlob } from "@/lib/utils";
+import {
+  convertToBase64,
+  srcToFile,
+  randomNumberInRange,
+  base64ToBlob,
+} from "@/lib/utils";
 import axios from "axios";
 
 export const API_ENDPOINT = import.meta.env.VITE_BACKEND;
@@ -42,7 +47,7 @@ export default async function inpaint(
       input: {
         image: imageBase64,
         mask: maskBase64,
-        "call_to_api": {
+        call_to_api: {
           api_call: "inpainting",
         },
         // ldm_steps: settings.ldmSteps,
@@ -144,18 +149,19 @@ export async function runPlugin(
       Authorization: `Bearer ${TOKEN}`,
     },
     body: JSON.stringify({
-        id: randomNumberInRange(1, 65536),
-        input: {
-      call_to_api: {
-        api_call: name,
-        plugin_name: name,
-        model_name: serverconfig.removeBGModel
+      id: randomNumberInRange(1, 65536),
+      input: {
+        call_to_api: {
+          api_call: name,
+          plugin_name: name,
+          model_name: serverconfig.removeBGModel,
+        },
+        name,
+        image: imageBase64,
+        upscale,
+        clicks,
       },
-      name,
-      image: imageBase64,
-      upscale,
-      clicks,
-    }}),
+    }),
   });
   if (res.ok) {
     const responseData = await res.json(); // Parse JSON response

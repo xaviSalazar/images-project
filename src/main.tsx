@@ -5,6 +5,7 @@ import App from "./App.tsx";
 import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { TooltipProvider } from "./components/ui/tooltip.tsx";
+import "@/languages/index.tsx";
 
 const queryClient = new QueryClient();
 
