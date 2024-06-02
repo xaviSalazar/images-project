@@ -47,8 +47,6 @@ export function LanguageSwitcher() {
             role="combobox"
             className="w-[150px] justify-between"
           >
-            
-            {console.log(language)}
             {language
               ? languages.find((lang) => lang.value === language)?.label
               : "Select language"}

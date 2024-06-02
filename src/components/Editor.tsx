@@ -36,7 +36,8 @@ import Cropper from "./Cropper";
 import { InteractiveSegPoints } from "./InteractiveSeg";
 import useHotKey from "@/hooks/useHotkey";
 import Extender from "./Extender";
-import { MAX_BRUSH_SIZE, MIN_BRUSH_SIZE } from "@/lib/const";
+import { MAX_BRUSH_SIZE, MIN_BRUSH_SIZE, BRUSH_COLOR} from "@/lib/const";
+import { fabric } from "fabric";
 
 const TOOLBAR_HEIGHT = 200;
 const COMPARE_SLIDER_DURATION_MS = 300;
@@ -113,6 +114,7 @@ export default function Editor(props: EditorProps) {
   const [original, isOriginalLoaded] = useImage(file);
   const [context, setContext] = useState<CanvasRenderingContext2D>();
   const [imageContext, setImageContext] = useState<CanvasRenderingContext2D>();
+  const canvasRef = useRef<CanvasRenderingContext2D | null>(null);
   const [{ x, y }, setCoords] = useState({ x: -1, y: -1 });
   const [showBrush, setShowBrush] = useState(false);
   const [showRefBrush, setShowRefBrush] = useState(false);
@@ -137,35 +139,98 @@ export default function Editor(props: EditorProps) {
     return curLineGroup.length !== 0;
   }, [curLineGroup]);
 
-  useEffect(() => {
-    if (
-      !imageContext ||
-      !isOriginalLoaded ||
-      imageWidth === 0 ||
-      imageHeight === 0
-    ) {
-      return;
-    }
-    const render =
-      renders.length === 0 ? original : renders[renders.length - 1];
-    imageContext.canvas.width = imageWidth;
-    imageContext.canvas.height = imageHeight;
+  // useEffect(() => {
+  //   if (
+  //     !imageContext ||
+  //     !isOriginalLoaded ||
+  //     imageWidth === 0 ||
+  //     imageHeight === 0
+  //   ) {
+  //     return;
+  //   }
+  //   const render =
+  //     renders.length === 0 ? original : renders[renders.length - 1];
+  //   imageContext.canvas.width = imageWidth;
+  //   imageContext.canvas.height = imageHeight;
 
-    imageContext.clearRect(
-      0,
-      0,
-      imageContext.canvas.width,
-      imageContext.canvas.height,
-    );
-    imageContext.drawImage(render, 0, 0, imageWidth, imageHeight);
-  }, [
-    renders,
-    original,
-    isOriginalLoaded,
-    imageContext,
-    imageHeight,
-    imageWidth,
-  ]);
+  //   imageContext.clearRect(
+  //     0,
+  //     0,
+  //     imageContext.canvas.width,
+  //     imageContext.canvas.height,
+  //   );
+  //   imageContext.drawImage(render, 0, 0, imageWidth, imageHeight);
+  // }, [
+  //   renders,
+  //   original,
+  //   isOriginalLoaded,
+  //   imageContext,
+  //   imageHeight,
+  //   imageWidth,
+  // ]);
+
+  
+  // loaded image render in fabric js
+  useEffect(() => {
+
+    if (!isOriginalLoaded) return;
+
+    const canvas = new fabric.Canvas("canvas", {
+      width: imageWidth,
+      height: imageHeight,
+    });
+
+    const img = new fabric.Image(original, {
+      left: 0,
+      top: 0,
+      selectable: false,
+    });
+
+    canvas.add(img);
+    canvas.renderAll();
+
+    canvasRef.current = canvas;
+    
+    let isDrawing = false;
+    let lastX: number | undefined;
+    let lastY: number | undefined;
+
+    canvas.on("mouse:down", function (options: fabric.IEvent) {
+      isDrawing = true;
+      const pointer = canvas.getPointer(options.e);
+      lastX = pointer.x;
+      lastY = pointer.y;
+    });
+
+    canvas.on("mouse:up", function () {
+      isDrawing = false;
+    });
+
+    canvas.on('mouse:move', (options: fabric.IEvent) => {
+      if (!isDrawing) return;
+      drawLine(options.e);
+    });
+
+    const drawLine = (event: MouseEvent) => {
+      const pointer = canvas.getPointer(event);
+      const points = [lastX, lastY, pointer.x, pointer.y];
+      const line = new fabric.Line(points, {
+        stroke: BRUSH_COLOR, // Change color as needed
+        strokeWidth: baseBrushSize, // Adjust brush size as needed
+        strokeLineCap: 'round', // Set line cap to round
+        strokeLineJoin: 'round', // Set line join to round
+        selectable: false,
+        evented: false,
+      });
+      canvas.add(line);
+      canvas.renderAll();
+      lastX = pointer.x;
+      lastY = pointer.y;
+    };
+    return () => {
+      canvas.dispose();
+    };
+  }, [original, isOriginalLoaded, imageWidth, imageHeight]);
 
   useEffect(() => {
     if (
@@ -456,6 +521,7 @@ export default function Editor(props: EditorProps) {
     }
   };
 
+  // here adds lines to group 
   const onMouseDown = (ev: SyntheticEvent) => {
     if (isProcessing) {
       return;
@@ -767,23 +833,17 @@ export default function Editor(props: EditorProps) {
             visibility: initialCentered ? "visible" : "hidden",
           }}
         >
-          <div className="grid [grid-template-areas:'editor-content'] gap-y-4">
-            <canvas
-              className="[grid-area:editor-content]"
-              style={{
-                clipPath: `inset(0 ${sliderPos}% 0 0)`,
-                transition: `clip-path ${COMPARE_SLIDER_DURATION_MS}ms`,
-              }}
-              ref={(r) => {
-                if (r && !imageContext) {
-                  const ctx = r.getContext("2d");
-                  if (ctx) {
-                    setImageContext(ctx);
-                  }
-                }
-              }}
-            />
-            <canvas
+          <canvas
+            id="canvas"
+            className="[grid-area:editor-content]"
+            style={{
+              clipPath: `inset(0 ${sliderPos}% 0 0)`,
+              transition: `clip-path ${COMPARE_SLIDER_DURATION_MS}ms`,
+              border: `2px solid white`,
+            }}
+          />
+
+          {/* <canvas
               className={cn(
                 "[grid-area:editor-content]",
                 isProcessing
@@ -815,8 +875,9 @@ export default function Editor(props: EditorProps) {
                   }
                 }
               }}
-            />
-            <div
+            /> */}
+
+          {/* <div
               className="[grid-area:editor-content] pointer-events-none grid [grid-template-areas:'original-image-content']"
               style={{
                 width: `${imageWidth}px`,
@@ -843,8 +904,8 @@ export default function Editor(props: EditorProps) {
                   />
                 </>
               )}
-            </div>
-          </div>
+            </div> */}
+          {/* </div> */}
 
           <Cropper
             maxHeight={imageHeight}
