@@ -114,7 +114,9 @@ export default function Editor(props: EditorProps) {
   const [original, isOriginalLoaded] = useImage(file);
   const [context, setContext] = useState<CanvasRenderingContext2D>();
   const [imageContext, setImageContext] = useState<CanvasRenderingContext2D>();
-  const canvasRef = useRef<CanvasRenderingContext2D | null>(null);
+  //
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const mainCanvasRef = useRef<fabric.Canvas | null>(null);
   const [{ x, y }, setCoords] = useState({ x: -1, y: -1 });
   const [showBrush, setShowBrush] = useState(false);
   const [showRefBrush, setShowRefBrush] = useState(false);
@@ -169,67 +171,34 @@ export default function Editor(props: EditorProps) {
   //   imageWidth,
   // ]);
 
+  const initMainCanvas = (): fabric.Canvas => {
+    return new fabric.Canvas(canvasRef.current, {
+      width: imageWidth,
+      height: imageHeight,
+    });
+  };
   
   // loaded image render in fabric js
   useEffect(() => {
 
     if (!isOriginalLoaded) return;
 
-    const canvas = new fabric.Canvas("canvas", {
-      width: imageWidth,
-      height: imageHeight,
-    });
+    mainCanvasRef.current = initMainCanvas();
 
     const img = new fabric.Image(original, {
       left: 0,
       top: 0,
-      selectable: false,
+      selectable: true,
     });
 
-    canvas.add(img);
-    canvas.renderAll();
+    mainCanvasRef.current.add(img);
+    mainCanvasRef.current.renderAll();
 
-    canvasRef.current = canvas;
-    
-    let isDrawing = false;
-    let lastX: number | undefined;
-    let lastY: number | undefined;
-
-    canvas.on("mouse:down", function (options: fabric.IEvent) {
-      isDrawing = true;
-      const pointer = canvas.getPointer(options.e);
-      lastX = pointer.x;
-      lastY = pointer.y;
-    });
-
-    canvas.on("mouse:up", function () {
-      isDrawing = false;
-    });
-
-    canvas.on('mouse:move', (options: fabric.IEvent) => {
-      if (!isDrawing) return;
-      drawLine(options.e);
-    });
-
-    const drawLine = (event: MouseEvent) => {
-      const pointer = canvas.getPointer(event);
-      const points = [lastX, lastY, pointer.x, pointer.y];
-      const line = new fabric.Line(points, {
-        stroke: BRUSH_COLOR, // Change color as needed
-        strokeWidth: baseBrushSize, // Adjust brush size as needed
-        strokeLineCap: 'round', // Set line cap to round
-        strokeLineJoin: 'round', // Set line join to round
-        selectable: false,
-        evented: false,
-      });
-      canvas.add(line);
-      canvas.renderAll();
-      lastX = pointer.x;
-      lastY = pointer.y;
-    };
     return () => {
-      canvas.dispose();
-    };
+      mainCanvasRef.current?.dispose();
+      mainCanvasRef.current = null; // Reset the reference to null
+    }
+    
   }, [original, isOriginalLoaded, imageWidth, imageHeight]);
 
   useEffect(() => {
@@ -833,9 +802,8 @@ export default function Editor(props: EditorProps) {
             visibility: initialCentered ? "visible" : "hidden",
           }}
         >
-          <canvas
-            id="canvas"
-            className="[grid-area:editor-content]"
+          <canvas 
+            ref={canvasRef} 
             style={{
               clipPath: `inset(0 ${sliderPos}% 0 0)`,
               transition: `clip-path ${COMPARE_SLIDER_DURATION_MS}ms`,
@@ -844,6 +812,16 @@ export default function Editor(props: EditorProps) {
           />
 
           {/* <canvas
+            id="canvas"
+            className="[grid-area:editor-content]"
+            style={{
+              clipPath: `inset(0 ${sliderPos}% 0 0)`,
+              transition: `clip-path ${COMPARE_SLIDER_DURATION_MS}ms`,
+              border: `2px solid white`,
+            }}
+          /> */}
+
+          <canvas
               className={cn(
                 "[grid-area:editor-content]",
                 isProcessing
@@ -875,7 +853,7 @@ export default function Editor(props: EditorProps) {
                   }
                 }
               }}
-            /> */}
+            />
 
           {/* <div
               className="[grid-area:editor-content] pointer-events-none grid [grid-template-areas:'original-image-content']"
