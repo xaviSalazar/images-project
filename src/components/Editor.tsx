@@ -171,21 +171,24 @@ export default function Editor(props: EditorProps) {
   //   imageWidth,
   // ]);
 
-  const initMainCanvas = (): fabric.Canvas => {
-    return new fabric.Canvas(canvasRef.current, {
-      width: imageWidth,
-      height: imageHeight,
-    });
-  };
-  
-  // loaded image render in fabric js
+ 
+  // load image or coming image from plugins render in fabric js
   useEffect(() => {
 
     if (!isOriginalLoaded) return;
 
+    const initMainCanvas = (): fabric.Canvas => {
+      return new fabric.Canvas(canvasRef.current, {
+        width: imageWidth,
+        height: imageHeight,
+      });
+    };
+
     mainCanvasRef.current = initMainCanvas();
 
-    const img = new fabric.Image(original, {
+    const render = renders.length === 0 ? original : renders[renders.length - 1];
+
+    const img = new fabric.Image(render, {
       left: 0,
       top: 0,
       selectable: true,
@@ -199,7 +202,12 @@ export default function Editor(props: EditorProps) {
       mainCanvasRef.current = null; // Reset the reference to null
     }
     
-  }, [original, isOriginalLoaded, imageWidth, imageHeight]);
+  }, [original, 
+      renders,
+      isOriginalLoaded, 
+      imageWidth, 
+      imageHeight
+    ]);
 
   useEffect(() => {
     if (
@@ -807,7 +815,7 @@ export default function Editor(props: EditorProps) {
             style={{
               clipPath: `inset(0 ${sliderPos}% 0 0)`,
               transition: `clip-path ${COMPARE_SLIDER_DURATION_MS}ms`,
-              border: `2px solid white`,
+              border: `1px solid white`,
             }}
           />
 
