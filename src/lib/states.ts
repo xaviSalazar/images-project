@@ -20,6 +20,7 @@ import {
   SortBy,
   SortOrder,
   LanguageState,
+  CanvaState,
 } from "./types";
 import { paintByExampleConfig } from "./models";
 import {
@@ -120,6 +121,10 @@ type InteractiveSegState = {
 };
 
 type EditorState = {
+  currentCanvas: CanvaState;
+  canvasGroups: CanvaState[];
+  currCanvasGroups : CanvaState[];
+  lastCanvasGroups : CanvaState[];
   baseBrushSize: number;
   brushSizeScale: number;
   renders: HTMLImageElement[];
@@ -136,6 +141,9 @@ type EditorState = {
   redoRenders: HTMLImageElement[];
   redoCurLines: Line[];
   redoLineGroups: LineGroup[];
+  // redo modified
+  redoCurCanvas: CanvaState[];
+  // redoLineGroups: LineGroup[];
 };
 
 type AppState = {
@@ -220,6 +228,7 @@ type AppAction = {
   updateEditorState: (newState: Partial<EditorState>) => void;
   runMannually: () => boolean;
   handleCanvasMouseDown: (point: Point) => void;
+  handleSaveState: (saveState: string) => void;
   handleCanvasMouseMove: (point: Point) => void;
   cleanCurLineGroup: () => void;
   resetRedoState: () => void;
@@ -257,9 +266,14 @@ const defaultValues: AppState = {
     lineGroups: [],
     lastLineGroup: [],
     curLineGroup: [],
+    currentCanvas: "",
+    canvasGroups: [],
+    currCanvasGroups : [],
+    lastCanvasGroups : [],
     redoRenders: [],
     redoCurLines: [],
     redoLineGroups: [],
+    redoCurCanvas: [],
   },
 
   interactiveSegState: {
@@ -623,6 +637,18 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         });
       },
 
+      handleSaveState: (saveState: string) => {
+        let canvaGroup : CanvaState[] = []; // initialized variable
+        const state = get();
+        if(state.runMannually()) {
+          canvaGroup = [...state.editorState.currCanvasGroups]
+        }
+        canvaGroup.push(saveState)
+        set((state) => {
+          state.editorState.currCanvasGroups = canvaGroup
+        })
+      },
+
       handleCanvasMouseMove: (point: Point) => {
         set((state) => {
           const curLineGroup = state.editorState.curLineGroup;
@@ -658,7 +684,8 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           return false;
         }
         if (get().runMannually()) {
-          if (editorState.curLineGroup.length === 0) {
+          //if (editorState.curLineGroup.length === 0) {
+          if  (editorState.currCanvasGroups.length === 0) {
             return true;
           }
         } else if (editorState.renders.length === 0) {
@@ -670,17 +697,22 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
       undo: () => {
         if (
           get().runMannually() &&
-          get().editorState.curLineGroup.length !== 0
+          get().editorState.currCanvasGroups.length !== 0
+          //get().editorState.curLineGroup.length !== 0
         ) {
           // undoStroke
           set((state) => {
             const editorState = state.editorState;
-            if (editorState.curLineGroup.length === 0) {
+            // if (editorState.curLineGroup.length === 0) {
+            if (editorState.currCanvasGroups.length === 0) {
               return;
             }
-            editorState.lastLineGroup = [];
-            const lastLine = editorState.curLineGroup.pop()!;
-            editorState.redoCurLines.push(lastLine);
+            //editorState.lastLineGroup = [];
+            editorState.lastCanvasGroups = [];
+            const lastLine = editorState.currCanvasGroups.pop()!;
+            // const lastLine = editorState.curLineGroup.pop()!;
+            // editorState.redoCurLines.push(lastLine)
+            editorState.redoCurCanvas.push(lastLine);
           });
         } else {
           set((state) => {
@@ -708,7 +740,8 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           return false;
         }
         if (get().runMannually()) {
-          if (editorState.redoCurLines.length === 0) {
+          //if (editorState.redoCurLines.length === 0) {
+            if (editorState.redoCurCanvas.length === 0) {
             return true;
           }
         } else if (editorState.redoRenders.length === 0) {
@@ -720,15 +753,19 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
       redo: () => {
         if (
           get().runMannually() &&
-          get().editorState.redoCurLines.length !== 0
+          get().editorState.redoCurCanvas.length !== 0
+          // get().editorState.redoCurLines.length !== 0
         ) {
           set((state) => {
             const editorState = state.editorState;
-            if (editorState.redoCurLines.length === 0) {
+            // if (editorState.redoCurLines.length === 0) {
+            if (editorState.redoCurCanvas.length === 0) {
               return;
             }
-            const line = editorState.redoCurLines.pop()!;
-            editorState.curLineGroup.push(line);
+            // const line = editorState.redoCurLines.pop()!;
+            const draw = editorState.redoCurCanvas.pop()!;
+            editorState.currCanvasGroups.push(draw);
+            //editorState.curLineGroup.push(line);
           });
         } else {
           set((state) => {

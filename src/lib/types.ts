@@ -115,6 +115,8 @@ export interface Line {
 
 export type LineGroup = Array<Line>;
 
+export type CanvaState = string;
+
 export interface Size {
   width: number;
   height: number;

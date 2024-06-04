@@ -14,6 +14,7 @@ import {
 } from "react-zoom-pan-pinch";
 import { useKeyPressEvent } from "react-use";
 import { downloadToOutput, runPlugin } from "@/lib/api";
+import { Canvas, Object as FabricObject } from "fabric/fabric-impl";
 import { IconButton } from "@/components/ui/button";
 import {
   askWritePermission,
@@ -36,7 +37,12 @@ import Cropper from "./Cropper";
 import { InteractiveSegPoints } from "./InteractiveSeg";
 import useHotKey from "@/hooks/useHotkey";
 import Extender from "./Extender";
-import { MAX_BRUSH_SIZE, MIN_BRUSH_SIZE, BRUSH_COLOR} from "@/lib/const";
+import {
+  MAX_BRUSH_SIZE,
+  MIN_BRUSH_SIZE,
+  DEFAULT_BRUSH_SIZE,
+  BRUSH_COLOR,
+} from "@/lib/const";
 import { fabric } from "fabric";
 
 const TOOLBAR_HEIGHT = 200;
@@ -45,6 +51,15 @@ const COMPARE_SLIDER_DURATION_MS = 300;
 interface EditorProps {
   file: File;
 }
+
+const hexToRgba = (hex: string): string => {
+  hex = hex.replace("#", "");
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  const a = parseInt(hex.substring(6, 8), 16) / 255;
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
+};
 
 export default function Editor(props: EditorProps) {
   const { file } = props;
@@ -63,6 +78,7 @@ export default function Editor(props: EditorProps) {
     interactiveSegState,
     updateInteractiveSegState,
     handleCanvasMouseDown,
+    handleSaveState,
     handleCanvasMouseMove,
     undo,
     redo,
@@ -88,6 +104,7 @@ export default function Editor(props: EditorProps) {
     state.interactiveSegState,
     state.updateInteractiveSegState,
     state.handleCanvasMouseDown,
+    state.handleSaveState,
     state.handleCanvasMouseMove,
     state.undo,
     state.redo,
@@ -108,6 +125,7 @@ export default function Editor(props: EditorProps) {
   const temporaryMasks = useStore((state) => state.editorState.temporaryMasks);
   const lineGroups = useStore((state) => state.editorState.lineGroups);
   const curLineGroup = useStore((state) => state.editorState.curLineGroup);
+  const currCanvasGroups = useStore((state) => state.editorState.currCanvasGroups);
 
   // Local State
   const [showOriginal, setShowOriginal] = useState(false);
@@ -115,8 +133,8 @@ export default function Editor(props: EditorProps) {
   const [context, setContext] = useState<CanvasRenderingContext2D>();
   const [imageContext, setImageContext] = useState<CanvasRenderingContext2D>();
   //
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const mainCanvasRef = useRef<fabric.Canvas | null>(null);
+  const [initCanvasState, SetInitCanvasState] = useState<string | null>(null);
+
   const [{ x, y }, setCoords] = useState({ x: -1, y: -1 });
   const [showBrush, setShowBrush] = useState(false);
   const [showRefBrush, setShowRefBrush] = useState(false);
@@ -128,6 +146,7 @@ export default function Editor(props: EditorProps) {
   const windowCenterX = windowSize.width / 2;
   const windowCenterY = windowSize.height / 2;
   const viewportRef = useRef<ReactZoomPanPinchContentRef | null>(null);
+
   // Indicates that the image has been loaded and is centered on first load
   const [initialCentered, setInitialCentered] = useState(false);
 
@@ -137,47 +156,29 @@ export default function Editor(props: EditorProps) {
   const [isChangingBrushSizeByWheel, setIsChangingBrushSizeByWheel] =
     useState<boolean>(false);
 
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const mainCanvasRef = useRef<Canvas | null>(null);
+
   const hadDrawSomething = useCallback(() => {
     return curLineGroup.length !== 0;
   }, [curLineGroup]);
 
-  // useEffect(() => {
-  //   if (
-  //     !imageContext ||
-  //     !isOriginalLoaded ||
-  //     imageWidth === 0 ||
-  //     imageHeight === 0
-  //   ) {
-  //     return;
-  //   }
-  //   const render =
-  //     renders.length === 0 ? original : renders[renders.length - 1];
-  //   imageContext.canvas.width = imageWidth;
-  //   imageContext.canvas.height = imageHeight;
 
-  //   imageContext.clearRect(
-  //     0,
-  //     0,
-  //     imageContext.canvas.width,
-  //     imageContext.canvas.height,
-  //   );
-  //   imageContext.drawImage(render, 0, 0, imageWidth, imageHeight);
-  // }, [
-  //   renders,
-  //   original,
-  //   isOriginalLoaded,
-  //   imageContext,
-  //   imageHeight,
-  //   imageWidth,
-  // ]);
 
- 
+  const saveState = useCallback(() => {
+    if (mainCanvasRef.current) {
+      const state = mainCanvasRef.current.toJSON();
+      handleSaveState(JSON.stringify(state));
+    }
+  }, []);
+
   // load image or coming image from plugins render in fabric js
   useEffect(() => {
 
     if (!isOriginalLoaded) return;
+    console.log("Inside UseEffect initMainCanvas");
 
-    const initMainCanvas = (): fabric.Canvas => {
+    const initMainCanvas = (): Canvas => {
       return new fabric.Canvas(canvasRef.current, {
         width: imageWidth,
         height: imageHeight,
@@ -186,71 +187,61 @@ export default function Editor(props: EditorProps) {
 
     mainCanvasRef.current = initMainCanvas();
 
-    const render = renders.length === 0 ? original : renders[renders.length - 1];
+    const render =
+      renders.length === 0 ? original : renders[renders.length - 1];
 
     const img = new fabric.Image(render, {
       left: 0,
       top: 0,
-      selectable: true,
+      selectable: false,
     });
 
     mainCanvasRef.current.add(img);
+
+    // Activate drawing mode for mask overlay
+    mainCanvasRef.current.isDrawingMode = true;
+    mainCanvasRef.current.freeDrawingBrush.width = DEFAULT_BRUSH_SIZE;
+    mainCanvasRef.current.freeDrawingBrush.color = hexToRgba(BRUSH_COLOR);
+  
+    // Save initial state
+      //saveState();
+    const initState = JSON.stringify(mainCanvasRef.current.toJSON());
+    SetInitCanvasState(initState)
+
+    // Event listener for drawing end
+    mainCanvasRef.current.on('mouse:up', () => {
+      saveState();
+    });
+    
     mainCanvasRef.current.renderAll();
 
     return () => {
       mainCanvasRef.current?.dispose();
       mainCanvasRef.current = null; // Reset the reference to null
-    }
-    
-  }, [original, 
-      renders,
-      isOriginalLoaded, 
-      imageWidth, 
-      imageHeight
-    ]);
+    };
+  }, [original, renders, isOriginalLoaded, imageWidth, imageHeight]);
 
+
+  // REDO / UNDO ACTION 
   useEffect(() => {
-    if (
-      !context ||
-      !isOriginalLoaded ||
-      imageWidth === 0 ||
-      imageHeight === 0
-    ) {
-      return;
-    }
-    context.canvas.width = imageWidth;
-    context.canvas.height = imageHeight;
-    context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-    temporaryMasks.forEach((maskImage) => {
-      context.drawImage(maskImage, 0, 0, imageWidth, imageHeight);
-    });
-    extraMasks.forEach((maskImage) => {
-      context.drawImage(maskImage, 0, 0, imageWidth, imageHeight);
-    });
 
-    if (
-      interactiveSegState.isInteractiveSeg &&
-      interactiveSegState.tmpInteractiveSegMask
-    ) {
-      context.drawImage(
-        interactiveSegState.tmpInteractiveSegMask,
-        0,
-        0,
-        imageWidth,
-        imageHeight,
-      );
+    if (! mainCanvasRef.current || !initCanvasState ) return;
+
+    if (currCanvasGroups.length === 0 && initCanvasState) {
+      const initState = JSON.parse(initCanvasState);
+      mainCanvasRef.current.loadFromJSON(initState, mainCanvasRef.current.renderAll.bind(mainCanvasRef.current));
+      return
     }
-    drawLines(context, curLineGroup);
-  }, [
-    temporaryMasks,
-    extraMasks,
-    isOriginalLoaded,
-    interactiveSegState,
-    context,
-    curLineGroup,
-    imageHeight,
-    imageWidth,
-  ]);
+      const state = JSON.parse(currCanvasGroups[currCanvasGroups.length - 1]);
+      mainCanvasRef.current.loadFromJSON(state, mainCanvasRef.current.renderAll.bind(mainCanvasRef.current));
+  
+  }, [currCanvasGroups])
+
+  // CHANGE BRUSH SIZE
+  useEffect(() => {
+    if (!mainCanvasRef.current) return;
+    mainCanvasRef.current.freeDrawingBrush.width = baseBrushSize;
+  }, [baseBrushSize]);
 
   const getCurrentRender = useCallback(async () => {
     let targetFile = file;
@@ -498,7 +489,7 @@ export default function Editor(props: EditorProps) {
     }
   };
 
-  // here adds lines to group 
+  // here adds lines to group
   const onMouseDown = (ev: SyntheticEvent) => {
     if (isProcessing) {
       return;
@@ -522,6 +513,7 @@ export default function Editor(props: EditorProps) {
     }
 
     if (isMidClick(ev)) {
+      console.log("midclick");
       setIsPanning(true);
       return;
     }
@@ -530,10 +522,14 @@ export default function Editor(props: EditorProps) {
     handleCanvasMouseDown(mouseXY(ev));
   };
 
-  const handleUndo = (keyboardEvent: KeyboardEvent | SyntheticEvent) => {
-    keyboardEvent.preventDefault();
+  const handleUndo = () => {
     undo();
   };
+
+  // const handleUndo = (keyboardEvent: KeyboardEvent | SyntheticEvent) => {
+  //   keyboardEvent.preventDefault();
+  //   undo();
+  // };
   useHotKey("meta+z,ctrl+z", handleUndo);
 
   const handleRedo = (keyboardEvent: KeyboardEvent | SyntheticEvent) => {
@@ -570,57 +566,98 @@ export default function Editor(props: EditorProps) {
     },
   );
 
-  const download = useCallback(async () => {
-    if (file === undefined) {
-      return;
-    }
-    if (enableAutoSaving && renders.length > 0) {
-      try {
-        await downloadToOutput(
-          renders[renders.length - 1],
-          file.name,
-          file.type,
-        );
-        toast({
-          description: "Save image success",
-        });
-      } catch (e: any) {
-        toast({
-          variant: "destructive",
-          title: "Uh oh! Something went wrong.",
-          description: e.message ? e.message : e.toString(),
-        });
-      }
-      return;
-    }
+  const downloadCanvas = (
+    canvas: Canvas,
+    objectsToShow: FabricObject[],
+    filename: string,
+  ) => {
+    // Hide all objects first
+    canvas.getObjects().forEach((obj) => obj.set({ visible: false }));
 
-    // TODO: download to output directory
-    const name = file.name.replace(/(\.[\w\d_-]+)$/i, "_cleanup$1");
-    const curRender = renders[renders.length - 1];
-    downloadImage(curRender.currentSrc, name);
-    if (settings.enableDownloadMask) {
-      let maskFileName = file.name.replace(/(\.[\w\d_-]+)$/i, "_mask$1");
-      maskFileName = maskFileName.replace(/\.[^/.]+$/, ".jpg");
+    // Show only the specified objects
+    objectsToShow.forEach((obj) => obj.set({ visible: true }));
 
-      const maskCanvas = generateMask(imageWidth, imageHeight, lineGroups);
-      // Create a link
-      const aDownloadLink = document.createElement("a");
-      // Add the name of the file to the link
-      aDownloadLink.download = maskFileName;
-      // Attach the data to the link
-      aDownloadLink.href = maskCanvas.toDataURL("image/jpeg");
-      // Get the code to click the download link
-      aDownloadLink.click();
+    // Render and download the canvas
+    canvas.renderAll();
+    const link = document.createElement("a");
+    link.href = canvas.toDataURL({ format: "png" });
+    link.download = filename;
+    link.click();
+
+    // Reset the visibility of all objects
+    canvas.getObjects().forEach((obj) => obj.set({ visible: true }));
+    canvas.renderAll();
+  };
+
+  // const downloadImage = () => {
+  //   const canvas = mainCanvasRef.current;
+  //   if (canvas) {
+  //     const imageObjects = canvas.getObjects().filter(obj => obj.type === 'image');
+  //     downloadCanvas(canvas, imageObjects, 'image.png');
+  //   }
+  // };
+
+  const download = () => {
+    const canvas = mainCanvasRef.current;
+    if (canvas) {
+      const maskObjects = canvas
+        .getObjects()
+        .filter((obj) => obj.type !== "image");
+      downloadCanvas(canvas, maskObjects, "mask.png");
     }
-  }, [
-    file,
-    enableAutoSaving,
-    renders,
-    settings,
-    imageHeight,
-    imageWidth,
-    lineGroups,
-  ]);
+  };
+
+  // const download = useCallback(async () => {
+  //   if (file === undefined) {
+  //     return;
+  //   }
+  //   if (enableAutoSaving && renders.length > 0) {
+  //     try {
+  //       await downloadToOutput(
+  //         renders[renders.length - 1],
+  //         file.name,
+  //         file.type,
+  //       );
+  //       toast({
+  //         description: "Save image success",
+  //       });
+  //     } catch (e: any) {
+  //       toast({
+  //         variant: "destructive",
+  //         title: "Uh oh! Something went wrong.",
+  //         description: e.message ? e.message : e.toString(),
+  //       });
+  //     }
+  //     return;
+  //   }
+
+  //   // TODO: download to output directory
+  //   const name = file.name.replace(/(\.[\w\d_-]+)$/i, "_cleanup$1");
+  //   const curRender = renders[renders.length - 1];
+  //   downloadImage(curRender.currentSrc, name);
+  //   if (settings.enableDownloadMask) {
+  //     let maskFileName = file.name.replace(/(\.[\w\d_-]+)$/i, "_mask$1");
+  //     maskFileName = maskFileName.replace(/\.[^/.]+$/, ".jpg");
+
+  //     const maskCanvas = generateMask(imageWidth, imageHeight, lineGroups);
+  //     // Create a link
+  //     const aDownloadLink = document.createElement("a");
+  //     // Add the name of the file to the link
+  //     aDownloadLink.download = maskFileName;
+  //     // Attach the data to the link
+  //     aDownloadLink.href = maskCanvas.toDataURL("image/jpeg");
+  //     // Get the code to click the download link
+  //     aDownloadLink.click();
+  //   }
+  // }, [
+  //   file,
+  //   enableAutoSaving,
+  //   renders,
+  //   settings,
+  //   imageHeight,
+  //   imageWidth,
+  //   lineGroups,
+  // ]);
 
   useHotKey("meta+s,ctrl+s", download);
 
@@ -810,59 +847,16 @@ export default function Editor(props: EditorProps) {
             visibility: initialCentered ? "visible" : "hidden",
           }}
         >
-          <canvas 
-            ref={canvasRef} 
-            style={{
-              clipPath: `inset(0 ${sliderPos}% 0 0)`,
-              transition: `clip-path ${COMPARE_SLIDER_DURATION_MS}ms`,
-              border: `1px solid white`,
-            }}
-          />
-
-          {/* <canvas
-            id="canvas"
-            className="[grid-area:editor-content]"
-            style={{
-              clipPath: `inset(0 ${sliderPos}% 0 0)`,
-              transition: `clip-path ${COMPARE_SLIDER_DURATION_MS}ms`,
-              border: `2px solid white`,
-            }}
-          /> */}
-
-          <canvas
-              className={cn(
-                "[grid-area:editor-content]",
-                isProcessing
-                  ? "pointer-events-none animate-pulse duration-600"
-                  : "",
-              )}
+          <div className="grid [grid-template-areas:'editor-content'] gap-y-4">
+            <canvas
+              ref={canvasRef}
               style={{
-                cursor: getCursor(),
                 clipPath: `inset(0 ${sliderPos}% 0 0)`,
                 transition: `clip-path ${COMPARE_SLIDER_DURATION_MS}ms`,
-              }}
-              onContextMenu={(e) => {
-                e.preventDefault();
-              }}
-              onMouseOver={() => {
-                toggleShowBrush(true);
-                setShowRefBrush(false);
-              }}
-              onFocus={() => toggleShowBrush(true)}
-              onMouseLeave={() => toggleShowBrush(false)}
-              onMouseDown={onMouseDown}
-              onMouseUp={onCanvasMouseUp}
-              onMouseMove={onMouseDrag}
-              ref={(r) => {
-                if (r && !context) {
-                  const ctx = r.getContext("2d");
-                  if (ctx) {
-                    setContext(ctx);
-                  }
-                }
+                border: `1px solid white`,
               }}
             />
-
+          </div>
           {/* <div
               className="[grid-area:editor-content] pointer-events-none grid [grid-template-areas:'original-image-content']"
               style={{
@@ -939,9 +933,9 @@ export default function Editor(props: EditorProps) {
     <div
       className="flex w-screen h-screen justify-center items-center"
       aria-hidden="true"
-      onMouseMove={onMouseMove}
-      onMouseUp={onPointerUp}
-      onWheel={handleScroll}
+      // onMouseMove={onMouseMove}
+      // onMouseUp={onPointerUp}
+      // onWheel={handleScroll}
     >
       {renderCanvas()}
       {showBrush &&
@@ -998,23 +992,24 @@ export default function Editor(props: EditorProps) {
                 return true;
               });
             }}
-            onPointerUp={() => {
-              window.setTimeout(() => {
-                // 防止快速点击 show original image 按钮时图片消失
-                setSliderPos(0);
-              }, 10);
+            // onPointerUp={() => {
+            //   window.setTimeout(() => {
+            //     // 防止快速点击 show original image 按钮时图片消失
+            //     setSliderPos(0);
+            //   }, 10);
 
-              window.setTimeout(() => {
-                setShowOriginal(false);
-              }, COMPARE_SLIDER_DURATION_MS);
-            }}
-            disabled={renders.length === 0}
+            //   window.setTimeout(() => {
+            //     setShowOriginal(false);
+            //   }, COMPARE_SLIDER_DURATION_MS);
+            // }}
+            // disabled={renders.length === 0}
           >
             <Eye />
           </IconButton>
+
           <IconButton
             tooltip="Save Image"
-            disabled={!renders.length}
+            //disabled={!renders.length}
             onClick={download}
           >
             <Download />
