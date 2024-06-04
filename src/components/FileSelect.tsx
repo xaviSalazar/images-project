@@ -1,6 +1,7 @@
 import { useState } from "react";
 import useResolution from "@/hooks/useResolution";
 import { useTranslation } from "react-i18next";
+import imageCompression from 'browser-image-compression';
 
 type FileSelectProps = {
   onSelection: (file: File) => void;
@@ -15,7 +16,7 @@ export default function FileSelect(props: FileSelectProps) {
 
   const resolution = useResolution();
 
-  function onFileSelected(file: File) {
+  const onFileSelected = async (file: File) => {
     if (!file) {
       return;
     }
@@ -29,7 +30,15 @@ export default function FileSelect(props: FileSelectProps) {
       if (file.size > 20 * 1024 * 1024) {
         throw new Error("file too large");
       }
-      onSelection(file);
+
+      const options = {
+        maxWidthOrHeight: 1536,
+        useWebWorker: true,
+      }
+
+      const compressedFile = await imageCompression(file, options);
+
+      onSelection(compressedFile);
     } catch (e) {
       // eslint-disable-next-line
       alert(`error: ${(e as any).message}`);
