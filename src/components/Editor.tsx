@@ -25,6 +25,7 @@ import {
   generateMask,
   isMidClick,
   isRightClick,
+  isLeftClick,
   mouseXY,
   srcToFile,
 } from "@/lib/utils";
@@ -182,6 +183,7 @@ export default function Editor(props: EditorProps) {
       return new fabric.Canvas(canvasRef.current, {
         width: imageWidth,
         height: imageHeight,
+        fireMiddleClick: true,
       });
     };
 
@@ -206,10 +208,15 @@ export default function Editor(props: EditorProps) {
     SetInitCanvasState(initState)
 
     // Event listener for drawing end
-    mainCanvasRef.current.on('mouse:up', () => {
-      saveState();
+    mainCanvasRef.current.on('mouse:up', (event: fabric.IEvent<MouseEvent>) => {
+      if(isMidClick(event)) {setIsPanning(false)}
+      if(isLeftClick(event)) {saveState()}
     });
-    
+
+    mainCanvasRef.current.on('mouse:down', (event: fabric.IEvent<MouseEvent>) => {
+      if(isMidClick(event)) {setIsPanning(true)}
+    });
+
     mainCanvasRef.current.renderAll();
 
     return () => {

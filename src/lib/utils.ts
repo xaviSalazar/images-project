@@ -158,14 +158,17 @@ const setToClipboard = async (blob: any) => {
   await navigator.clipboard.write(data);
 };
 
-export function isRightClick(ev: SyntheticEvent) {
-  const mouseEvent = ev.nativeEvent as MouseEvent;
-  return mouseEvent.button === 2;
+export function isRightClick(mouseEvent: fabric.IEvent<MouseEvent>) {
+  return mouseEvent.e.button === 2;
 }
 
-export function isMidClick(ev: SyntheticEvent) {
-  const mouseEvent = ev.nativeEvent as MouseEvent;
-  return mouseEvent.button === 1;
+export function isLeftClick(mouseEvent: fabric.IEvent<MouseEvent>) {
+  return mouseEvent.e.button === 0;
+}
+
+export function isMidClick(mouseEvent: fabric.IEvent<MouseEvent>) {
+  // const mouseEvent = ev.nativeEvent as MouseEvent;
+  return mouseEvent.e.button  === 1;
 }
 
 export async function copyCanvasImage(canvas: HTMLCanvasElement) {
