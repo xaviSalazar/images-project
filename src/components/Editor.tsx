@@ -160,8 +160,8 @@ export default function Editor(props: EditorProps) {
   const mainCanvasRef = useRef<Canvas | null>(null);
 
   const hadDrawSomething = useCallback(() => {
-    return curLineGroup.length !== 0;
-  }, [curLineGroup]);
+    return currCanvasGroups.length !== 0;
+  }, [currCanvasGroups]);
 
 
 
@@ -187,10 +187,7 @@ export default function Editor(props: EditorProps) {
 
     mainCanvasRef.current = initMainCanvas();
 
-    const render =
-      renders.length === 0 ? original : renders[renders.length - 1];
-
-    const img = new fabric.Image(render, {
+    const img = new fabric.Image(original, {
       left: 0,
       top: 0,
       selectable: false,
@@ -204,7 +201,7 @@ export default function Editor(props: EditorProps) {
     mainCanvasRef.current.freeDrawingBrush.color = hexToRgba(BRUSH_COLOR);
   
     // Save initial state
-      //saveState();
+    // saveState();
     const initState = JSON.stringify(mainCanvasRef.current.toJSON());
     SetInitCanvasState(initState)
 
@@ -219,8 +216,28 @@ export default function Editor(props: EditorProps) {
       mainCanvasRef.current?.dispose();
       mainCanvasRef.current = null; // Reset the reference to null
     };
-  }, [original, renders, isOriginalLoaded, imageWidth, imageHeight]);
 
+  }, [original, isOriginalLoaded, imageWidth, imageHeight]);
+
+  // COMING RENDERS FROM BACKEND
+  useEffect(() => {
+
+    if (! mainCanvasRef.current || !initCanvasState  ) return;
+
+    console.log("coming renders")
+    const render = renders[renders.length - 1];
+
+    const img = new fabric.Image(render, {
+      left: 0,
+      top: 0,
+      selectable: false,
+    });
+
+    mainCanvasRef.current.add(img);
+    mainCanvasRef.current.renderAll();
+    saveState();
+
+  }, [renders])
 
   // REDO / UNDO ACTION 
   useEffect(() => {
@@ -232,7 +249,9 @@ export default function Editor(props: EditorProps) {
       mainCanvasRef.current.loadFromJSON(initState, mainCanvasRef.current.renderAll.bind(mainCanvasRef.current));
       return
     }
+    
       const state = JSON.parse(currCanvasGroups[currCanvasGroups.length - 1]);
+      // console.log(currCanvasGroups[currCanvasGroups.length - 1])
       mainCanvasRef.current.loadFromJSON(state, mainCanvasRef.current.renderAll.bind(mainCanvasRef.current));
   
   }, [currCanvasGroups])
@@ -600,64 +619,13 @@ export default function Editor(props: EditorProps) {
   const download = () => {
     const canvas = mainCanvasRef.current;
     if (canvas) {
+      console.log(canvas.getObjects())
       const maskObjects = canvas
         .getObjects()
-        .filter((obj) => obj.type !== "image");
+        .filter((obj) => obj.type === "path");
       downloadCanvas(canvas, maskObjects, "mask.png");
     }
   };
-
-  // const download = useCallback(async () => {
-  //   if (file === undefined) {
-  //     return;
-  //   }
-  //   if (enableAutoSaving && renders.length > 0) {
-  //     try {
-  //       await downloadToOutput(
-  //         renders[renders.length - 1],
-  //         file.name,
-  //         file.type,
-  //       );
-  //       toast({
-  //         description: "Save image success",
-  //       });
-  //     } catch (e: any) {
-  //       toast({
-  //         variant: "destructive",
-  //         title: "Uh oh! Something went wrong.",
-  //         description: e.message ? e.message : e.toString(),
-  //       });
-  //     }
-  //     return;
-  //   }
-
-  //   // TODO: download to output directory
-  //   const name = file.name.replace(/(\.[\w\d_-]+)$/i, "_cleanup$1");
-  //   const curRender = renders[renders.length - 1];
-  //   downloadImage(curRender.currentSrc, name);
-  //   if (settings.enableDownloadMask) {
-  //     let maskFileName = file.name.replace(/(\.[\w\d_-]+)$/i, "_mask$1");
-  //     maskFileName = maskFileName.replace(/\.[^/.]+$/, ".jpg");
-
-  //     const maskCanvas = generateMask(imageWidth, imageHeight, lineGroups);
-  //     // Create a link
-  //     const aDownloadLink = document.createElement("a");
-  //     // Add the name of the file to the link
-  //     aDownloadLink.download = maskFileName;
-  //     // Attach the data to the link
-  //     aDownloadLink.href = maskCanvas.toDataURL("image/jpeg");
-  //     // Get the code to click the download link
-  //     aDownloadLink.click();
-  //   }
-  // }, [
-  //   file,
-  //   enableAutoSaving,
-  //   renders,
-  //   settings,
-  //   imageHeight,
-  //   imageWidth,
-  //   lineGroups,
-  // ]);
 
   useHotKey("meta+s,ctrl+s", download);
 
@@ -849,6 +817,12 @@ export default function Editor(props: EditorProps) {
         >
           <div className="grid [grid-template-areas:'editor-content'] gap-y-4">
             <canvas
+              className={cn(
+                "[grid-area:editor-content]",
+                isProcessing
+                  ? "pointer-events-none animate-pulse duration-600"
+                  : ""
+              )}
               ref={canvasRef}
               style={{
                 clipPath: `inset(0 ${sliderPos}% 0 0)`,

@@ -4,6 +4,9 @@ import { twMerge } from "tailwind-merge";
 import { LineGroup } from "./types";
 import { BRUSH_COLOR } from "./const";
 
+import { fabric } from "fabric";
+
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -245,6 +248,29 @@ export const generateMask = (
   });
 
   return maskCanvas;
+};
+
+export const generateMaskFabricjs = (mask: string, imageWidth: number, imageHeight: number): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    // Create an off-screen canvas
+    var canvas = new fabric.Canvas(null, { width: imageWidth, height: imageHeight });
+
+    // Parse the input JSON to filter only path objects
+    const maskObj = JSON.parse(mask);
+    const filteredObjects = maskObj.objects.filter(obj => obj.type === 'path'); // Adjust the condition based on your needs
+    const filteredMask = { ...maskObj, objects: filteredObjects };
+
+    // Load the canvas from the JSON string
+    canvas.loadFromJSON(filteredMask, () => {
+      // Once the JSON is loaded and the canvas is rendered, export to data URL
+      try {
+        const dataUrl = canvas.toDataURL();
+        resolve(dataUrl);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  });
 };
 
 export const convertToBase64 = (fileOrBlob: File | Blob): Promise<string> => {

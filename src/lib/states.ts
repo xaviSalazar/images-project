@@ -36,6 +36,7 @@ import {
   canvasToImage,
   dataURItoBlob,
   generateMask,
+  generateMaskFabricjs,
   loadImage,
   srcToFile,
 } from "./utils";
@@ -446,6 +447,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           renders,
           prevExtraMasks,
           extraMasks,
+          currCanvasGroups, // added to support fabric js
         } = get().editorState;
 
         const useLastLineGroup =
@@ -466,11 +468,13 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           maskImages = extraMasks;
         }
 
-        if (
-          maskLineGroup.length === 0 &&
-          maskImages === null &&
-          !settings.showExtender
-        ) {
+        // if (
+        //   maskLineGroup.length === 0 &&
+        //   maskImages === null &&
+        //   !settings.showExtender
+        // ) {
+          if(currCanvasGroups.length === 0)
+          {
           toast({
             variant: "destructive",
             description: "Please draw mask on picture",
@@ -504,27 +508,34 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           );
         }
 
-        const maskCanvas = generateMask(
-          imageWidth,
-          imageHeight,
-          [maskLineGroup],
-          maskImages,
-          BRUSH_COLOR,
-        );
-        if (useLastLineGroup) {
-          const temporaryMask = await canvasToImage(maskCanvas);
-          set((state) => {
-            state.editorState.temporaryMasks = castDraft([temporaryMask]);
-          });
-        }
+        // const maskCanvas = generateMask(
+        //   imageWidth,
+        //   imageHeight,
+        //   [maskLineGroup],
+        //   maskImages,
+        //   BRUSH_COLOR,
+        // );
+
+        const maskFabricjs = await generateMaskFabricjs(
+                              currCanvasGroups[currCanvasGroups.length - 1],
+                              imageWidth,
+                              imageHeight,);
+                     
+        // if (useLastLineGroup) {
+        //   const temporaryMask = await canvasToImage(maskCanvas);
+        //   set((state) => {
+        //     state.editorState.temporaryMasks = castDraft([temporaryMask]);
+        //   });
+        // }
 
         try {
+          
           const res = await inpaint(
             targetFile,
             settings,
             cropperState,
             extenderState,
-            dataURItoBlob(maskCanvas.toDataURL()),
+            dataURItoBlob(maskFabricjs),
             paintByExampleFile,
             modelToCall,
           );
