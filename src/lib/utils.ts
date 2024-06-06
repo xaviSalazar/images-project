@@ -253,26 +253,48 @@ export const generateMask = (
   return maskCanvas;
 };
 
-export const generateMaskFabricjs = (mask: string, imageWidth: number, imageHeight: number): Promise<string> => {
+export const generateFromCanvas = (canvasObject: string, imageWidth: number, imageHeight: number): Promise<{ targetMask: string, targetFile: string }>  => {
+  
   return new Promise((resolve, reject) => {
     // Create an off-screen canvas
     var canvas = new fabric.Canvas(null, { width: imageWidth, height: imageHeight });
+    let image:string;
+    let mask:string;
 
     // Parse the input JSON to filter only path objects
-    const maskObj = JSON.parse(mask);
-    const filteredObjects = maskObj.objects.filter(obj => obj.type === 'path'); // Adjust the condition based on your needs
-    const filteredMask = { ...maskObj, objects: filteredObjects };
+    const objCanvas = JSON.parse(canvasObject);
+    const filteredObjects = objCanvas.objects.filter(obj => obj.type === 'path'); // Adjust the condition based on your needs
+    const maskToLoad = { ...objCanvas, objects: filteredObjects };
+
+    const filteredTargetFile = objCanvas.objects.filter(obj => obj.type === 'image');
+    const imageToLoad = { ...objCanvas, objects: filteredTargetFile };
 
     // Load the canvas from the JSON string
-    canvas.loadFromJSON(filteredMask, () => {
-      // Once the JSON is loaded and the canvas is rendered, export to data URL
+    canvas.loadFromJSON(maskToLoad, () => {
       try {
-        const dataUrl = canvas.toDataURL();
-        resolve(dataUrl);
+        mask = canvas.toDataURL();
+        if (!mask) {
+          throw new Error('Mask generation failed');
+        }
       } catch (error) {
         reject(error);
       }
     });
+
+    canvas.clear()
+
+    canvas.loadFromJSON(imageToLoad, () => {
+      try {
+        image = canvas.toDataURL();
+        if (!image) {
+          throw new Error('Image generation failed');
+        }
+        resolve({ targetMask: mask, targetFile: image });
+      } catch (error) {
+        reject(error);
+      }
+    });
+
   });
 };
 

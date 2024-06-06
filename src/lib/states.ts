@@ -36,7 +36,7 @@ import {
   canvasToImage,
   dataURItoBlob,
   generateMask,
-  generateMaskFabricjs,
+  generateFromCanvas,
   loadImage,
   srcToFile,
 } from "./utils";
@@ -450,23 +450,23 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           currCanvasGroups, // added to support fabric js
         } = get().editorState;
 
-        const useLastLineGroup =
-          curLineGroup.length === 0 &&
-          extraMasks.length === 0 &&
-          !settings.showExtender;
+        // const useLastLineGroup =
+        //   curLineGroup.length === 0 &&
+        //   extraMasks.length === 0 &&
+        //   !settings.showExtender;
 
         // useLastLineGroup 的影响
         // 1. 使用上一次的 mask
         // 2. 结果替换当前 render
         let maskImages: HTMLImageElement[] = [];
         let maskLineGroup: LineGroup = [];
-        if (useLastLineGroup === true) {
-          maskLineGroup = lastLineGroup;
-          maskImages = prevExtraMasks;
-        } else {
-          maskLineGroup = curLineGroup;
-          maskImages = extraMasks;
-        }
+        // if (useLastLineGroup === true) {
+        //   maskLineGroup = lastLineGroup;
+        //   maskImages = prevExtraMasks;
+        // } else {
+        //   maskLineGroup = curLineGroup;
+        //   maskImages = extraMasks;
+        // }
 
         // if (
         //   maskLineGroup.length === 0 &&
@@ -488,55 +488,20 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           state.isInpainting = true;
         });
 
-        let targetFile = file;
-        // if (useLastLineGroup === true) {
-          // renders.length == 1 还是用原来的
-          if (renders.length >= 1) {
-            // const lastRender = renders[renders.length - 2];
-            const lastRender = renders[renders.length - 1];
-            targetFile = await srcToFile(
-              lastRender.currentSrc,
-              file.name,
-              file.type,
-            );
-          }
-        // } else if (renders.length > 0) {
-        //   const lastRender = renders[renders.length - 1];
-        //   targetFile = await srcToFile(
-        //     lastRender.currentSrc,
-        //     file.name,
-        //     file.type,
-        //   );
-        // }
-
-        // const maskCanvas = generateMask(
-        //   imageWidth,
-        //   imageHeight,
-        //   [maskLineGroup],
-        //   maskImages,
-        //   BRUSH_COLOR,
-        // );
-
-        const maskFabricjs = await generateMaskFabricjs(
+        // Generate mask and image separately
+        const {targetMask, targetFile} = await generateFromCanvas(
                               currCanvasGroups[currCanvasGroups.length - 1],
                               imageWidth,
                               imageHeight,);
-                     
-        // if (useLastLineGroup) {
-        //   const temporaryMask = await canvasToImage(maskCanvas);
-        //   set((state) => {
-        //     state.editorState.temporaryMasks = castDraft([temporaryMask]);
-        //   });
-        // }
 
         try {
           
           const res = await inpaint(
-            targetFile,
+            dataURItoBlob(targetFile),
             settings,
             cropperState,
             extenderState,
-            dataURItoBlob(maskFabricjs),
+            dataURItoBlob(targetMask),
             paintByExampleFile,
             modelToCall,
           );

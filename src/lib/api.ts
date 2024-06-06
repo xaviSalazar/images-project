@@ -23,7 +23,7 @@ const api = axios.create({
 });
 
 export default async function inpaint(
-  imageFile: File,
+  imageFile: File | Blob,
   settings: Settings,
   croperRect: Rect,
   extenderState: Rect,
