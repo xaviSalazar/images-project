@@ -169,6 +169,7 @@ export default function Editor(props: EditorProps) {
   const saveState = useCallback(() => {
     if (mainCanvasRef.current) {
       const state = mainCanvasRef.current.toJSON();
+      console.log(state)
       handleSaveState(JSON.stringify(state));
     }
   }, []);
@@ -242,14 +243,14 @@ export default function Editor(props: EditorProps) {
      // Clear the canvas
     mainCanvasRef.current.clear();
     mainCanvasRef.current.add(img);
-    mainCanvasRef.current.renderAll();
     saveState();
+    mainCanvasRef.current.renderAll();
+   
 
   }, [renders])
 
   // REDO / UNDO ACTION 
   useEffect(() => {
-
     if (! mainCanvasRef.current || !initCanvasState ) return;
 
     if (currCanvasGroups.length === 0 && initCanvasState) {
@@ -257,7 +258,6 @@ export default function Editor(props: EditorProps) {
       mainCanvasRef.current.loadFromJSON(initState, mainCanvasRef.current.renderAll.bind(mainCanvasRef.current));
       return
     }
-    
       const state = JSON.parse(currCanvasGroups[currCanvasGroups.length - 1]);
       // console.log(currCanvasGroups[currCanvasGroups.length - 1])
       mainCanvasRef.current.loadFromJSON(state, mainCanvasRef.current.renderAll.bind(mainCanvasRef.current));
@@ -616,24 +616,24 @@ export default function Editor(props: EditorProps) {
     canvas.renderAll();
   };
 
-  // const downloadImage = () => {
-  //   const canvas = mainCanvasRef.current;
-  //   if (canvas) {
-  //     const imageObjects = canvas.getObjects().filter(obj => obj.type === 'image');
-  //     downloadCanvas(canvas, imageObjects, 'image.png');
-  //   }
-  // };
-
   const download = () => {
     const canvas = mainCanvasRef.current;
     if (canvas) {
-      console.log(canvas.getObjects())
-      const maskObjects = canvas
-        .getObjects()
-        .filter((obj) => obj.type === "path");
-      downloadCanvas(canvas, maskObjects, "mask.png");
+      const imageObjects = canvas.getObjects().filter(obj => obj.type === 'image');
+      downloadCanvas(canvas, imageObjects, 'image.png');
     }
   };
+
+  // const download = () => {
+  //   const canvas = mainCanvasRef.current;
+  //   if (canvas) {
+  //     console.log(canvas.getObjects())
+  //     const maskObjects = canvas
+  //       .getObjects()
+  //       .filter((obj) => obj.type === "path");
+  //     downloadCanvas(canvas, maskObjects, "mask.png");
+  //   }
+  // };
 
   useHotKey("meta+s,ctrl+s", download);
 
@@ -823,10 +823,10 @@ export default function Editor(props: EditorProps) {
             visibility: initialCentered ? "visible" : "hidden",
           }}
         >
-          <div className="grid [grid-template-areas:'editor-content'] gap-y-4">
+          <div className="relative">
             <canvas
               className={cn(
-                "[grid-area:editor-content]",
+
                 isProcessing
                   ? "pointer-events-none animate-pulse duration-600"
                   : ""
@@ -838,9 +838,8 @@ export default function Editor(props: EditorProps) {
                 border: `1px solid white`,
               }}
             />
-          </div>
-          {/* <div
-              className="[grid-area:editor-content] pointer-events-none grid [grid-template-areas:'original-image-content']"
+           <div
+              className="pointer-events-none absolute top-0"
               style={{
                 width: `${imageWidth}px`,
                 height: `${imageHeight}px`,
@@ -849,14 +848,14 @@ export default function Editor(props: EditorProps) {
               {showOriginal && (
                 <>
                   <div
-                    className="[grid-area:original-image-content] z-10 bg-primary h-full w-[6px] justify-self-end"
+                    className="absolute top-0 z-10 bg-primary h-full w-[6px] justify-self-end"
                     style={{
                       marginRight: `${sliderPos}%`,
                       transition: `margin-right ${COMPARE_SLIDER_DURATION_MS}ms`,
                     }}
                   />
                   <img
-                    className="[grid-area:original-image-content]"
+                    className="absolute "
                     src={original.src}
                     alt="original"
                     style={{
@@ -866,8 +865,8 @@ export default function Editor(props: EditorProps) {
                   />
                 </>
               )}
-            </div> */}
-          {/* </div> */}
+            </div>
+          </div> 
 
           <Cropper
             maxHeight={imageHeight}
@@ -974,17 +973,17 @@ export default function Editor(props: EditorProps) {
                 return true;
               });
             }}
-            // onPointerUp={() => {
-            //   window.setTimeout(() => {
-            //     // 防止快速点击 show original image 按钮时图片消失
-            //     setSliderPos(0);
-            //   }, 10);
+            onPointerUp={() => {
+              window.setTimeout(() => {
+                // 防止快速点击 show original image 按钮时图片消失
+                setSliderPos(0);
+              }, 10);
 
-            //   window.setTimeout(() => {
-            //     setShowOriginal(false);
-            //   }, COMPARE_SLIDER_DURATION_MS);
-            // }}
-            // disabled={renders.length === 0}
+              window.setTimeout(() => {
+                setShowOriginal(false);
+              }, COMPARE_SLIDER_DURATION_MS);
+            }}
+            disabled={renders.length === 0}
           >
             <Eye />
           </IconButton>
