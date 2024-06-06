@@ -489,24 +489,25 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         });
 
         let targetFile = file;
-        if (useLastLineGroup === true) {
+        // if (useLastLineGroup === true) {
           // renders.length == 1 还是用原来的
-          if (renders.length > 1) {
-            const lastRender = renders[renders.length - 2];
+          if (renders.length >= 1) {
+            // const lastRender = renders[renders.length - 2];
+            const lastRender = renders[renders.length - 1];
             targetFile = await srcToFile(
               lastRender.currentSrc,
               file.name,
               file.type,
             );
           }
-        } else if (renders.length > 0) {
-          const lastRender = renders[renders.length - 1];
-          targetFile = await srcToFile(
-            lastRender.currentSrc,
-            file.name,
-            file.type,
-          );
-        }
+        // } else if (renders.length > 0) {
+        //   const lastRender = renders[renders.length - 1];
+        //   targetFile = await srcToFile(
+        //     lastRender.currentSrc,
+        //     file.name,
+        //     file.type,
+        //   );
+        // }
 
         // const maskCanvas = generateMask(
         //   imageWidth,
