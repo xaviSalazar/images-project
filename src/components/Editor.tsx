@@ -231,7 +231,6 @@ export default function Editor(props: EditorProps) {
 
     if (! mainCanvasRef.current || !initCanvasState  ) return;
 
-    console.log("coming renders")
     const render = renders[renders.length - 1];
 
     const img = new fabric.Image(render, {
@@ -240,6 +239,8 @@ export default function Editor(props: EditorProps) {
       selectable: false,
     });
 
+     // Clear the canvas
+    mainCanvasRef.current.clear();
     mainCanvasRef.current.add(img);
     mainCanvasRef.current.renderAll();
     saveState();
