@@ -212,13 +212,10 @@ export function SettingsDialog() {
           updateServerConfig({
             removeBGModel: values.removeBGModel,
           });
-          // const res = await switchPluginModel(
-          //   PluginName.RemoveBG,
-          //   values.removeBGModel
-          // )
-          // if (res.status !== 200) {
-          //   throw new Error(res.statusText)
-          // }
+
+          toast({
+            title: `Switch to removeBG ${values.removeBGModel} success`,
+          });
         } catch (error: any) {
           toast({
             variant: "destructive",
