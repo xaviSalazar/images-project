@@ -7,6 +7,7 @@ import {
 } from "react";
 import { CursorArrowRaysIcon } from "@heroicons/react/24/outline";
 import { useToast } from "@/components/ui/use-toast";
+import { TransformIcon } from "@radix-ui/react-icons";
 import {
   ReactZoomPanPinchContentRef,
   TransformComponent,
@@ -44,6 +45,7 @@ import {
   DEFAULT_BRUSH_SIZE,
   BRUSH_COLOR,
 } from "@/lib/const";
+import { Toggle } from "@/components/ui/toggle";
 import { fabric } from "fabric";
 
 const TOOLBAR_HEIGHT = 200;
@@ -126,7 +128,9 @@ export default function Editor(props: EditorProps) {
   const temporaryMasks = useStore((state) => state.editorState.temporaryMasks);
   const lineGroups = useStore((state) => state.editorState.lineGroups);
   const curLineGroup = useStore((state) => state.editorState.curLineGroup);
-  const currCanvasGroups = useStore((state) => state.editorState.currCanvasGroups);
+  const currCanvasGroups = useStore(
+    (state) => state.editorState.currCanvasGroups,
+  );
 
   // Local State
   const [showOriginal, setShowOriginal] = useState(false);
@@ -164,19 +168,16 @@ export default function Editor(props: EditorProps) {
     return currCanvasGroups.length !== 0;
   }, [currCanvasGroups]);
 
-
-
   const saveState = useCallback(() => {
+    console.log("save state");
     if (mainCanvasRef.current) {
       const state = mainCanvasRef.current.toJSON();
-      console.log(state)
       handleSaveState(JSON.stringify(state));
     }
-  }, []);
+  }, [mainCanvasRef.current]);
 
   // load image or coming image from plugins render in fabric js
   useEffect(() => {
-
     if (!isOriginalLoaded) return;
     console.log("Inside UseEffect initMainCanvas");
 
@@ -189,11 +190,11 @@ export default function Editor(props: EditorProps) {
     };
 
     mainCanvasRef.current = initMainCanvas();
+    mainCanvasRef.current.clear();
 
     const img = new fabric.Image(original, {
       left: 0,
       top: 0,
-      selectable: false,
     });
 
     mainCanvasRef.current.add(img);
@@ -202,20 +203,26 @@ export default function Editor(props: EditorProps) {
     mainCanvasRef.current.isDrawingMode = true;
     mainCanvasRef.current.freeDrawingBrush.width = DEFAULT_BRUSH_SIZE;
     mainCanvasRef.current.freeDrawingBrush.color = hexToRgba(BRUSH_COLOR);
-  
-    // Save initial state
-    // saveState();
-    const initState = JSON.stringify(mainCanvasRef.current.toJSON());
-    SetInitCanvasState(initState)
 
-    // Event listener for drawing end
-    mainCanvasRef.current.on('mouse:up', (event: fabric.IEvent<MouseEvent>) => {
-      if(isMidClick(event)) {setIsPanning(false)}
-      if(isLeftClick(event)) {saveState()}
+    // Event listener for panning
+    mainCanvasRef.current.on("mouse:up", (event: fabric.IEvent<MouseEvent>) => {
+      if (isMidClick(event)) {
+        setIsPanning(false);
+      }
     });
 
-    mainCanvasRef.current.on('mouse:down', (event: fabric.IEvent<MouseEvent>) => {
-      if(isMidClick(event)) {setIsPanning(true)}
+    mainCanvasRef.current.on(
+      "mouse:down",
+      (event: fabric.IEvent<MouseEvent>) => {
+        if (isMidClick(event)) {
+          setIsPanning(true);
+        }
+      },
+    );
+
+    mainCanvasRef.current.on("path:created", () => {
+      console.log("paht created");
+      saveState();
     });
 
     mainCanvasRef.current.renderAll();
@@ -224,13 +231,11 @@ export default function Editor(props: EditorProps) {
       mainCanvasRef.current?.dispose();
       mainCanvasRef.current = null; // Reset the reference to null
     };
-
   }, [original, isOriginalLoaded, imageWidth, imageHeight]);
 
   // COMING RENDERS FROM BACKEND
   useEffect(() => {
-
-    if (! mainCanvasRef.current || !initCanvasState  ) return;
+    if (!mainCanvasRef.current) return;
 
     const render = renders[renders.length - 1];
 
@@ -240,29 +245,24 @@ export default function Editor(props: EditorProps) {
       selectable: false,
     });
 
-     // Clear the canvas
+    // Clear the canvas
     mainCanvasRef.current.clear();
     mainCanvasRef.current.add(img);
     saveState();
     mainCanvasRef.current.renderAll();
-   
+  }, [renders]);
 
-  }, [renders])
-
-  // REDO / UNDO ACTION 
+  // REDO / UNDO ACTION
   useEffect(() => {
-    if (! mainCanvasRef.current || !initCanvasState ) return;
-
-    if (currCanvasGroups.length === 0 && initCanvasState) {
-      const initState = JSON.parse(initCanvasState);
-      mainCanvasRef.current.loadFromJSON(initState, mainCanvasRef.current.renderAll.bind(mainCanvasRef.current));
-      return
-    }
-      const state = JSON.parse(currCanvasGroups[currCanvasGroups.length - 1]);
-      // console.log(currCanvasGroups[currCanvasGroups.length - 1])
-      mainCanvasRef.current.loadFromJSON(state, mainCanvasRef.current.renderAll.bind(mainCanvasRef.current));
-  
-  }, [currCanvasGroups])
+    if (!mainCanvasRef.current) return;
+    if (currCanvasGroups.length === 0) return;
+    const state = JSON.parse(currCanvasGroups[currCanvasGroups.length - 1]);
+    // console.log(currCanvasGroups[currCanvasGroups.length - 1])
+    mainCanvasRef.current.loadFromJSON(
+      state,
+      mainCanvasRef.current.renderAll.bind(mainCanvasRef.current),
+    );
+  }, [currCanvasGroups]);
 
   // CHANGE BRUSH SIZE
   useEffect(() => {
@@ -324,6 +324,8 @@ export default function Editor(props: EditorProps) {
     console.log(
       `[on file load] image size: ${width}x${height}, scale: ${s}, initialCentered: ${initialCentered}`,
     );
+    // Save initial state
+    if (initialCentered) saveState();
 
     if (context?.canvas) {
       console.log("[on file load] set canvas size");
@@ -619,8 +621,10 @@ export default function Editor(props: EditorProps) {
   const download = () => {
     const canvas = mainCanvasRef.current;
     if (canvas) {
-      const imageObjects = canvas.getObjects().filter(obj => obj.type === 'image');
-      downloadCanvas(canvas, imageObjects, 'image.png');
+      const imageObjects = canvas
+        .getObjects()
+        .filter((obj) => obj.type === "image");
+      downloadCanvas(canvas, imageObjects, "image.png");
     }
   };
 
@@ -826,10 +830,9 @@ export default function Editor(props: EditorProps) {
           <div className="relative">
             <canvas
               className={cn(
-
                 isProcessing
                   ? "pointer-events-none animate-pulse duration-600"
-                  : ""
+                  : "",
               )}
               ref={canvasRef}
               style={{
@@ -838,7 +841,7 @@ export default function Editor(props: EditorProps) {
                 border: `1px solid white`,
               }}
             />
-           <div
+            <div
               className="pointer-events-none absolute top-0"
               style={{
                 width: `${imageWidth}px`,
@@ -866,7 +869,7 @@ export default function Editor(props: EditorProps) {
                 </>
               )}
             </div>
-          </div> 
+          </div>
 
           <Cropper
             maxHeight={imageHeight}
@@ -907,6 +910,13 @@ export default function Editor(props: EditorProps) {
       increaseBaseBrushSize();
     } else if (deltaY < 0) {
       decreaseBaseBrushSize();
+    }
+  };
+
+  const toggleCanvasSelect = () => {
+    if (mainCanvasRef.current) {
+      mainCanvasRef.current.isDrawingMode =
+        !mainCanvasRef.current.isDrawingMode;
     }
   };
 
@@ -1007,6 +1017,12 @@ export default function Editor(props: EditorProps) {
           >
             <Eraser />
           </IconButton>
+          <Toggle
+            aria-label="Toggle italic"
+            onPressedChange={toggleCanvasSelect}
+          >
+            <TransformIcon className="h-4 w-4" />
+          </Toggle>
 
           {/* {settings.enableManualInpainting &&
           settings.model.model_type === "inpaint" ? (

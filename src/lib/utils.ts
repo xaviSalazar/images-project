@@ -6,7 +6,6 @@ import { BRUSH_COLOR } from "./const";
 
 import { fabric } from "fabric";
 
-
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -168,7 +167,7 @@ export function isLeftClick(mouseEvent: fabric.IEvent<MouseEvent>) {
 
 export function isMidClick(mouseEvent: fabric.IEvent<MouseEvent>) {
   // const mouseEvent = ev.nativeEvent as MouseEvent;
-  return mouseEvent.e.button  === 1;
+  return mouseEvent.e.button === 1;
 }
 
 export async function copyCanvasImage(canvas: HTMLCanvasElement) {
@@ -253,20 +252,30 @@ export const generateMask = (
   return maskCanvas;
 };
 
-export const generateFromCanvas = (canvasObject: string, imageWidth: number, imageHeight: number): Promise<{ targetMask: string, targetFile: string }>  => {
-  
+export const generateFromCanvas = (
+  canvasObject: string,
+  imageWidth: number,
+  imageHeight: number,
+): Promise<{ targetMask: string; targetFile: string }> => {
   return new Promise((resolve, reject) => {
     // Create an off-screen canvas
-    var canvas = new fabric.Canvas(null, { width: imageWidth, height: imageHeight });
-    let image:string;
-    let mask:string;
+    var canvas = new fabric.Canvas(null, {
+      width: imageWidth,
+      height: imageHeight,
+    });
+    let image: string;
+    let mask: string;
 
     // Parse the input JSON to filter only path objects
     const objCanvas = JSON.parse(canvasObject);
-    const filteredObjects = objCanvas.objects.filter(obj => obj.type === 'path'); // Adjust the condition based on your needs
+    const filteredObjects = objCanvas.objects.filter(
+      (obj) => obj.type === "path",
+    ); // Adjust the condition based on your needs
     const maskToLoad = { ...objCanvas, objects: filteredObjects };
 
-    const filteredTargetFile = objCanvas.objects.filter(obj => obj.type === 'image');
+    const filteredTargetFile = objCanvas.objects.filter(
+      (obj) => obj.type === "image",
+    );
     const imageToLoad = { ...objCanvas, objects: filteredTargetFile };
 
     // Load the canvas from the JSON string
@@ -274,27 +283,26 @@ export const generateFromCanvas = (canvasObject: string, imageWidth: number, ima
       try {
         mask = canvas.toDataURL();
         if (!mask) {
-          throw new Error('Mask generation failed');
+          throw new Error("Mask generation failed");
         }
       } catch (error) {
         reject(error);
       }
     });
 
-    canvas.clear()
+    canvas.clear();
 
     canvas.loadFromJSON(imageToLoad, () => {
       try {
         image = canvas.toDataURL();
         if (!image) {
-          throw new Error('Image generation failed');
+          throw new Error("Image generation failed");
         }
         resolve({ targetMask: mask, targetFile: image });
       } catch (error) {
         reject(error);
       }
     });
-
   });
 };
 

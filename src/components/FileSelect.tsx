@@ -1,7 +1,7 @@
 import { useState } from "react";
 import useResolution from "@/hooks/useResolution";
 import { useTranslation } from "react-i18next";
-import imageCompression from 'browser-image-compression';
+import imageCompression from "browser-image-compression";
 
 type FileSelectProps = {
   onSelection: (file: File) => void;
@@ -34,7 +34,7 @@ export default function FileSelect(props: FileSelectProps) {
       const options = {
         maxWidthOrHeight: 1536,
         useWebWorker: true,
-      }
+      };
 
       const compressedFile = await imageCompression(file, options);
 
@@ -43,7 +43,7 @@ export default function FileSelect(props: FileSelectProps) {
       // eslint-disable-next-line
       alert(`error: ${(e as any).message}`);
     }
-  }
+  };
 
   return (
     <div className="absolute flex w-screen h-screen justify-center items-center pointer-events-none">

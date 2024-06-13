@@ -124,8 +124,8 @@ type InteractiveSegState = {
 type EditorState = {
   currentCanvas: CanvaState;
   canvasGroups: CanvaState[];
-  currCanvasGroups : CanvaState[];
-  lastCanvasGroups : CanvaState[];
+  currCanvasGroups: CanvaState[];
+  lastCanvasGroups: CanvaState[];
   baseBrushSize: number;
   brushSizeScale: number;
   renders: HTMLImageElement[];
@@ -269,8 +269,8 @@ const defaultValues: AppState = {
     curLineGroup: [],
     currentCanvas: "",
     canvasGroups: [],
-    currCanvasGroups : [],
-    lastCanvasGroups : [],
+    currCanvasGroups: [],
+    lastCanvasGroups: [],
     redoRenders: [],
     redoCurLines: [],
     redoLineGroups: [],
@@ -473,8 +473,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         //   maskImages === null &&
         //   !settings.showExtender
         // ) {
-          if(currCanvasGroups.length === 0)
-          {
+        if (currCanvasGroups.length === 0) {
           toast({
             variant: "destructive",
             description: "Please draw mask on picture",
@@ -489,13 +488,13 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         });
 
         // Generate mask and image separately
-        const {targetMask, targetFile} = await generateFromCanvas(
-                              currCanvasGroups[currCanvasGroups.length - 1],
-                              imageWidth,
-                              imageHeight,);
+        const { targetMask, targetFile } = await generateFromCanvas(
+          currCanvasGroups[currCanvasGroups.length - 1],
+          imageWidth,
+          imageHeight,
+        );
 
         try {
-          
           const res = await inpaint(
             dataURItoBlob(targetFile),
             settings,
@@ -615,15 +614,15 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
       },
 
       handleSaveState: (saveState: string) => {
-        let canvaGroup : CanvaState[] = []; // initialized variable
+        let canvaGroup: CanvaState[] = []; // initialized variable
         const state = get();
-        if(state.runMannually()) {
-          canvaGroup = [...state.editorState.currCanvasGroups]
+        if (state.runMannually()) {
+          canvaGroup = [...state.editorState.currCanvasGroups];
         }
-        canvaGroup.push(saveState)
+        canvaGroup.push(saveState);
         set((state) => {
-          state.editorState.currCanvasGroups = canvaGroup
-        })
+          state.editorState.currCanvasGroups = canvaGroup;
+        });
       },
 
       handleCanvasMouseMove: (point: Point) => {
@@ -662,7 +661,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         }
         if (get().runMannually()) {
           //if (editorState.curLineGroup.length === 0) {
-          if  (editorState.currCanvasGroups.length === 0) {
+          if (editorState.currCanvasGroups.length === 0) {
             return true;
           }
         } else if (editorState.renders.length === 0) {
@@ -718,7 +717,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         }
         if (get().runMannually()) {
           //if (editorState.redoCurLines.length === 0) {
-            if (editorState.redoCurCanvas.length === 0) {
+          if (editorState.redoCurCanvas.length === 0) {
             return true;
           }
         } else if (editorState.redoRenders.length === 0) {
