@@ -5,6 +5,7 @@ import { useStore } from "@/lib/states";
 import { RotateCw, Image, Upload } from "lucide-react";
 import SettingsDialog from "./Settings";
 import LanguageSwitcher from "./LanguageSwitcher";
+import PromptInput from "./PromptInput"
 
 import { IconButton, ImageUploadButton } from "@/components/ui/button";
 
@@ -53,6 +54,9 @@ const Header = () => {
           <Image />
         </ImageUploadButton>
       </div>
+
+      {/* {model.need_prompt ? <PromptInput /> : <></>} */} 
+      <PromptInput />
 
       <div className="flex gap-1">
         <LanguageSwitcher />
