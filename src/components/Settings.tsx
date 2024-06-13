@@ -192,9 +192,8 @@ export function SettingsDialog() {
 
       if (shouldSwitchModel) {
         try {
-          const newModel = await switchModel(model.name);
           toast({
-            title: `Switch to ${newModel.name} success`,
+            title: `Switch to ${model.name} success`,
           });
           setAppModel(model);
         } catch (error: any) {
@@ -208,7 +207,7 @@ export function SettingsDialog() {
 
       if (shouldSwitchRemoveBGModel) {
         try {
-          console.log(values.removeBGModel);
+
           updateServerConfig({
             removeBGModel: values.removeBGModel,
           });

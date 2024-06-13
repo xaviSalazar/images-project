@@ -85,12 +85,12 @@ const DiffusionOptions = () => {
     }
   });
 
-  // const onKeyUp = (e: React.KeyboardEvent) => {
-  //   // negativePrompt 回车触发 inpainting
-  //   if (e.key === "Enter" && e.ctrlKey && settings.prompt.length !== 0) {
-  //     runInpainting();
-  //   }
-  // };
+  const onKeyUp = (e: React.KeyboardEvent) => {
+    // negativePrompt 回车触发 inpainting
+    if (e.key === "Enter" && e.ctrlKey && settings.prompt.length !== 0) {
+      runInpainting();
+    }
+  };
 
   const renderCropper = () => {
     return (
