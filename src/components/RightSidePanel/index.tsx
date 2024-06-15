@@ -12,7 +12,7 @@ import LDMOptions from "./LDMOptions";
 import DiffusionOptions from "./DiffusionOptions";
 import CV2Options from "./CV2Options";
 
-const SidePanel = () => {
+const RightSidePanel = () => {
   const [settings, windowSize] = useStore((state) => [
     state.settings,
     state.windowSize,
@@ -96,4 +96,4 @@ const SidePanel = () => {
   );
 };
 
-export default SidePanel;
+export default RightSidePanel;

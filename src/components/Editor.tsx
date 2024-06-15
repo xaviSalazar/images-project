@@ -1,10 +1,13 @@
-import {
+import React, {
   SyntheticEvent,
   useCallback,
   useEffect,
   useRef,
   useState,
+  ForwardedRef,
+  MutableRefObject
 } from "react";
+
 import { CursorArrowRaysIcon } from "@heroicons/react/24/outline";
 import { useToast } from "@/components/ui/use-toast";
 import { TransformIcon } from "@radix-ui/react-icons";
@@ -51,7 +54,8 @@ import { fabric } from "fabric";
 const TOOLBAR_HEIGHT = 200;
 const COMPARE_SLIDER_DURATION_MS = 300;
 
-interface EditorProps {
+type EditorProps = {
+  fabricRef: MutableRefObject<fabric.Canvas | null>
   file: File;
 }
 
@@ -64,8 +68,15 @@ const hexToRgba = (hex: string): string => {
   return `rgba(${r}, ${g}, ${b}, ${a})`;
 };
 
-export default function Editor(props: EditorProps) {
-  const { file } = props;
+const Editor = React.forwardRef(
+  ({ fabricRef, file }: EditorProps, ref: ForwardedRef<HTMLCanvasElement>) => { 
+
+    if (typeof ref === 'function') {
+      throw new Error(
+        `Only React Refs that are created with createRef or useRef are supported`
+      )
+    }
+
   const { toast } = useToast();
 
   const [
@@ -162,7 +173,6 @@ export default function Editor(props: EditorProps) {
     useState<boolean>(false);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const mainCanvasRef = useRef<Canvas | null>(null);
 
   const hadDrawSomething = useCallback(() => {
     return currCanvasGroups.length !== 0;
@@ -170,11 +180,11 @@ export default function Editor(props: EditorProps) {
 
   const saveState = useCallback(() => {
     console.log("save state");
-    if (mainCanvasRef.current) {
-      const state = mainCanvasRef.current.toJSON();
+    if (fabricRef.current) {
+      const state = fabricRef.current.toJSON();
       handleSaveState(JSON.stringify(state));
     }
-  }, [mainCanvasRef.current]);
+  }, [fabricRef.current]);
 
   // load image or coming image from plugins render in fabric js
   useEffect(() => {
@@ -189,29 +199,29 @@ export default function Editor(props: EditorProps) {
       });
     };
 
-    mainCanvasRef.current = initMainCanvas();
-    mainCanvasRef.current.clear();
+    fabricRef.current = initMainCanvas();
+    fabricRef.current.clear();
 
     const img = new fabric.Image(original, {
       left: 0,
       top: 0,
     });
 
-    mainCanvasRef.current.add(img);
+    fabricRef.current.add(img);
 
     // Activate drawing mode for mask overlay
-    mainCanvasRef.current.isDrawingMode = true;
-    mainCanvasRef.current.freeDrawingBrush.width = DEFAULT_BRUSH_SIZE;
-    mainCanvasRef.current.freeDrawingBrush.color = hexToRgba(BRUSH_COLOR);
+    fabricRef.current.isDrawingMode = settings.showDrawing;
+    fabricRef.current.freeDrawingBrush.width = DEFAULT_BRUSH_SIZE;
+    fabricRef.current.freeDrawingBrush.color = hexToRgba(BRUSH_COLOR);
 
     // Event listener for panning
-    mainCanvasRef.current.on("mouse:up", (event: fabric.IEvent<MouseEvent>) => {
+    fabricRef.current.on("mouse:up", (event: fabric.IEvent<MouseEvent>) => {
       if (isMidClick(event)) {
         setIsPanning(false);
       }
     });
 
-    mainCanvasRef.current.on(
+    fabricRef.current.on(
       "mouse:down",
       (event: fabric.IEvent<MouseEvent>) => {
         if (isMidClick(event)) {
@@ -220,54 +230,53 @@ export default function Editor(props: EditorProps) {
       },
     );
 
-    mainCanvasRef.current.on("path:created", () => {
+    fabricRef.current.on("path:created", () => {
       console.log("paht created");
       saveState();
     });
 
-    mainCanvasRef.current.renderAll();
+    fabricRef.current.renderAll();
 
     return () => {
-      mainCanvasRef.current?.dispose();
-      mainCanvasRef.current = null; // Reset the reference to null
+      fabricRef.current?.dispose();
+      fabricRef.current = null; // Reset the reference to null
     };
   }, [original, isOriginalLoaded, imageWidth, imageHeight]);
 
   // COMING RENDERS FROM BACKEND
   useEffect(() => {
-    if (!mainCanvasRef.current) return;
+    if (!fabricRef.current) return;
 
     const render = renders[renders.length - 1];
 
     const img = new fabric.Image(render, {
       left: 0,
       top: 0,
-      selectable: false,
     });
 
     // Clear the canvas
-    mainCanvasRef.current.clear();
-    mainCanvasRef.current.add(img);
+    fabricRef.current.clear();
+    fabricRef.current.add(img);
     saveState();
-    mainCanvasRef.current.renderAll();
+    fabricRef.current.renderAll();
   }, [renders]);
 
   // REDO / UNDO ACTION
   useEffect(() => {
-    if (!mainCanvasRef.current) return;
+    if (!fabricRef.current) return;
     if (currCanvasGroups.length === 0) return;
     const state = JSON.parse(currCanvasGroups[currCanvasGroups.length - 1]);
     // console.log(currCanvasGroups[currCanvasGroups.length - 1])
-    mainCanvasRef.current.loadFromJSON(
+    fabricRef.current.loadFromJSON(
       state,
-      mainCanvasRef.current.renderAll.bind(mainCanvasRef.current),
+      fabricRef.current.renderAll.bind(fabricRef.current),
     );
   }, [currCanvasGroups]);
 
   // CHANGE BRUSH SIZE
   useEffect(() => {
-    if (!mainCanvasRef.current) return;
-    mainCanvasRef.current.freeDrawingBrush.width = baseBrushSize;
+    if (!fabricRef.current) return;
+    fabricRef.current.freeDrawingBrush.width = baseBrushSize;
   }, [baseBrushSize]);
 
   const getCurrentRender = useCallback(async () => {
@@ -619,7 +628,7 @@ export default function Editor(props: EditorProps) {
   };
 
   const download = () => {
-    const canvas = mainCanvasRef.current;
+    const canvas = fabricRef.current;
     if (canvas) {
       const imageObjects = canvas
         .getObjects()
@@ -629,7 +638,7 @@ export default function Editor(props: EditorProps) {
   };
 
   // const download = () => {
-  //   const canvas = mainCanvasRef.current;
+  //   const canvas = fabricRef.current;
   //   if (canvas) {
   //     console.log(canvas.getObjects())
   //     const maskObjects = canvas
@@ -913,13 +922,6 @@ export default function Editor(props: EditorProps) {
     }
   };
 
-  const toggleCanvasSelect = () => {
-    if (mainCanvasRef.current) {
-      mainCanvasRef.current.isDrawingMode =
-        !mainCanvasRef.current.isDrawingMode;
-    }
-  };
-
   return (
     <div
       className="flex w-screen h-screen justify-center items-center"
@@ -1017,12 +1019,7 @@ export default function Editor(props: EditorProps) {
           >
             <Eraser />
           </IconButton>
-          <Toggle
-            aria-label="Toggle italic"
-            onPressedChange={toggleCanvasSelect}
-          >
-            <TransformIcon className="h-4 w-4" />
-          </Toggle>
+
 
           {/* {settings.enableManualInpainting &&
           settings.model.model_type === "inpaint" ? (
@@ -1044,4 +1041,8 @@ export default function Editor(props: EditorProps) {
       </div>
     </div>
   );
-}
+} 
+
+)
+
+export default Editor;

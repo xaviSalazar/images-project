@@ -67,6 +67,8 @@ export type Settings = {
   enableUploadMask: boolean;
   enableAutoExtractPrompt: boolean;
   showCropper: boolean;
+  showDrawing: boolean;
+  showSelectable: boolean;
   showExtender: boolean;
   extenderDirection: ExtenderDirection;
 
@@ -325,6 +327,8 @@ const defaultValues: AppState = {
     enableControlnet: false,
     showCropper: false,
     showExtender: false,
+    showDrawing: false,
+    showSelectable: false,
     extenderDirection: ExtenderDirection.xy,
     enableDownloadMask: false,
     enableManualInpainting: false,
