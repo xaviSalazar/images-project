@@ -113,14 +113,7 @@ const CanvasOptions = ({ fabricRef }: Props) => {
     );
   };
 
-  const renderPaintByExample = () => {
-    if (settings.model.name !== PAINT_BY_EXAMPLE) {
-      return null;
-    }
-
-
-
-
+  const newFileUpload = () => {
     return (
       <div>
         <RowContainer>
@@ -156,7 +149,7 @@ const CanvasOptions = ({ fabricRef }: Props) => {
             runInpainting("Fantasy-Studio/Paint-by-Example");
           }}
         >
-          Paint
+          EJECUTAR ACCION
         </Button>
       </div>
     );
@@ -166,7 +159,7 @@ const CanvasOptions = ({ fabricRef }: Props) => {
     <div className="flex flex-col gap-4 mt-4">
         {drawingMode()}
       <Separator />
-      {renderPaintByExample()}
+      {newFileUpload()}
     </div>
   );
 };
