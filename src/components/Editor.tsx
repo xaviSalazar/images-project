@@ -186,28 +186,15 @@ const Editor = React.forwardRef(
     }
   }, [fabricRef.current]);
 
-  // load image or coming image from plugins render in fabric js
   useEffect(() => {
-    if (!isOriginalLoaded) return;
-    console.log("Inside UseEffect initMainCanvas");
 
     const initMainCanvas = (): Canvas => {
       return new fabric.Canvas(canvasRef.current, {
-        width: imageWidth,
-        height: imageHeight,
         fireMiddleClick: true,
       });
     };
 
     fabricRef.current = initMainCanvas();
-    fabricRef.current.clear();
-
-    const img = new fabric.Image(original, {
-      left: 0,
-      top: 0,
-    });
-
-    fabricRef.current.add(img);
 
     // Activate drawing mode for mask overlay
     fabricRef.current.isDrawingMode = settings.showDrawing;
@@ -235,13 +222,36 @@ const Editor = React.forwardRef(
       saveState();
     });
 
-    fabricRef.current.renderAll();
-
     return () => {
       fabricRef.current?.dispose();
       fabricRef.current = null; // Reset the reference to null
     };
-  }, [original, isOriginalLoaded, imageWidth, imageHeight]);
+  }, []);
+
+
+  // load image or coming image from plugins render in fabric js
+  useEffect(() => {
+
+    if (!isOriginalLoaded) return;
+    if (!fabricRef.current) return
+
+    const [width, height] = getCurrentWidthHeight();
+    if (width !== imageWidth || height !== imageHeight) {
+      setImageSize(width, height);
+    }
+
+    fabricRef.current.setWidth(width);
+    fabricRef.current.setHeight(height);
+
+    const img = new fabric.Image(original, {
+      left: 0,
+      top: 0,
+    });
+
+    fabricRef.current.add(img);
+    fabricRef.current.renderAll();
+
+  }, [original, isOriginalLoaded]);
 
   // COMING RENDERS FROM BACKEND
   useEffect(() => {
