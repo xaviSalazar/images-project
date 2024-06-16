@@ -50,7 +50,18 @@ import {
 } from "@/lib/const";
 import { Toggle } from "@/components/ui/toggle";
 import { fabric } from "fabric";
+import {
+  preload,
+  removeBackground,
+  removeForeground,
+  segmentForeground,
+  alphamask,
+  applySegmentationMask
+} from '@imgly/background-removal';
 
+import {
+  loadImage,
+} from "@/lib/utils";
 const TOOLBAR_HEIGHT = 200;
 const COMPARE_SLIDER_DURATION_MS = 300;
 
@@ -66,6 +77,25 @@ const hexToRgba = (hex: string): string => {
   const b = parseInt(hex.substring(4, 6), 16);
   const a = parseInt(hex.substring(6, 8), 16) / 255;
   return `rgba(${r}, ${g}, ${b}, ${a})`;
+};
+
+const config = {
+  debug: true,
+  // rescale: false,
+  rescale: true,
+  device: 'cpu',
+  // device: 'cpu',
+  // model: 'isnet',
+  // model: 'isnet_fp16',
+  // model: 'isnet_quint8',
+  output: {
+    quality: 0.8,
+    format: 'image/png'
+    // format: 'image/jpeg'
+    // format: 'image/webp'
+    //format: 'image/x-rgba8'
+    //format: 'image/x-alpha8'
+  }
 };
 
 const Editor = React.forwardRef(
@@ -205,11 +235,10 @@ const Editor = React.forwardRef(
     fabric.Object.prototype.cornerColor = 'yellow';
     fabric.Object.prototype.cornerStyle = 'circle';
 
+    //################DELETE SECTION#########################
     const deleteIcon = "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E";
-
     const img = document.createElement('img');
     img.src = deleteIcon;
-
     function renderIcon(ctx, left, top, styleOverride, fabricObject) {
       var size = this.cornerSize;
       ctx.save();
@@ -218,15 +247,30 @@ const Editor = React.forwardRef(
       ctx.drawImage(img, -size/2, -size/2, size, size);
       ctx.restore();
     }
-
     const deleteObject = (
       eventData: fabric.IEvent<MouseEvent>,
       transform: { target: fabric.Object }
     ): void => {
       const target = transform.target;
-      const canvas = target.canvas;
-      canvas?.remove(target);
-      canvas?.requestRenderAll();
+      console.log(target)
+      removeBackground(target.src, config).then((blob: Blob) => {
+        // The result is a blob encoded as PNG. It can be converted to an URL to be used as HTMLImage.src
+        const url = URL.createObjectURL(blob);
+        const newRender = new Image();
+        loadImage(newRender, url)
+        .then(() => {
+          console.log(newRender)
+          const canvas = target.canvas;
+          canvas?.remove(target);
+          const img = new fabric.Image(newRender, {
+            left: 0,
+            top: 0,
+          });
+          canvas?.add(img);
+          canvas?.requestRenderAll();
+        })
+        
+      }) 
     };
 
     fabric.Object.prototype.controls.deleteControl = new fabric.Control({
@@ -238,6 +282,7 @@ const Editor = React.forwardRef(
       render: renderIcon,
       cornerSize: 32,
     });
+    //########### END delete section
 
     // Event listener for panning
     fabricRef.current.on("mouse:up", (event: fabric.IEvent<MouseEvent>) => {
