@@ -3,6 +3,8 @@ import { useStore } from "@/lib/states";
 import { Switch } from "../ui/switch";
 import { NumberInput } from "../ui/input";
 import { useTranslation } from "react-i18next";
+import { IconButton } from "@/components/ui/button";
+
 
 import {
   Select,
@@ -27,6 +29,8 @@ import {
 import { RowContainer, LabelTitle } from "./LabelTitle";
 import { Upload } from "lucide-react";
 import { useClickAway } from "react-use";
+import { DoubleArrowDownIcon, DoubleArrowUpIcon, ArrowDownIcon, ArrowUpIcon } from "@radix-ui/react-icons"
+
 
 const ExtenderButton = ({
   text,
@@ -155,9 +159,59 @@ const CanvasOptions = ({ fabricRef }: Props) => {
     );
   };
 
+  const handleLayoutControl = (
+    mode: 'toFront' | 'toBack' | 'toForward' | 'toBackward'
+  ) => {
+    const fabricInstance = fabricRef.current
+    if (fabricInstance) {
+      const activeObject = fabricInstance?.getActiveObject()
+      if (!activeObject) return
+
+      switch (mode) {
+        case 'toFront':
+          fabricInstance.bringToFront(activeObject)
+          break
+        case 'toBack':
+          fabricInstance.sendToBack(activeObject)
+          break
+        case 'toForward':
+          fabricInstance.bringForward(activeObject)
+          break
+        case 'toBackward':
+          fabricInstance.sendBackwards(activeObject)
+      }
+      fabricInstance.discardActiveObject()
+      fabricInstance.renderAll()
+    }
+  }
+  const renderLayerControl = () => {
+
+    const layerControlConfig = [
+      { label: 'toForward', icon: <ArrowUpIcon className="h-4 w-4" />, tooltip: "Forward" },
+      { label: 'toFront', icon: <DoubleArrowUpIcon className="h-4 w-4" />, tooltip: "To front" },
+      { label: 'toBackward', icon: <ArrowDownIcon className="h-4 w-4" />, tooltip: "Backward" },
+      { label: 'toBack', icon: <DoubleArrowDownIcon className="h-4 w-4" />, tooltip: "To back" },
+    ]
+  
+    return (
+      <RowContainer>
+        {layerControlConfig.map(({ label, icon, tooltip }) => (
+          <IconButton
+            key={label}
+            tooltip={tooltip}
+            onClick={() => handleLayoutControl(label as 'toFront' | 'toBack' | 'toForward' | 'toBackward')}
+          >
+            {icon}
+          </IconButton>
+        ))}
+      </RowContainer>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-4 mt-4">
         {drawingMode()}
+        {renderLayerControl()}
       <Separator />
       {newFileUpload()}
     </div>
