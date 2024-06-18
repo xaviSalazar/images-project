@@ -198,11 +198,19 @@ const Editor = React.forwardRef(
 
   const [isDraging, setIsDraging] = useState(false);
 
+  const [isCropping, setIsCropping] = useState(false);
+  const [activeObject, setActiveObject] = useState<FabricObject | null> (null)
+
+
   const [sliderPos, setSliderPos] = useState<number>(0);
   const [isChangingBrushSizeByWheel, setIsChangingBrushSizeByWheel] =
     useState<boolean>(false);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const cropperCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  // crop
+  const lastActiveObject = useRef<fabric.Object | null>(null);
+  const rectangleCut = useRef<fabric.Object | null>(null);
 
   const hadDrawSomething = useCallback(() => {
     return currCanvasGroups.length !== 0;
@@ -215,6 +223,141 @@ const Editor = React.forwardRef(
       handleSaveState(JSON.stringify(state));
     }
   }, [fabricRef.current]);
+
+  // FUNCTION TO CALL WHEN REMOVE BACKGROUND OF SPECIFIC IMAGE 
+  const rmBg = (
+    eventData: fabric.IEvent<MouseEvent>,
+    transform: { target: fabric.Object }
+  ): void => {
+    const target = transform.target;
+    console.log(target)
+    removeBackground(target.src, config).then((blob: Blob) => {
+      // The result is a blob encoded as PNG. It can be converted to an URL to be used as HTMLImage.src
+      const url = URL.createObjectURL(blob);
+      const newRender = new Image();
+      loadImage(newRender, url)
+      .then(() => {
+        console.log(newRender)
+        const canvas = target.canvas;
+        canvas?.remove(target);
+        const img_without_background = new fabric.Image(newRender, {
+          left: 0,
+          top: 0,
+        });
+        canvas?.add(img_without_background);
+        canvas?.requestRenderAll();
+      })
+      
+    }) 
+  };
+
+
+    function cropImage() {
+
+      if (!fabricRef.current || !lastActiveObject.current || !rectangleCut.current)  return
+      
+      console.log(lastActiveObject.current)
+      console.log(rectangleCut.current)
+
+      let height = parseInt(lastActiveObject.current.height * lastActiveObject.current.scaleY); // default height
+      let width = parseInt(lastActiveObject.current.width * lastActiveObject.current.scaleX); // default width
+      let top = lastActiveObject.current.top; // default top
+      let left = lastActiveObject.current.left; // default left
+
+      if (top < rectangleCut.current.top) {
+        console.log('case top < rectangular')
+        height = height - (rectangleCut.current.top - top);
+        top = rectangleCut.current.top;
+        console.log(top)
+      }
+
+      if (left < rectangleCut.current.left) {
+        console.log('case left < rectangular')
+        width = width - (rectangleCut.current.left - left);
+        left = rectangleCut.current.left;
+        console.log(left)
+      }
+
+      // validated part
+      if (top + height > rectangleCut.current.top + rectangleCut.current.height * rectangleCut.current.scaleY)
+      {
+        console.log('trim case 1');
+        height = rectangleCut.current.top + rectangleCut.current.height * rectangleCut.current.scaleY - top;
+      }
+
+      if (left + width > rectangleCut.current.left + rectangleCut.current.width * rectangleCut.current.scaleX)
+      {
+        console.log('trim case 2')
+        width = rectangleCut.current.left + rectangleCut.current.width * rectangleCut.current.scaleX - left;
+      }
+
+      //var canvas_crop = new fabric.Canvas("canvas_crop");
+
+      var canvas_crop = new fabric.Canvas(cropperCanvasRef.current, {
+      });
+
+
+      fabricRef.current?.remove(rectangleCut.current)
+      rectangleCut.current = null;
+
+      fabric.Image.fromURL(fabricRef.current.toDataURL('png'), function(img) {
+        img.set('left', -left);
+        img.set('top', -top);
+        canvas_crop.add(img)
+        canvas_crop.setHeight(height);
+        canvas_crop.setWidth(width);
+        canvas_crop.renderAll();
+        fabric.Image.fromURL(canvas_crop.toDataURL('png'), function(croppedImg) {
+          croppedImg.set('left', left);
+          croppedImg.set('top', top);
+          fabricRef.current?.remove(lastActiveObject.current)
+          lastActiveObject.current = null
+          fabricRef.current?.add(croppedImg).renderAll();
+      });
+  });
+      //lastActiveObject.current.set({ width: width, left: left, top: top, width: width / lastActiveObject.current.scaleX, height: height / lastActiveObject.current.scaleY});
+
+
+      //fabricRef.current.renderAll();
+}
+  // function to crop an image
+  const drawCropRect = (
+    eventData: fabric.IEvent<MouseEvent>,
+    transform: { target: fabric.Object }
+  ): void => {
+  
+    const target = transform.target;
+    let selection_object_left = 0;
+    let selection_object_top = 0;
+
+    const rectangle = new fabric.Rect({
+      fill: 'rgba(0,0,0,0)',
+      originX: 'left',
+      originY: 'top',
+      stroke: '#ccc',
+      //strokeDashArray: [2, 2],
+      strokeWidth: 1,
+      //opacity: 1,
+      width: 1,
+      height: 1,
+      borderColor: '#36fd00',
+      cornerColor: 'green',
+      hasRotatingPoint: false,
+      selectable: true
+  });
+
+  const canvas = target.canvas;
+  lastActiveObject.current = canvas?.getActiveObject();
+  rectangle.left = canvas?.getActiveObject()?.left;
+  selection_object_left = canvas?.getActiveObject()?.left;
+  selection_object_top = canvas?.getActiveObject()?.top;
+  rectangle.top = canvas?.getActiveObject()?.top;
+  rectangle.width = canvas?.getActiveObject()?.width * canvas?.getActiveObject()?.scaleX;
+  rectangle.height = canvas?.getActiveObject()?.height * canvas?.getActiveObject()?.scaleY;
+  rectangleCut.current= rectangle
+  canvas?.add(rectangle);
+  canvas?.setActiveObject(rectangle);
+  }
 
   useEffect(() => {
 
@@ -238,55 +381,49 @@ const Editor = React.forwardRef(
     //################DELETE SECTION#########################
     //const deleteIcon = "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E";
     const deleteIcon = 'data:image/svg+xml,%3Csvg height="200px" width="200px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="%23000000"%3E%3Cg id="SVGRepo_bgCarrier" stroke-width="0"%3E%3C/g%3E%3Cg id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"%3E%3C/g%3E%3Cg id="SVGRepo_iconCarrier"%3E%3Cg transform="translate(0 1)"%3E%3Cpolygon style="fill:%233D83F3;" points="34.712,502.322 477.288,502.322 477.288,7.678 34.712,7.678 "%3E%3C/polygon%3E%3Cpolygon style="fill:%23315ED8;" points="477.288,502.322 503.322,502.322 503.322,7.678 477.288,7.678 "%3E%3C/polygon%3E%3Cpolygon style="fill:%23FFFFFF;" points="8.678,502.322 34.712,502.322 34.712,7.678 8.678,7.678 "%3E%3C/polygon%3E%3Cpath d="M512,511H0V120.492c0-5.207,3.471-8.678,8.678-8.678s8.678,3.471,8.678,8.678v373.153h477.288v-78.102 c0-5.207,3.471-8.678,8.678-8.678c5.207,0,8.678,3.471,8.678,8.678V511z"%3E%3C/path%3E%3Cpath d="M503.322,346.119c-5.207,0-8.678-3.471-8.678-8.678V16.356H17.356v34.712c0,5.207-3.471,8.678-8.678,8.678 S0,56.275,0,51.068V-1h512v338.441C512,342.647,508.529,346.119,503.322,346.119z"%3E%3C/path%3E%3Cpath d="M17.356,85.78c0-5.207-3.471-8.678-8.678-8.678S0,80.573,0,85.78c0,5.207,3.471,8.678,8.678,8.678 S17.356,90.986,17.356,85.78"%3E%3C/path%3E%3Cpath d="M503.322,389.508c-5.207,0-8.678-3.471-8.678-8.678v-8.678c0-5.207,3.471-8.678,8.678-8.678 c5.207,0,8.678,3.471,8.678,8.678v8.678C512,386.037,508.529,389.508,503.322,389.508z"%3E%3C/path%3E%3Cpath style="fill:%23FFE100;" d="M395.715,178.634L303.729,85.78c-8.678-8.678-22.563-8.678-31.241,0L69.424,288.844 c-8.678,8.678-8.678,22.563,0,31.241l73.763,72.895l56.407,13.885l196.122-196.99C404.393,201.197,404.393,187.312,395.715,178.634 "%3E%3C/path%3E%3Cpath style="fill:%23FF8800;" d="M395.715,178.634c8.678,8.678,8.678,22.563,0,31.241l-196.122,196.99h27.77l183.105-183.105 c8.678-8.678,8.678-22.563,0-31.241L395.715,178.634z"%3E%3C/path%3E%3Cpath d="M308.936,333.969c-2.603,0-4.339-0.868-6.075-2.603L167.485,195.99c-3.471-3.471-3.471-8.678,0-12.149 c3.471-3.471,8.678-3.471,12.149,0L315.01,319.217c3.471,3.471,3.471,8.678,0,12.149 C313.275,333.102,311.539,333.969,308.936,333.969z"%3E%3C/path%3E%3Cpath d="M230.834,415.542h-76.366L66.82,327.895c-6.075-6.075-8.678-13.885-8.678-21.695s3.471-15.62,8.678-21.695L269.017,83.176 c12.149-12.149,31.241-12.149,43.39,0l104.136,104.136c6.075,6.075,8.678,13.885,8.678,21.695s-3.471,15.62-8.678,21.695 L230.834,415.542z M161.41,398.186h62.481l180.502-180.502c2.603-2.603,3.471-6.075,3.471-9.546c0-3.471-1.736-6.942-3.471-9.546 l0,0L300.258,94.458c-5.207-5.207-13.885-5.207-19.092,0L78.969,297.522c-2.603,2.603-3.471,6.075-3.471,9.546 c0,3.471,1.736,6.942,3.471,9.546L161.41,398.186z"%3E%3C/path%3E%3Cpath d="M433.898,415.542H286.373c-5.207,0-8.678-3.471-8.678-8.678s3.471-8.678,8.678-8.678h147.525 c5.207,0,8.678,3.471,8.678,8.678S439.105,415.542,433.898,415.542z"%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/svg%3E'
-    const img = document.createElement('img');
-    img.src = deleteIcon;
-    function renderIcon(ctx, left, top, styleOverride, fabricObject) {
-      var size = this.cornerSize;
-      ctx.save();
-      ctx.translate(left, top);
-      ctx.rotate(fabric.util.degreesToRadians(fabricObject.angle));
-      ctx.drawImage(img, -size/2, -size/2, size, size);
-      ctx.restore();
-    }
-    const deleteObject = (
-      eventData: fabric.IEvent<MouseEvent>,
-      transform: { target: fabric.Object }
-    ): void => {
-      const target = transform.target;
-      console.log(target)
-      removeBackground(target.src, config).then((blob: Blob) => {
-        // The result is a blob encoded as PNG. It can be converted to an URL to be used as HTMLImage.src
-        const url = URL.createObjectURL(blob);
-        const newRender = new Image();
-        loadImage(newRender, url)
-        .then(() => {
-          console.log(newRender)
-          const canvas = target.canvas;
-          canvas?.remove(target);
-          const img = new fabric.Image(newRender, {
-            left: 0,
-            top: 0,
-          });
-          canvas?.add(img);
-          canvas?.requestRenderAll();
-        })
-        
-      }) 
-    };
+    const img_rembg = document.createElement('img');
+    img_rembg.src = deleteIcon;
 
+    // otro icon
+    const cloneIcon = "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='iso-8859-1'%3F%3E%3Csvg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 55.699 55.699' width='100px' height='100px' xml:space='preserve'%3E%3Cpath style='fill:%23010002;' d='M51.51,18.001c-0.006-0.085-0.022-0.167-0.05-0.248c-0.012-0.034-0.02-0.067-0.035-0.1 c-0.049-0.106-0.109-0.206-0.194-0.291v-0.001l0,0c0,0-0.001-0.001-0.001-0.002L34.161,0.293c-0.086-0.087-0.188-0.148-0.295-0.197 c-0.027-0.013-0.057-0.02-0.086-0.03c-0.086-0.029-0.174-0.048-0.265-0.053C33.494,0.011,33.475,0,33.453,0H22.177 c-3.678,0-6.669,2.992-6.669,6.67v1.674h-4.663c-3.678,0-6.67,2.992-6.67,6.67V49.03c0,3.678,2.992,6.669,6.67,6.669h22.677 c3.677,0,6.669-2.991,6.669-6.669v-1.675h4.664c3.678,0,6.669-2.991,6.669-6.669V18.069C51.524,18.045,51.512,18.025,51.51,18.001z M34.454,3.414l13.655,13.655h-8.985c-2.575,0-4.67-2.095-4.67-4.67V3.414z M38.191,49.029c0,2.574-2.095,4.669-4.669,4.669H10.845 c-2.575,0-4.67-2.095-4.67-4.669V15.014c0-2.575,2.095-4.67,4.67-4.67h5.663h4.614v10.399c0,3.678,2.991,6.669,6.668,6.669h10.4 v18.942L38.191,49.029L38.191,49.029z M36.777,25.412h-8.986c-2.574,0-4.668-2.094-4.668-4.669v-8.985L36.777,25.412z M44.855,45.355h-4.664V26.412c0-0.023-0.012-0.044-0.014-0.067c-0.006-0.085-0.021-0.167-0.049-0.249 c-0.012-0.033-0.021-0.066-0.036-0.1c-0.048-0.105-0.109-0.205-0.194-0.29l0,0l0,0c0-0.001-0.001-0.002-0.001-0.002L22.829,8.637 c-0.087-0.086-0.188-0.147-0.295-0.196c-0.029-0.013-0.058-0.021-0.088-0.031c-0.086-0.03-0.172-0.048-0.263-0.053 c-0.021-0.002-0.04-0.013-0.062-0.013h-4.614V6.67c0-2.575,2.095-4.67,4.669-4.67h10.277v10.4c0,3.678,2.992,6.67,6.67,6.67h10.399 v21.616C49.524,43.26,47.429,45.355,44.855,45.355z'/%3E%3C/svg%3E%0A"
+    const cloneImg = document.createElement('img');
+    cloneImg.src = cloneIcon;
+
+    function renderIconCorner(icon) {
+      return function renderIcon(ctx, left, top, styleOverride, fabricObject) {
+        var size = this.cornerSize;
+        ctx.save();
+        ctx.translate(left, top);
+        ctx.rotate(fabric.util.degreesToRadians(fabricObject.angle));
+        ctx.drawImage(icon, -size/2, -size/2, size, size);
+        ctx.restore();
+    }
+  }
     fabric.Object.prototype.controls.deleteControl = new fabric.Control({
       x: 0.5,
       y: -0.5,
       offsetY: 16,
       cursorStyle: 'pointer',
-      mouseUpHandler: deleteObject,
-      render: renderIcon,
+      mouseUpHandler: rmBg,
+      render: renderIconCorner(img_rembg),
       cornerSize: 44,
     });
     //########### END delete section
 
+    fabric.Object.prototype.controls.clone = new fabric.Control({
+      x: -0.5,
+      y: -0.5,
+      offsetY: 16,
+      cursorStyle: 'pointer',
+      mouseUpHandler: drawCropRect,
+      render: renderIconCorner(cloneImg),
+      cornerSize: 44,
+    });
+
     // Event listener for panning
     fabricRef.current.on("mouse:up", (event: fabric.IEvent<MouseEvent>) => {
+      console.log(lastActiveObject.current)
+      console.log(rectangleCut.current)
       if (isMidClick(event)) {
         setIsPanning(false);
       }
@@ -305,6 +442,8 @@ const Editor = React.forwardRef(
       console.log("paht created");
       saveState();
     });
+
+    // #### DISPOSE 
 
     return () => {
       fabricRef.current?.dispose();
@@ -330,7 +469,6 @@ const Editor = React.forwardRef(
     const img = new fabric.Image(original, {
       left: 0,
       top: 0,
-
     });
 
     fabricRef.current.add(img);
@@ -1110,6 +1248,18 @@ const Editor = React.forwardRef(
             }
             onClick={() => {
               runInpainting("lama");
+            }}
+          >
+            <Eraser />
+          </IconButton>
+
+          <IconButton
+            tooltip="CUT IMAGE"
+            // disabled={
+            //   isProcessing || (!hadDrawSomething() && extraMasks.length === 0)
+            // }
+            onClick={() => {
+              cropImage()
             }}
           >
             <Eraser />
