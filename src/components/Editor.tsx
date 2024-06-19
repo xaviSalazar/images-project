@@ -230,26 +230,55 @@ const Editor = React.forwardRef(
     eventData: fabric.IEvent<MouseEvent>,
     transform: { target: fabric.Object }
   ): void => {
-    const target = transform.target;
-    console.log(target)
-    removeBackground(target.src, config).then((blob: Blob) => {
+    
+    const single_instance = transform.target.canvas;
+    console.log(single_instance)
+    const current_active = single_instance?._activeObject;
+    console.log(current_active)
+    const objectWidth = current_active.width * current_active.scaleX;
+    const objectHeight = current_active.height * current_active.scaleY;
+    const objectTop = current_active.top;
+    const objectLeft = current_active.left;
+
+    let CvRef: HTMLCanvasElement | null = null;
+      // Create a temporary canvas
+      var tempCanvas = new fabric.Canvas(CvRef, {
+        width: objectWidth, height: objectHeight
+      });
+    // Clone the active object to the temporary canvas
+    current_active.clone(clonedObject => {
+      clonedObject.set({
+        left: 0,
+        top: 0,
+        scaleX: current_active.scaleX,
+        scaleY: current_active.scaleX,
+      });
+  
+    tempCanvas.add(clonedObject);
+    tempCanvas.renderAll();
+  
+      // Get the data URL of the cloned object
+      const objectDataUrl = tempCanvas.toDataURL('png');
+
+    removeBackground(objectDataUrl, config).then((blob: Blob) => {
       // The result is a blob encoded as PNG. It can be converted to an URL to be used as HTMLImage.src
       const url = URL.createObjectURL(blob);
       const newRender = new Image();
       loadImage(newRender, url)
       .then(() => {
         console.log(newRender)
-        const canvas = target.canvas;
-        canvas?.remove(target);
+        single_instance?.remove(transform.target);
         const img_without_background = new fabric.Image(newRender, {
-          left: 0,
-          top: 0,
+          left: objectLeft,
+          top: objectTop,
         });
-        canvas?.add(img_without_background);
-        canvas?.requestRenderAll();
+        single_instance?.add(img_without_background);
+        single_instance?.requestRenderAll();
       })
       
     }) 
+
+    });
   };
 
 
