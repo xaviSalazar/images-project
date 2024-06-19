@@ -33,7 +33,7 @@ import {
   mouseXY,
   srcToFile,
 } from "@/lib/utils";
-import { Eraser, Eye, Redo, Undo, Expand, Download } from "lucide-react";
+import { Eraser, Eye, Redo, Undo, Expand, Download, SignalMedium } from "lucide-react";
 import { useImage } from "@/hooks/useImage";
 import { Slider } from "./ui/slider";
 import { PluginName } from "@/lib/types";
@@ -224,17 +224,37 @@ const Editor = React.forwardRef(
       }
     }, [fabricRef.current]);
 
+    function animateImageOpacity(object: fabric.Object | null, duration: number = 1000, toOpacity: number = 1) {
+      if(!object) return
+      fabric.util.animate({
+        startValue: object.get('opacity') as number,
+        endValue: toOpacity,
+        duration: duration,
+        onChange: (value: number) => {
+          object.set('opacity', value);
+          object.canvas?.renderAll();
+        },
+        onComplete: () => {
+          const nextOpacity = toOpacity === 1 ? 0 : 1;
+          animateImageOpacity(object, duration, nextOpacity); // Recursively call to continue animation
+        },
+      });
+    }
+    
     // FUNCTION TO CALL WHEN REMOVE BACKGROUND OF SPECIFIC IMAGE
     const rmBg = (
       eventData: fabric.IEvent<MouseEvent>,
       transform: { target: fabric.Object },
     ): void => {
-      const single_instance = transform.target.canvas;
+      const single_instance: fabric.Canvas | null = transform.target.canvas ?? null;
       console.log(single_instance);
-      const current_active = single_instance?._activeObject;
-      console.log(current_active);
-      const objectWidth = current_active.width * current_active.scaleX;
-      const objectHeight = current_active.height * current_active.scaleY;
+      const current_active: fabric.Object | null = single_instance?._activeObject ?? null;
+
+      if(!current_active) return;
+
+      animateImageOpacity(current_active, 1000); // Start the continuous animation
+      const objectWidth = (current_active.width ?? 0 )* (current_active.scaleX ?? 0);
+      const objectHeight = (current_active.height ?? 0 )* (current_active.scaleY ?? 0 );
       const objectTop = current_active.top;
       const objectLeft = current_active.left;
 
@@ -245,7 +265,7 @@ const Editor = React.forwardRef(
         height: objectHeight,
       });
       // Clone the active object to the temporary canvas
-      current_active.clone((clonedObject) => {
+      current_active.clone((clonedObject: fabric.Object) => {
         clonedObject.set({
           left: 0,
           top: 0,
@@ -257,7 +277,7 @@ const Editor = React.forwardRef(
         tempCanvas.renderAll();
 
         // Get the data URL of the cloned object
-        const objectDataUrl = tempCanvas.toDataURL("png");
+        const objectDataUrl = tempCanvas.toDataURL({format: 'png'});
 
         removeBackground(objectDataUrl, config).then((blob: Blob) => {
           // The result is a blob encoded as PNG. It can be converted to an URL to be used as HTMLImage.src
@@ -343,7 +363,7 @@ const Editor = React.forwardRef(
       fabricRef.current?.remove(rectangleCut.current);
       rectangleCut.current = null;
 
-      fabric.Image.fromURL(fabricRef.current.toDataURL("png"), function (img) {
+      fabric.Image.fromURL(fabricRef.current.toDataURL({format: 'png'}), function (img) {
         img.set("left", -left);
         img.set("top", -top);
         canvas_crop.add(img);
@@ -351,7 +371,7 @@ const Editor = React.forwardRef(
         canvas_crop.setWidth(width);
         canvas_crop.renderAll();
         fabric.Image.fromURL(
-          canvas_crop.toDataURL("png"),
+          canvas_crop.toDataURL({format: 'png'}),
           function (croppedImg) {
             croppedImg.set("left", left);
             croppedImg.set("top", top);
