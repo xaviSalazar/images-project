@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 import { useEffect } from "react";
 import Editor from "./Editor";
 import { currentModel } from "@/lib/api";
@@ -9,8 +9,7 @@ import Plugins from "./Plugins";
 import RightSidePanel from "./RightSidePanel";
 // import DiffusionProgress from "./DiffusionProgress"
 import { ModelInfo } from "@/lib/types";
-import LeftSidePanel from './LeftSidePanel';
-
+import LeftSidePanel from "./LeftSidePanel";
 
 const model: ModelInfo = {
   name: "Fantasy-Studio/Paint-by-Example",
@@ -27,10 +26,9 @@ const model: ModelInfo = {
 };
 
 const Workspace = () => {
-
   // remember only valid inside function
-  const fabricRef = React.useRef<fabric.Canvas | null>(null)
-  const canvasRef = React.useRef<HTMLCanvasElement>(null)
+  const fabricRef = React.useRef<fabric.Canvas | null>(null);
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
   const [file, updateSettings] = useStore((state) => [
     state.file,
@@ -57,7 +55,11 @@ const Workspace = () => {
       <DiffusionProgress />*/}
       <LeftSidePanel fabricRef={fabricRef} />
       <RightSidePanel />
-      {file ? <Editor fabricRef={fabricRef} file={file} ref={canvasRef}  /> : <></>}
+      {file ? (
+        <Editor fabricRef={fabricRef} file={file} ref={canvasRef} />
+      ) : (
+        <></>
+      )}
     </>
   );
 };

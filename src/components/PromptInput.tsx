@@ -1,9 +1,9 @@
-import React, { FormEvent, useRef } from "react"
-import { Button } from "./ui/button"
-import { useStore } from "@/lib/states"
-import { useClickAway, useToggle } from "react-use"
-import { Textarea } from "./ui/textarea"
-import { cn } from "@/lib/utils"
+import React, { FormEvent, useRef } from "react";
+import { Button } from "./ui/button";
+import { useStore } from "@/lib/states";
+import { useClickAway, useToggle } from "react-use";
+import { Textarea } from "./ui/textarea";
+import { cn } from "@/lib/utils";
 
 const PromptInput = () => {
   const [
@@ -20,45 +20,45 @@ const PromptInput = () => {
     state.runInpainting,
     state.showPrevMask,
     state.hidePrevMask,
-  ])
+  ]);
 
-  const [showScroll, toggleShowScroll] = useToggle(false)
+  const [showScroll, toggleShowScroll] = useToggle(false);
 
-  const ref = useRef(null)
+  const ref = useRef(null);
   useClickAway<MouseEvent>(ref, () => {
     if (ref?.current) {
-      const input = ref.current as HTMLTextAreaElement
-      input.blur()
+      const input = ref.current as HTMLTextAreaElement;
+      input.blur();
     }
-  })
+  });
 
   const handleOnInput = (evt: FormEvent<HTMLTextAreaElement>) => {
-    evt.preventDefault()
-    evt.stopPropagation()
-    const target = evt.target as HTMLTextAreaElement
-    updateSettings({ prompt: target.value })
-  }
+    evt.preventDefault();
+    evt.stopPropagation();
+    const target = evt.target as HTMLTextAreaElement;
+    updateSettings({ prompt: target.value });
+  };
 
   const handleRepaintClick = () => {
     if (!isProcessing) {
-        // replace with model to call actually
+      // replace with model to call actually
       // runInpainting()
     }
-  }
+  };
 
   const onKeyUp = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && e.ctrlKey && prompt.length !== 0) {
-     //  handleRepaintClick()
+      //  handleRepaintClick()
     }
-  }
+  };
 
   const onMouseEnter = () => {
-    showPrevMask()
-  }
+    showPrevMask();
+  };
 
   const onMouseLeave = () => {
-    hidePrevMask()
-  }
+    hidePrevMask();
+  };
 
   return (
     <div className="flex gap-4 relative w-full justify-center h-full">
@@ -68,7 +68,7 @@ const PromptInput = () => {
           placeholder="I want to repaint of..."
           className={cn(
             showScroll ? "focus:overflow-y-auto" : "overflow-y-hidden",
-            "min-h-[32px] h-[32px] overflow-x-hidden focus:h-[120px] overflow-y-hidden transition-[height] w-[500px] py-1 px-3 bg-background resize-none"
+            "min-h-[32px] h-[32px] overflow-x-hidden focus:h-[120px] overflow-y-hidden transition-[height] w-[500px] py-1 px-3 bg-background resize-none",
           )}
           style={{
             scrollbarGutter: "stable",
@@ -89,7 +89,7 @@ const PromptInput = () => {
         </Button>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PromptInput
+export default PromptInput;

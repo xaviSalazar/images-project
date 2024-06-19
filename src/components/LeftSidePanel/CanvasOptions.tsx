@@ -5,7 +5,6 @@ import { NumberInput } from "../ui/input";
 import { useTranslation } from "react-i18next";
 import { IconButton } from "@/components/ui/button";
 
-
 import {
   Select,
   SelectContent,
@@ -29,8 +28,12 @@ import {
 import { RowContainer, LabelTitle } from "./LabelTitle";
 import { Upload } from "lucide-react";
 import { useClickAway } from "react-use";
-import { DoubleArrowDownIcon, DoubleArrowUpIcon, ArrowDownIcon, ArrowUpIcon } from "@radix-ui/react-icons"
-
+import {
+  DoubleArrowDownIcon,
+  DoubleArrowUpIcon,
+  ArrowDownIcon,
+  ArrowUpIcon,
+} from "@radix-ui/react-icons";
 
 const ExtenderButton = ({
   text,
@@ -53,8 +56,8 @@ const ExtenderButton = ({
 };
 
 type Props = {
-    fabricRef: MutableRefObject<fabric.Canvas | null>
-  }
+  fabricRef: MutableRefObject<fabric.Canvas | null>;
+};
 
 const CanvasOptions = ({ fabricRef }: Props) => {
   const [
@@ -84,13 +87,13 @@ const CanvasOptions = ({ fabricRef }: Props) => {
   ]);
   const [exampleImage, isExampleImageLoaded] = useImage(paintByExampleFile);
   const { t } = useTranslation();
-  
+
   const handleToggleDrawingMode = (value: boolean) => {
-    console.log(value)
-    const fabricInstance = fabricRef.current
+    console.log(value);
+    const fabricInstance = fabricRef.current;
     if (fabricInstance) {
-        console.log("here")
-      fabricInstance.isDrawingMode = value
+      console.log("here");
+      fabricInstance.isDrawingMode = value;
     }
   };
 
@@ -110,8 +113,7 @@ const CanvasOptions = ({ fabricRef }: Props) => {
             if (value) {
               updateSettings({ showSelectable: false });
             }
-          }
-        }
+          }}
         />
       </RowContainer>
     );
@@ -160,58 +162,77 @@ const CanvasOptions = ({ fabricRef }: Props) => {
   };
 
   const handleLayoutControl = (
-    mode: 'toFront' | 'toBack' | 'toForward' | 'toBackward'
+    mode: "toFront" | "toBack" | "toForward" | "toBackward",
   ) => {
-    const fabricInstance = fabricRef.current
+    const fabricInstance = fabricRef.current;
     if (fabricInstance) {
-      const activeObject = fabricInstance?.getActiveObject()
-      if (!activeObject) return
+      const activeObject = fabricInstance?.getActiveObject();
+      if (!activeObject) return;
 
       switch (mode) {
-        case 'toFront':
-          fabricInstance.bringToFront(activeObject)
-          break
-        case 'toBack':
-          fabricInstance.sendToBack(activeObject)
-          break
-        case 'toForward':
-          fabricInstance.bringForward(activeObject)
-          break
-        case 'toBackward':
-          fabricInstance.sendBackwards(activeObject)
+        case "toFront":
+          fabricInstance.bringToFront(activeObject);
+          break;
+        case "toBack":
+          fabricInstance.sendToBack(activeObject);
+          break;
+        case "toForward":
+          fabricInstance.bringForward(activeObject);
+          break;
+        case "toBackward":
+          fabricInstance.sendBackwards(activeObject);
       }
-      fabricInstance.discardActiveObject()
-      fabricInstance.renderAll()
+      fabricInstance.discardActiveObject();
+      fabricInstance.renderAll();
     }
-  }
+  };
   const renderLayerControl = () => {
-
     const layerControlConfig = [
-      { label: 'toForward', icon: <ArrowUpIcon className="h-4 w-4" />, tooltip: "Forward" },
-      { label: 'toFront', icon: <DoubleArrowUpIcon className="h-4 w-4" />, tooltip: "To front" },
-      { label: 'toBackward', icon: <ArrowDownIcon className="h-4 w-4" />, tooltip: "Backward" },
-      { label: 'toBack', icon: <DoubleArrowDownIcon className="h-4 w-4" />, tooltip: "To back" },
-    ]
-  
+      {
+        label: "toForward",
+        icon: <ArrowUpIcon className="h-4 w-4" />,
+        tooltip: "Forward",
+      },
+      {
+        label: "toFront",
+        icon: <DoubleArrowUpIcon className="h-4 w-4" />,
+        tooltip: "To front",
+      },
+      {
+        label: "toBackward",
+        icon: <ArrowDownIcon className="h-4 w-4" />,
+        tooltip: "Backward",
+      },
+      {
+        label: "toBack",
+        icon: <DoubleArrowDownIcon className="h-4 w-4" />,
+        tooltip: "To back",
+      },
+    ];
+
     return (
       <RowContainer>
         {layerControlConfig.map(({ label, icon, tooltip }) => (
           <IconButton
             key={label}
             tooltip={tooltip}
-            onClick={() => handleLayoutControl(label as 'toFront' | 'toBack' | 'toForward' | 'toBackward')}
+            onClick={() =>
+              handleLayoutControl(
+                label as "toFront" | "toBack" | "toForward" | "toBackward",
+              )
+            }
           >
             {icon}
           </IconButton>
         ))}
       </RowContainer>
-    )
-  }
+    );
+  };
 
   return (
     <div className="flex flex-col gap-4 mt-4">
-        {drawingMode()}
-        {renderLayerControl()}
+      {drawingMode()}
+      {renderLayerControl()}
       <Separator />
       {newFileUpload()}
     </div>

@@ -207,7 +207,6 @@ export function SettingsDialog() {
 
       if (shouldSwitchRemoveBGModel) {
         try {
-
           updateServerConfig({
             removeBGModel: values.removeBGModel,
           });

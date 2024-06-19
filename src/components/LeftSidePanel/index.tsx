@@ -9,21 +9,17 @@ import useHotKey from "@/hooks/useHotkey";
 import { RowContainer, LabelTitle } from "./LabelTitle";
 import CanvasOptions from "./CanvasOptions";
 import { useTranslation } from "react-i18next";
-import {
-MutableRefObject
-} from "react";
+import { MutableRefObject } from "react";
 
 // import LDMOptions from "./LDMOptions";
 // import DiffusionOptions from "./DiffusionOptions";
 // import CV2Options from "./CV2Options";
 
-
 type Props = {
-  fabricRef: MutableRefObject<fabric.Canvas | null>
-}
+  fabricRef: MutableRefObject<fabric.Canvas | null>;
+};
 
 const LeftSidePanel = ({ fabricRef }: Props) => {
-  
   const [settings, windowSize] = useStore((state) => [
     state.settings,
     state.windowSize,
@@ -60,11 +56,7 @@ const LeftSidePanel = ({ fabricRef }: Props) => {
       >
         <SheetHeader>
           <RowContainer>
-            <div className="overflow-hidden mr-8">
-              {
-                "OPTIONS"
-              }
-            </div>
+            <div className="overflow-hidden mr-8">{"OPTIONS"}</div>
             <Button
               variant="ghost"
               size="icon"
@@ -80,7 +72,7 @@ const LeftSidePanel = ({ fabricRef }: Props) => {
           style={{ height: windowSize.height - 160 }}
           className="pr-3"
         >
-        <CanvasOptions fabricRef={fabricRef} />
+          <CanvasOptions fabricRef={fabricRef} />
         </ScrollArea>
       </SheetContent>
     </Sheet>
