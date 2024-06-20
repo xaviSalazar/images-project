@@ -33,7 +33,7 @@ import {
   mouseXY,
   srcToFile,
 } from "@/lib/utils";
-import { Eraser, Eye, Redo, Undo, Expand, Download, SignalMedium } from "lucide-react";
+import { Eraser, Eye, Redo, Undo, Expand, Download, Paintbrush, SignalMedium } from "lucide-react";
 import { useImage } from "@/hooks/useImage";
 import { Slider } from "./ui/slider";
 import { PluginName } from "@/lib/types";
@@ -201,9 +201,6 @@ const Editor = React.forwardRef(
 
     const [isDraging, setIsDraging] = useState(false);
 
-    const [isCropping, setIsCropping] = useState(false);
-    const [activeObject, setActiveObject] = useState<FabricObject | null>(null);
-
     const [sliderPos, setSliderPos] = useState<number>(0);
     const [isChangingBrushSizeByWheel, setIsChangingBrushSizeByWheel] =
       useState<boolean>(false);
@@ -213,6 +210,7 @@ const Editor = React.forwardRef(
     // crop
     const lastActiveObject = useRef<fabric.Object | null>(null);
     const rectangleCut = useRef<fabric.Object | null>(null);
+    const isCropping = useRef<boolean>(false)
 
     const hadDrawSomething = useCallback(() => {
       return currCanvasGroups.length !== 0;
@@ -400,6 +398,11 @@ const Editor = React.forwardRef(
       eventData: fabric.IEvent<MouseEvent>,
       transform: { target: fabric.Object },
     ): void => {
+
+      if(isCropping.current) {isCropping.current = false; return cropImage() } 
+      // continue to draw rectangle
+      isCropping.current = true;
+
       const target = transform.target;
       let selection_object_left = 0;
       let selection_object_top = 0;
@@ -1362,31 +1365,23 @@ const Editor = React.forwardRef(
               <Eraser />
             </IconButton>
 
-          <Toggle
-            aria-label="Toggle italic"
-            defaultPressed={settings.showDrawing}
-            onPressedChange={(value: boolean) => {
-              updateSettings({ showDrawing: value })
-              handleDrawingMode(value)
-              if (value) {
-                updateSettings({ showSelectable: false });
-              }
-            }}
-          >
-            <TransformIcon className="h-4 w-4" />
-          </Toggle>
-
             <IconButton
-              tooltip="CUT IMAGE"
-              // disabled={
-              //   isProcessing || (!hadDrawSomething() && extraMasks.length === 0)
-              // }
-              onClick={() => {
-                cropImage();
-              }}
+              tooltip="Brocha"
             >
-              <Eraser />
-            </IconButton>
+              <Toggle
+                aria-label="Toggle italic"
+                defaultPressed={settings.showDrawing}
+                onPressedChange={(value: boolean) => {
+                  updateSettings({ showDrawing: value })
+                  handleDrawingMode(value)
+                  if (value) {
+                    updateSettings({ showSelectable: false });
+                  }
+                }}
+              >
+            <Paintbrush/>
+          </Toggle>
+          </IconButton>
 
             {/* {settings.enableManualInpainting &&
           settings.model.model_type === "inpaint" ? (
