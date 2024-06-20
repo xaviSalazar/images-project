@@ -88,37 +88,6 @@ const CanvasOptions = ({ fabricRef }: Props) => {
   const [exampleImage, isExampleImageLoaded] = useImage(paintByExampleFile);
   const { t } = useTranslation();
 
-  const handleToggleDrawingMode = (value: boolean) => {
-    console.log(value);
-    const fabricInstance = fabricRef.current;
-    if (fabricInstance) {
-      console.log("here");
-      fabricInstance.isDrawingMode = value;
-    }
-  };
-
-  const drawingMode = () => {
-    return (
-      <RowContainer>
-        <LabelTitle
-          text={t("Broche")}
-          toolTip="Activa la brocha para dibujar mask en la imagen."
-        />
-        <Switch
-          id="cropper"
-          checked={settings.showDrawing}
-          onCheckedChange={(value) => {
-            updateSettings({ showDrawing: value });
-            handleToggleDrawingMode(value);
-            if (value) {
-              updateSettings({ showSelectable: false });
-            }
-          }}
-        />
-      </RowContainer>
-    );
-  };
-
   const newFileUpload = () => {
     return (
       <div>
@@ -231,10 +200,8 @@ const CanvasOptions = ({ fabricRef }: Props) => {
 
   return (
     <div className="flex flex-col gap-4 mt-4">
-      {drawingMode()}
       {renderLayerControl()}
-      <Separator />
-      {newFileUpload()}
+      {/* {newFileUpload()} */}
     </div>
   );
 };

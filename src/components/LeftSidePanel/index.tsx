@@ -14,6 +14,7 @@ import { Settings } from "lucide-react";
 import { Images } from "lucide-react";
 import { Paperclip } from "lucide-react";
 import { WandSparkles } from "lucide-react";
+import { Layers } from "lucide-react";
 
 import {
   Menubar,
@@ -30,107 +31,6 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar"
-
-
-function MenubarDemo() {
-  return (
-<Menubar className="z-10 outline-none absolute top-[120px] left-6 rounded-lg border bg-background flex flex-col">
-      <MenubarMenu>
-        <MenubarTrigger> <Images/> IMAGENES </MenubarTrigger>
-          <MenubarContent>
-            <MenubarItem>
-              New Tab <MenubarShortcut>⌘T</MenubarShortcut>
-            </MenubarItem>
-            <MenubarItem>
-              New Window <MenubarShortcut>⌘N</MenubarShortcut>
-            </MenubarItem>
-            <MenubarItem disabled>New Incognito Window</MenubarItem>
-            <MenubarSeparator />
-            <MenubarSub>
-              <MenubarSubTrigger>Share</MenubarSubTrigger>
-              <MenubarSubContent>
-                <MenubarItem>Email link</MenubarItem>
-                <MenubarItem>Messages</MenubarItem>
-                <MenubarItem>Notes</MenubarItem>
-              </MenubarSubContent>
-            </MenubarSub>
-            <MenubarSeparator />
-            <MenubarItem>
-              Print... <MenubarShortcut>⌘P</MenubarShortcut>
-            </MenubarItem>
-          </MenubarContent>
-      </MenubarMenu>
-
-      <Separator />
-
-      <MenubarMenu>
-        <MenubarTrigger><Paperclip/> Uploads</MenubarTrigger>
-        <MenubarContent>
-          <MenubarItem>
-            Undo <MenubarShortcut>⌘Z</MenubarShortcut>
-          </MenubarItem>
-          <MenubarItem>
-            Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut>
-          </MenubarItem>
-          <MenubarSeparator />
-          <MenubarSub>
-            <MenubarSubTrigger>Find</MenubarSubTrigger>
-            <MenubarSubContent>
-              <MenubarItem>Search the web</MenubarItem>
-              <MenubarSeparator />
-              <MenubarItem>Find...</MenubarItem>
-              <MenubarItem>Find Next</MenubarItem>
-              <MenubarItem>Find Previous</MenubarItem>
-            </MenubarSubContent>
-          </MenubarSub>
-          <MenubarSeparator />
-          <MenubarItem>Cut</MenubarItem>
-          <MenubarItem>Copy</MenubarItem>
-          <MenubarItem>Paste</MenubarItem>
-        </MenubarContent>
-      </MenubarMenu>
-
-      <Separator />
-
-      <MenubarMenu>
-        <MenubarTrigger> <WandSparkles/> Magic AI</MenubarTrigger>
-        <MenubarContent>
-          <MenubarCheckboxItem>Always Show Bookmarks Bar</MenubarCheckboxItem>
-          <MenubarCheckboxItem checked>
-            Always Show Full URLs
-          </MenubarCheckboxItem>
-          <MenubarSeparator />
-          <MenubarItem inset>
-            Reload <MenubarShortcut>⌘R</MenubarShortcut>
-          </MenubarItem>
-          <MenubarItem disabled inset>
-            Force Reload <MenubarShortcut>⇧⌘R</MenubarShortcut>
-          </MenubarItem>
-          <MenubarSeparator />
-          <MenubarItem inset>Toggle Fullscreen</MenubarItem>
-          <MenubarSeparator />
-          <MenubarItem inset>Hide Sidebar</MenubarItem>
-        </MenubarContent>
-      </MenubarMenu>
-
-      {/* <MenubarMenu>
-        <MenubarTrigger>Profiles</MenubarTrigger>
-        <MenubarContent>
-          <MenubarRadioGroup value="benoit">
-            <MenubarRadioItem value="andy">Andy</MenubarRadioItem>
-            <MenubarRadioItem value="benoit">Benoit</MenubarRadioItem>
-            <MenubarRadioItem value="Luis">Luis</MenubarRadioItem>
-          </MenubarRadioGroup>
-          <MenubarSeparator />
-          <MenubarItem inset>Edit...</MenubarItem>
-          <MenubarSeparator />
-          <MenubarItem inset>Add Profile...</MenubarItem>
-        </MenubarContent>
-      </MenubarMenu> */}
-    </Menubar>
-  )
-}
-
 
 // import LDMOptions from "./LDMOptions";
 // import DiffusionOptions from "./DiffusionOptions";
@@ -151,6 +51,110 @@ const LeftSidePanel = ({ fabricRef }: Props) => {
   useHotKey("c", () => {
     toggleOpen();
   });
+
+  function MenubarDemo() {
+    return (
+  <Menubar className="z-10 outline-none absolute top-[120px] left-6 rounded-lg border bg-background flex flex-col">
+        <MenubarMenu>
+          <MenubarTrigger> <Images/> IMAGENES </MenubarTrigger>
+            <MenubarContent>
+              <MenubarItem>
+                New Tab <MenubarShortcut>⌘T</MenubarShortcut>
+              </MenubarItem>
+              <MenubarItem>
+                New Window <MenubarShortcut>⌘N</MenubarShortcut>
+              </MenubarItem>
+              <MenubarItem disabled>New Incognito Window</MenubarItem>
+              <MenubarSeparator />
+              <MenubarSub>
+                <MenubarSubTrigger>Share</MenubarSubTrigger>
+                <MenubarSubContent>
+                  <MenubarItem>Email link</MenubarItem>
+                  <MenubarItem>Messages</MenubarItem>
+                  <MenubarItem>Notes</MenubarItem>
+                </MenubarSubContent>
+              </MenubarSub>
+              <MenubarSeparator />
+              <MenubarItem>
+                Print... <MenubarShortcut>⌘P</MenubarShortcut>
+              </MenubarItem>
+            </MenubarContent>
+        </MenubarMenu>
+  
+        <Separator />
+  
+        <MenubarMenu>
+          <MenubarTrigger><Paperclip/> UPLOADS</MenubarTrigger>
+          <MenubarContent>
+            <MenubarItem>
+              Undo <MenubarShortcut>⌘Z</MenubarShortcut>
+            </MenubarItem>
+            <MenubarItem>
+              Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut>
+            </MenubarItem>
+            <MenubarSeparator />
+            <MenubarSub>
+              <MenubarSubTrigger>Find</MenubarSubTrigger>
+              <MenubarSubContent>
+                <MenubarItem>Search the web</MenubarItem>
+                <MenubarSeparator />
+                <MenubarItem>Find...</MenubarItem>
+                <MenubarItem>Find Next</MenubarItem>
+                <MenubarItem>Find Previous</MenubarItem>
+              </MenubarSubContent>
+            </MenubarSub>
+            <MenubarSeparator />
+            <MenubarItem>Cut</MenubarItem>
+            <MenubarItem>Copy</MenubarItem>
+            <MenubarItem>Paste</MenubarItem>
+          </MenubarContent>
+        </MenubarMenu>
+  
+        <Separator />
+  
+        <MenubarMenu>
+          <MenubarTrigger> <WandSparkles/> MAGIC AI</MenubarTrigger>
+          <MenubarContent>
+            <MenubarCheckboxItem>Always Show Bookmarks Bar</MenubarCheckboxItem>
+            <MenubarCheckboxItem checked>
+              Always Show Full URLs
+            </MenubarCheckboxItem>
+            <MenubarSeparator />
+            <MenubarItem inset>
+              Reload <MenubarShortcut>⌘R</MenubarShortcut>
+            </MenubarItem>
+            <MenubarItem disabled inset>
+              Force Reload <MenubarShortcut>⇧⌘R</MenubarShortcut>
+            </MenubarItem>
+            <MenubarSeparator />
+            <MenubarItem inset>Toggle Fullscreen</MenubarItem>
+            <MenubarSeparator />
+            <MenubarItem inset>Hide Sidebar</MenubarItem>
+          </MenubarContent>
+        </MenubarMenu>
+  
+        <Separator />
+  
+        <MenubarMenu>
+          <MenubarTrigger> <Layers/> AJUSTA IMAGEN</MenubarTrigger>
+          <MenubarContent>
+          <CanvasOptions fabricRef={fabricRef} />
+            {/* <MenubarRadioGroup value="benoit">
+              <MenubarRadioItem value="andy">Andy</MenubarRadioItem>
+              <MenubarRadioItem value="benoit">Benoit</MenubarRadioItem>
+              <MenubarRadioItem value="Luis">Luis</MenubarRadioItem>
+            </MenubarRadioGroup>
+            <MenubarSeparator />
+            <MenubarItem inset>Edit...</MenubarItem>
+            <MenubarSeparator />
+            <MenubarItem inset>Add Profile...</MenubarItem> */}
+          </MenubarContent>
+        </MenubarMenu>
+      </Menubar>
+    )
+  }
+  
+
 
   return (
     <MenubarDemo/>
