@@ -47,9 +47,9 @@ const Workspace = () => {
 
   return (
     <>
-      <div className="flex gap-3 absolute top-[68px] left-[24px] items-center">
-        {/* <Plugins />
-        <ImageSize /> */}
+      <div className="flex gap-3 absolute top-[68px] left-[20px] items-center">
+        {/* <Plugins />  */}
+        <ImageSize />
       </div>
       {/* <InteractiveSeg />
       <DiffusionProgress />*/}

@@ -10,6 +10,127 @@ import { RowContainer, LabelTitle } from "./LabelTitle";
 import CanvasOptions from "./CanvasOptions";
 import { useTranslation } from "react-i18next";
 import { MutableRefObject } from "react";
+import { Settings } from "lucide-react";
+import { Images } from "lucide-react";
+import { Paperclip } from "lucide-react";
+import { WandSparkles } from "lucide-react";
+
+import {
+  Menubar,
+  MenubarCheckboxItem,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarRadioGroup,
+  MenubarRadioItem,
+  MenubarSeparator,
+  MenubarShortcut,
+  MenubarSub,
+  MenubarSubContent,
+  MenubarSubTrigger,
+  MenubarTrigger,
+} from "@/components/ui/menubar"
+
+
+function MenubarDemo() {
+  return (
+<Menubar className="z-10 outline-none absolute top-[120px] left-6 rounded-lg border bg-background flex flex-col">
+      <MenubarMenu>
+        <MenubarTrigger> <Images/> IMAGENES </MenubarTrigger>
+          <MenubarContent>
+            <MenubarItem>
+              New Tab <MenubarShortcut>⌘T</MenubarShortcut>
+            </MenubarItem>
+            <MenubarItem>
+              New Window <MenubarShortcut>⌘N</MenubarShortcut>
+            </MenubarItem>
+            <MenubarItem disabled>New Incognito Window</MenubarItem>
+            <MenubarSeparator />
+            <MenubarSub>
+              <MenubarSubTrigger>Share</MenubarSubTrigger>
+              <MenubarSubContent>
+                <MenubarItem>Email link</MenubarItem>
+                <MenubarItem>Messages</MenubarItem>
+                <MenubarItem>Notes</MenubarItem>
+              </MenubarSubContent>
+            </MenubarSub>
+            <MenubarSeparator />
+            <MenubarItem>
+              Print... <MenubarShortcut>⌘P</MenubarShortcut>
+            </MenubarItem>
+          </MenubarContent>
+      </MenubarMenu>
+
+      <Separator />
+
+      <MenubarMenu>
+        <MenubarTrigger><Paperclip/> Uploads</MenubarTrigger>
+        <MenubarContent>
+          <MenubarItem>
+            Undo <MenubarShortcut>⌘Z</MenubarShortcut>
+          </MenubarItem>
+          <MenubarItem>
+            Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut>
+          </MenubarItem>
+          <MenubarSeparator />
+          <MenubarSub>
+            <MenubarSubTrigger>Find</MenubarSubTrigger>
+            <MenubarSubContent>
+              <MenubarItem>Search the web</MenubarItem>
+              <MenubarSeparator />
+              <MenubarItem>Find...</MenubarItem>
+              <MenubarItem>Find Next</MenubarItem>
+              <MenubarItem>Find Previous</MenubarItem>
+            </MenubarSubContent>
+          </MenubarSub>
+          <MenubarSeparator />
+          <MenubarItem>Cut</MenubarItem>
+          <MenubarItem>Copy</MenubarItem>
+          <MenubarItem>Paste</MenubarItem>
+        </MenubarContent>
+      </MenubarMenu>
+
+      <Separator />
+
+      <MenubarMenu>
+        <MenubarTrigger> <WandSparkles/> Magic AI</MenubarTrigger>
+        <MenubarContent>
+          <MenubarCheckboxItem>Always Show Bookmarks Bar</MenubarCheckboxItem>
+          <MenubarCheckboxItem checked>
+            Always Show Full URLs
+          </MenubarCheckboxItem>
+          <MenubarSeparator />
+          <MenubarItem inset>
+            Reload <MenubarShortcut>⌘R</MenubarShortcut>
+          </MenubarItem>
+          <MenubarItem disabled inset>
+            Force Reload <MenubarShortcut>⇧⌘R</MenubarShortcut>
+          </MenubarItem>
+          <MenubarSeparator />
+          <MenubarItem inset>Toggle Fullscreen</MenubarItem>
+          <MenubarSeparator />
+          <MenubarItem inset>Hide Sidebar</MenubarItem>
+        </MenubarContent>
+      </MenubarMenu>
+
+      {/* <MenubarMenu>
+        <MenubarTrigger>Profiles</MenubarTrigger>
+        <MenubarContent>
+          <MenubarRadioGroup value="benoit">
+            <MenubarRadioItem value="andy">Andy</MenubarRadioItem>
+            <MenubarRadioItem value="benoit">Benoit</MenubarRadioItem>
+            <MenubarRadioItem value="Luis">Luis</MenubarRadioItem>
+          </MenubarRadioGroup>
+          <MenubarSeparator />
+          <MenubarItem inset>Edit...</MenubarItem>
+          <MenubarSeparator />
+          <MenubarItem inset>Add Profile...</MenubarItem>
+        </MenubarContent>
+      </MenubarMenu> */}
+    </Menubar>
+  )
+}
+
 
 // import LDMOptions from "./LDMOptions";
 // import DiffusionOptions from "./DiffusionOptions";
@@ -32,50 +153,52 @@ const LeftSidePanel = ({ fabricRef }: Props) => {
   });
 
   return (
-    <Sheet open={open} modal={false}>
-      <SheetTrigger
-        tabIndex={-1}
-        className="z-10 outline-none absolute top-[68px] left-6 rounded-lg border bg-background"
-        hidden={open}
-      >
-        <Button
-          variant="ghost"
-          size="icon"
-          asChild
-          className="p-1.5"
-          onClick={toggleOpen}
-        >
-          <ChevronRight strokeWidth={1} />
-        </Button>
-      </SheetTrigger>
-      <SheetContent
-        side="left"
-        className="w-[300px] mt-[60px] outline-none pl-4 pr-1"
-        onOpenAutoFocus={(event) => event.preventDefault()}
-        onPointerDownOutside={(event) => event.preventDefault()}
-      >
-        <SheetHeader>
-          <RowContainer>
-            <div className="overflow-hidden mr-8">{"OPTIONS"}</div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="border h-6 w-6"
-              onClick={toggleOpen}
-            >
-              <ChevronLeft strokeWidth={1} />
-            </Button>
-          </RowContainer>
-          <Separator />
-        </SheetHeader>
-        <ScrollArea
-          style={{ height: windowSize.height - 160 }}
-          className="pr-3"
-        >
-          <CanvasOptions fabricRef={fabricRef} />
-        </ScrollArea>
-      </SheetContent>
-    </Sheet>
+    <MenubarDemo/>
+
+    // <Sheet open={open} modal={false}>
+    //   <SheetTrigger
+    //     tabIndex={-1}
+    //     className="z-10 outline-none absolute top-[68px] left-6 rounded-lg border bg-background"
+    //     hidden={open}
+    //   >
+    //     <Button
+    //       variant="ghost"
+    //       size="icon"
+    //       asChild
+    //       className="p-1.5"
+    //       onClick={toggleOpen}
+    //     >
+    //       <ChevronRight strokeWidth={1} />
+    //     </Button>
+    //   </SheetTrigger>
+    //   <SheetContent
+    //     side="left"
+    //     className="w-[300px] mt-[60px] outline-none pl-4 pr-1"
+    //     onOpenAutoFocus={(event) => event.preventDefault()}
+    //     onPointerDownOutside={(event) => event.preventDefault()}
+    //   >
+    //     <SheetHeader>
+    //       <RowContainer>
+    //         <div className="overflow-hidden mr-8">{"OPTIONS"}</div>
+    //         <Button
+    //           variant="ghost"
+    //           size="icon"
+    //           className="border h-6 w-6"
+    //           onClick={toggleOpen}
+    //         >
+    //           <ChevronLeft strokeWidth={1} />
+    //         </Button>
+    //       </RowContainer>
+    //       <Separator />
+    //     </SheetHeader>
+    //     <ScrollArea
+    //       style={{ height: windowSize.height - 160 }}
+    //       className="pr-3"
+    //     >
+    //       <CanvasOptions fabricRef={fabricRef} />
+    //     </ScrollArea>
+    //   </SheetContent>
+    // </Sheet>
   );
 };
 

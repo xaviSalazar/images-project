@@ -115,6 +115,7 @@ const Editor = React.forwardRef(
       imageHeight,
       settings,
       enableAutoSaving,
+      updateSettings,
       setImageSize,
       setBaseBrushSize,
       interactiveSegState,
@@ -141,6 +142,7 @@ const Editor = React.forwardRef(
       state.imageHeight,
       state.settings,
       state.serverConfig.enableAutoSaving,
+      state.updateSettings,
       state.setImageSize,
       state.setBaseBrushSize,
       state.interactiveSegState,
@@ -1251,6 +1253,16 @@ const Editor = React.forwardRef(
       }
     };
 
+    const handleDrawingMode = (value : boolean) => {
+      console.log(value)
+      console.log(settings.showDrawing)
+      const fabricInstance = fabricRef.current;
+      if (fabricInstance) {
+        console.log("here");
+        fabricInstance.isDrawingMode = value;
+      }
+    };
+
     return (
       <div
         className="flex w-screen h-screen justify-center items-center"
@@ -1349,6 +1361,20 @@ const Editor = React.forwardRef(
             >
               <Eraser />
             </IconButton>
+
+          <Toggle
+            aria-label="Toggle italic"
+            defaultPressed={settings.showDrawing}
+            onPressedChange={(value: boolean) => {
+              updateSettings({ showDrawing: value })
+              handleDrawingMode(value)
+              if (value) {
+                updateSettings({ showSelectable: false });
+              }
+            }}
+          >
+            <TransformIcon className="h-4 w-4" />
+          </Toggle>
 
             <IconButton
               tooltip="CUT IMAGE"
