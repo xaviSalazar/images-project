@@ -66,7 +66,7 @@ const DELTA_FRAME = 50;
 
 type EditorProps = {
   fabricRef: MutableRefObject<fabric.Canvas | null>;
-  file: File | string;
+  file: File;
 };
 
 const hexToRgba = (hex: string): string => {
@@ -224,7 +224,7 @@ const Editor = React.forwardRef(
       }
     }, [fabricRef.current]);
 
-    function animateImageOpacity(object: fabric.Object | null, duration: number = 1000, toOpacity: number = 1) {
+    function animateImageOpacity(object: fabric.Object | null, duration: number = 1000, toOpacity: number = 0) {
       if(!object) return
       fabric.util.animate({
         startValue: object.get('opacity') as number,
@@ -249,6 +249,8 @@ const Editor = React.forwardRef(
       const single_instance: fabric.Canvas | null = transform.target.canvas ?? null;
       console.log(single_instance);
       const current_active: fabric.Object | null = single_instance?._activeObject ?? null;
+
+      console.log(current_active)
 
       if(!current_active) return;
 
@@ -438,6 +440,7 @@ const Editor = React.forwardRef(
         canvas?.getActiveObject()?.height * canvas?.getActiveObject()?.scaleY;
       rectangleCut.current = rectangle;
       canvas?.add(rectangle);
+      console.log("added crop rectangle")
       canvas?.setActiveObject(rectangle);
     };
 

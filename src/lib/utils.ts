@@ -42,6 +42,19 @@ export function dataURItoBlob(dataURI: string) {
   return new Blob([new Uint8Array(array)], { type: mime });
 }
 
+export async function urlToDataURI(url: string): Promise<string> {
+  const response = await fetch(url);
+  const blob = await response.blob();
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      resolve(reader.result as string);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
 export function loadImage(image: HTMLImageElement, src: string) {
   return new Promise((resolve, reject) => {
     const initSRC = image.src;

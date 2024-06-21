@@ -150,7 +150,7 @@ type EditorState = {
 };
 
 type AppState = {
-  file: File | string | null;
+  file: File | null;
   paintByExampleFile: File | null;
   customMask: File | null;
   imageHeight: number;
