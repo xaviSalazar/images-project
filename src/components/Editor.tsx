@@ -1365,9 +1365,7 @@ const Editor = React.forwardRef(
               <Eraser />
             </IconButton>
 
-            {/* <IconButton
-              tooltip="Brocha"
-            >
+         
               <Toggle
                 aria-label="Toggle italic"
                 defaultPressed={settings.showDrawing}
@@ -1379,9 +1377,9 @@ const Editor = React.forwardRef(
                   }
                 }}
               >
-            <Paintbrush/>
-          </Toggle>
-          </IconButton> */}
+               <Paintbrush/>
+              </Toggle>
+        
 
             {/* {settings.enableManualInpainting &&
           settings.model.model_type === "inpaint" ? (
