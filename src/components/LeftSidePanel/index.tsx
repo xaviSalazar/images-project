@@ -30,8 +30,7 @@ import {
   MenubarSubContent,
   MenubarSubTrigger,
   MenubarTrigger,
-} from "@/components/ui/menubar"
-
+} from "@/components/ui/menubar";
 
 // import LDMOptions from "./LDMOptions";
 // import DiffusionOptions from "./DiffusionOptions";
@@ -42,8 +41,8 @@ type Props = {
 };
 
 export interface Artwork {
-  artist: string
-  art: string
+  artist: string;
+  art: string;
 }
 
 export const works: Artwork[] = [
@@ -59,7 +58,7 @@ export const works: Artwork[] = [
     artist: "Vladimir Malyavko",
     art: "https://images.unsplash.com/photo-1494337480532-3725c85fd2ab?auto=format&fit=crop&w=300&q=80",
   },
-]
+];
 
 const LeftSidePanel = ({ fabricRef }: Props) => {
   const [settings, windowSize] = useStore((state) => [
@@ -73,54 +72,62 @@ const LeftSidePanel = ({ fabricRef }: Props) => {
     toggleOpen();
   });
 
-  const handleDragStart = (event: React.DragEvent<HTMLElement>, artwork: Artwork) => {
-    event.dataTransfer.setData('text/plain', artwork.art);
+  const handleDragStart = (
+    event: React.DragEvent<HTMLElement>,
+    artwork: Artwork,
+  ) => {
+    event.dataTransfer.setData("text/plain", artwork.art);
   };
 
   function MenubarDemo() {
     return (
-  <Menubar className="z-10 outline-none absolute top-[120px] left-6 rounded-lg border bg-background flex flex-col">
+      <Menubar className="z-10 outline-none absolute top-[120px] left-6 rounded-lg border bg-background flex flex-col">
         <MenubarMenu>
-          <MenubarTrigger> <Images/> IMAGENES </MenubarTrigger>
-            <MenubarContent>
-              <ScrollArea
-                style={{ height: windowSize.height - 160 }}
-                className="pr-3"
-              >
-                   <div className="flex flex-col w-max space-x-4 p-4">
-                    {works.map((artwork) => (
-                      <figure 
-                        key={artwork.artist} 
-                        className="shrink-0"
-                        draggable
-                        onDragStart={(event) => handleDragStart(event, artwork)} 
-                      >
-                        <div className="overflow-hidden rounded-md">
-                        <img 
-                            src={artwork.art}
-                            alt={`Photo by ${artwork.artist}`}
-                            className="aspect-[3/4] h-fit w-fit object-cover"
-                            width={300}
-                            height={400}
-                        />
-                        </div>
-                        <figcaption className="pt-2 text-xs text-muted-foreground">
-                          Photo by{" "}
-                          <span className="font-semibold text-foreground">
-                            {artwork.artist}
-                          </span>
-                        </figcaption>
-                      </figure>
-                    ))}
-                  </div>
-              </ScrollArea>
-            </MenubarContent>
+          <MenubarTrigger>
+            {" "}
+            <Images /> IMAGENES{" "}
+          </MenubarTrigger>
+          <MenubarContent>
+            <ScrollArea
+              style={{ height: windowSize.height - 160 }}
+              className="pr-3"
+            >
+              <div className="flex flex-col w-max space-x-4 p-4">
+                {works.map((artwork) => (
+                  <figure
+                    key={artwork.artist}
+                    className="shrink-0"
+                    draggable
+                    onDragStart={(event) => handleDragStart(event, artwork)}
+                  >
+                    <div className="overflow-hidden rounded-md">
+                      <img
+                        src={artwork.art}
+                        alt={`Photo by ${artwork.artist}`}
+                        className="aspect-[3/4] h-fit w-fit object-cover"
+                        width={300}
+                        height={400}
+                      />
+                    </div>
+                    <figcaption className="pt-2 text-xs text-muted-foreground">
+                      Photo by{" "}
+                      <span className="font-semibold text-foreground">
+                        {artwork.artist}
+                      </span>
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+            </ScrollArea>
+          </MenubarContent>
         </MenubarMenu>
 
         <Separator />
-  
+
         <MenubarMenu>
-          <MenubarTrigger><Paperclip/> UPLOADS</MenubarTrigger>
+          <MenubarTrigger>
+            <Paperclip /> UPLOADS
+          </MenubarTrigger>
           <MenubarContent>
             <MenubarItem>
               Undo <MenubarShortcut>⌘Z</MenubarShortcut>
@@ -145,11 +152,14 @@ const LeftSidePanel = ({ fabricRef }: Props) => {
             <MenubarItem>Paste</MenubarItem>
           </MenubarContent>
         </MenubarMenu>
-  
+
         <Separator />
-  
+
         <MenubarMenu>
-          <MenubarTrigger> <WandSparkles/> MAGIC AI</MenubarTrigger>
+          <MenubarTrigger>
+            {" "}
+            <WandSparkles /> MAGIC AI
+          </MenubarTrigger>
           <MenubarContent>
             <MenubarCheckboxItem>Always Show Bookmarks Bar</MenubarCheckboxItem>
             <MenubarCheckboxItem checked>
@@ -168,13 +178,16 @@ const LeftSidePanel = ({ fabricRef }: Props) => {
             <MenubarItem inset>Hide Sidebar</MenubarItem>
           </MenubarContent>
         </MenubarMenu>
-  
+
         <Separator />
-  
+
         <MenubarMenu>
-          <MenubarTrigger> <Layers/> AJUSTA IMAGEN</MenubarTrigger>
+          <MenubarTrigger>
+            {" "}
+            <Layers /> AJUSTA IMAGEN
+          </MenubarTrigger>
           <MenubarContent>
-          <CanvasOptions fabricRef={fabricRef} />
+            <CanvasOptions fabricRef={fabricRef} />
             {/* <MenubarRadioGroup value="benoit">
               <MenubarRadioItem value="andy">Andy</MenubarRadioItem>
               <MenubarRadioItem value="benoit">Benoit</MenubarRadioItem>
@@ -187,13 +200,11 @@ const LeftSidePanel = ({ fabricRef }: Props) => {
           </MenubarContent>
         </MenubarMenu>
       </Menubar>
-    )
+    );
   }
-  
-
 
   return (
-    <MenubarDemo/>
+    <MenubarDemo />
 
     // <Sheet open={open} modal={false}>
     //   <SheetTrigger

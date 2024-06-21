@@ -33,7 +33,16 @@ import {
   mouseXY,
   srcToFile,
 } from "@/lib/utils";
-import { Eraser, Eye, Redo, Undo, Expand, Download, Paintbrush, SignalMedium } from "lucide-react";
+import {
+  Eraser,
+  Eye,
+  Redo,
+  Undo,
+  Expand,
+  Download,
+  Paintbrush,
+  SignalMedium,
+} from "lucide-react";
 import { useImage } from "@/hooks/useImage";
 import { Slider } from "./ui/slider";
 import { PluginName } from "@/lib/types";
@@ -210,7 +219,7 @@ const Editor = React.forwardRef(
     // crop
     const lastActiveObject = useRef<fabric.Object | null>(null);
     const rectangleCut = useRef<fabric.Object | null>(null);
-    const isCropping = useRef<boolean>(false)
+    const isCropping = useRef<boolean>(false);
 
     const hadDrawSomething = useCallback(() => {
       return currCanvasGroups.length !== 0;
@@ -224,14 +233,18 @@ const Editor = React.forwardRef(
       }
     }, [fabricRef.current]);
 
-    function animateImageOpacity(object: fabric.Object | null, duration: number = 1000, toOpacity: number = 0) {
-      if(!object) return
+    function animateImageOpacity(
+      object: fabric.Object | null,
+      duration: number = 1000,
+      toOpacity: number = 0,
+    ) {
+      if (!object) return;
       fabric.util.animate({
-        startValue: object.get('opacity') as number,
+        startValue: object.get("opacity") as number,
         endValue: toOpacity,
         duration: duration,
         onChange: (value: number) => {
-          object.set('opacity', value);
+          object.set("opacity", value);
           object.canvas?.renderAll();
         },
         onComplete: () => {
@@ -240,23 +253,27 @@ const Editor = React.forwardRef(
         },
       });
     }
-    
+
     // FUNCTION TO CALL WHEN REMOVE BACKGROUND OF SPECIFIC IMAGE
     const rmBg = (
       eventData: fabric.IEvent<MouseEvent>,
       transform: { target: fabric.Object },
     ): void => {
-      const single_instance: fabric.Canvas | null = transform.target.canvas ?? null;
+      const single_instance: fabric.Canvas | null =
+        transform.target.canvas ?? null;
       console.log(single_instance);
-      const current_active: fabric.Object | null = single_instance?._activeObject ?? null;
+      const current_active: fabric.Object | null =
+        single_instance?._activeObject ?? null;
 
-      console.log(current_active)
+      console.log(current_active);
 
-      if(!current_active) return;
+      if (!current_active) return;
 
       animateImageOpacity(current_active, 1000); // Start the continuous animation
-      const objectWidth = (current_active.width ?? 0 )* (current_active.scaleX ?? 0);
-      const objectHeight = (current_active.height ?? 0 )* (current_active.scaleY ?? 0 );
+      const objectWidth =
+        (current_active.width ?? 0) * (current_active.scaleX ?? 0);
+      const objectHeight =
+        (current_active.height ?? 0) * (current_active.scaleY ?? 0);
       const objectTop = current_active.top;
       const objectLeft = current_active.left;
 
@@ -279,7 +296,7 @@ const Editor = React.forwardRef(
         tempCanvas.renderAll();
 
         // Get the data URL of the cloned object
-        const objectDataUrl = tempCanvas.toDataURL({format: 'png'});
+        const objectDataUrl = tempCanvas.toDataURL({ format: "png" });
 
         removeBackground(objectDataUrl, config).then((blob: Blob) => {
           // The result is a blob encoded as PNG. It can be converted to an URL to be used as HTMLImage.src
@@ -365,24 +382,27 @@ const Editor = React.forwardRef(
       fabricRef.current?.remove(rectangleCut.current);
       rectangleCut.current = null;
 
-      fabric.Image.fromURL(fabricRef.current.toDataURL({format: 'png'}), function (img) {
-        img.set("left", -left);
-        img.set("top", -top);
-        canvas_crop.add(img);
-        canvas_crop.setHeight(height);
-        canvas_crop.setWidth(width);
-        canvas_crop.renderAll();
-        fabric.Image.fromURL(
-          canvas_crop.toDataURL({format: 'png'}),
-          function (croppedImg) {
-            croppedImg.set("left", left);
-            croppedImg.set("top", top);
-            fabricRef.current?.remove(lastActiveObject.current);
-            lastActiveObject.current = null;
-            fabricRef.current?.add(croppedImg).renderAll();
-          },
-        );
-      });
+      fabric.Image.fromURL(
+        fabricRef.current.toDataURL({ format: "png" }),
+        function (img) {
+          img.set("left", -left);
+          img.set("top", -top);
+          canvas_crop.add(img);
+          canvas_crop.setHeight(height);
+          canvas_crop.setWidth(width);
+          canvas_crop.renderAll();
+          fabric.Image.fromURL(
+            canvas_crop.toDataURL({ format: "png" }),
+            function (croppedImg) {
+              croppedImg.set("left", left);
+              croppedImg.set("top", top);
+              fabricRef.current?.remove(lastActiveObject.current);
+              lastActiveObject.current = null;
+              fabricRef.current?.add(croppedImg).renderAll();
+            },
+          );
+        },
+      );
     }
 
     const deleteObject = (
@@ -400,8 +420,10 @@ const Editor = React.forwardRef(
       eventData: fabric.IEvent<MouseEvent>,
       transform: { target: fabric.Object },
     ): void => {
-
-      if(isCropping.current) {isCropping.current = false; return cropImage() } 
+      if (isCropping.current) {
+        isCropping.current = false;
+        return cropImage();
+      }
       // continue to draw rectangle
       isCropping.current = true;
 
@@ -440,7 +462,7 @@ const Editor = React.forwardRef(
         canvas?.getActiveObject()?.height * canvas?.getActiveObject()?.scaleY;
       rectangleCut.current = rectangle;
       canvas?.add(rectangle);
-      console.log("added crop rectangle")
+      console.log("added crop rectangle");
       canvas?.setActiveObject(rectangle);
     };
 
@@ -1259,9 +1281,9 @@ const Editor = React.forwardRef(
       }
     };
 
-    const handleDrawingMode = (value : boolean) => {
-      console.log(value)
-      console.log(settings.showDrawing)
+    const handleDrawingMode = (value: boolean) => {
+      console.log(value);
+      console.log(settings.showDrawing);
       const fabricInstance = fabricRef.current;
       if (fabricInstance) {
         console.log("here");
@@ -1368,21 +1390,19 @@ const Editor = React.forwardRef(
               <Eraser />
             </IconButton>
 
-         
-              <Toggle
-                aria-label="Toggle italic"
-                defaultPressed={settings.showDrawing}
-                onPressedChange={(value: boolean) => {
-                  updateSettings({ showDrawing: value })
-                  handleDrawingMode(value)
-                  if (value) {
-                    updateSettings({ showSelectable: false });
-                  }
-                }}
-              >
-               <Paintbrush/>
-              </Toggle>
-        
+            <Toggle
+              aria-label="Toggle italic"
+              defaultPressed={settings.showDrawing}
+              onPressedChange={(value: boolean) => {
+                updateSettings({ showDrawing: value });
+                handleDrawingMode(value);
+                if (value) {
+                  updateSettings({ showSelectable: false });
+                }
+              }}
+            >
+              <Paintbrush />
+            </Toggle>
 
             {/* {settings.enableManualInpainting &&
           settings.model.model_type === "inpaint" ? (

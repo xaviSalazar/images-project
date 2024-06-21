@@ -56,21 +56,21 @@ function Home() {
       const dragFile = data.files[0];
       const fileType = dragFile.type;
 
-        if (SUPPORTED_FILE_TYPE.includes(fileType)) {
-          setFile(dragFile);
-        } else {
-          // setToastState({
-          //   open: true,
-          //   desc: "Please drag and drop an image file",
-          //   state: "error",
-          //   duration: 3000,
-          // })
-        }
+      if (SUPPORTED_FILE_TYPE.includes(fileType)) {
+        setFile(dragFile);
       } else {
-        const url = data?.getData('text/plain');
-        if (url) {
-          setFile(url)
-        }
+        // setToastState({
+        //   open: true,
+        //   desc: "Please drag and drop an image file",
+        //   state: "error",
+        //   duration: 3000,
+        // })
+      }
+    } else {
+      const url = data?.getData("text/plain");
+      if (url) {
+        setFile(url);
+      }
     }
     event.dataTransfer.clearData();
   }, []);

@@ -3,7 +3,6 @@ import { dataURItoBlob, urlToDataURI } from "@/lib/utils";
 
 type ImageInput = File | string | null;
 
-
 function useImage(input: ImageInput): [HTMLImageElement, boolean] {
   const [image] = useState(new Image());
   const [isLoaded, setIsLoaded] = useState(false);
@@ -16,10 +15,10 @@ function useImage(input: ImageInput): [HTMLImageElement, boolean] {
 
       setIsLoaded(false);
 
-      if (typeof input === 'string') {
+      if (typeof input === "string") {
         const dataURI = await urlToDataURI(input);
         const blob = dataURItoBlob(dataURI);
-        file = new File([blob], 'image', { type: blob.type });
+        file = new File([blob], "image", { type: blob.type });
       } else {
         file = input;
       }
@@ -36,7 +35,6 @@ function useImage(input: ImageInput): [HTMLImageElement, boolean] {
 
     return () => {
       image.onload = null;
-
     };
   }, [input, image]);
 
