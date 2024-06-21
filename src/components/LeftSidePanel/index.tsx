@@ -9,7 +9,7 @@ import useHotKey from "@/hooks/useHotkey";
 import { RowContainer, LabelTitle } from "./LabelTitle";
 import CanvasOptions from "./CanvasOptions";
 import { useTranslation } from "react-i18next";
-import { MutableRefObject } from "react";
+import React, { MutableRefObject } from "react";
 import { Settings } from "lucide-react";
 import { Images } from "lucide-react";
 import { Paperclip } from "lucide-react";
@@ -32,6 +32,7 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar"
 
+
 // import LDMOptions from "./LDMOptions";
 // import DiffusionOptions from "./DiffusionOptions";
 // import CV2Options from "./CV2Options";
@@ -39,6 +40,26 @@ import {
 type Props = {
   fabricRef: MutableRefObject<fabric.Canvas | null>;
 };
+
+export interface Artwork {
+  artist: string
+  art: string
+}
+
+export const works: Artwork[] = [
+  {
+    artist: "Ornella Binni",
+    art: "https://images.unsplash.com/photo-1465869185982-5a1a7522cbcb?auto=format&fit=crop&w=300&q=80",
+  },
+  {
+    artist: "Tom Byrom",
+    art: "https://images.unsplash.com/photo-1548516173-3cabfa4607e9?auto=format&fit=crop&w=300&q=80",
+  },
+  {
+    artist: "Vladimir Malyavko",
+    art: "https://images.unsplash.com/photo-1494337480532-3725c85fd2ab?auto=format&fit=crop&w=300&q=80",
+  },
+]
 
 const LeftSidePanel = ({ fabricRef }: Props) => {
   const [settings, windowSize] = useStore((state) => [
@@ -52,35 +73,50 @@ const LeftSidePanel = ({ fabricRef }: Props) => {
     toggleOpen();
   });
 
+  const handleDragStart = (event: React.DragEvent<HTMLElement>, artwork: Artwork) => {
+    event.dataTransfer.setData('text/plain', artwork.art);
+  };
+
   function MenubarDemo() {
     return (
   <Menubar className="z-10 outline-none absolute top-[120px] left-6 rounded-lg border bg-background flex flex-col">
         <MenubarMenu>
           <MenubarTrigger> <Images/> IMAGENES </MenubarTrigger>
             <MenubarContent>
-              <MenubarItem>
-                New Tab <MenubarShortcut>⌘T</MenubarShortcut>
-              </MenubarItem>
-              <MenubarItem>
-                New Window <MenubarShortcut>⌘N</MenubarShortcut>
-              </MenubarItem>
-              <MenubarItem disabled>New Incognito Window</MenubarItem>
-              <MenubarSeparator />
-              <MenubarSub>
-                <MenubarSubTrigger>Share</MenubarSubTrigger>
-                <MenubarSubContent>
-                  <MenubarItem>Email link</MenubarItem>
-                  <MenubarItem>Messages</MenubarItem>
-                  <MenubarItem>Notes</MenubarItem>
-                </MenubarSubContent>
-              </MenubarSub>
-              <MenubarSeparator />
-              <MenubarItem>
-                Print... <MenubarShortcut>⌘P</MenubarShortcut>
-              </MenubarItem>
+              <ScrollArea
+                style={{ height: windowSize.height - 160 }}
+                className="pr-3"
+              >
+                   <div className="flex flex-col w-max space-x-4 p-4">
+                    {works.map((artwork) => (
+                      <figure 
+                        key={artwork.artist} 
+                        className="shrink-0"
+                        draggable
+                        onDragStart={(event) => handleDragStart(event, artwork)} 
+                      >
+                        <div className="overflow-hidden rounded-md">
+                        <img 
+                            src={artwork.art}
+                            alt={`Photo by ${artwork.artist}`}
+                            className="aspect-[3/4] h-fit w-fit object-cover"
+                            width={300}
+                            height={400}
+                        />
+                        </div>
+                        <figcaption className="pt-2 text-xs text-muted-foreground">
+                          Photo by{" "}
+                          <span className="font-semibold text-foreground">
+                            {artwork.artist}
+                          </span>
+                        </figcaption>
+                      </figure>
+                    ))}
+                  </div>
+              </ScrollArea>
             </MenubarContent>
         </MenubarMenu>
-  
+
         <Separator />
   
         <MenubarMenu>
