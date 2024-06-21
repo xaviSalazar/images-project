@@ -150,7 +150,7 @@ type EditorState = {
 };
 
 type AppState = {
-  file: File | null;
+  file: File | string | null;
   paintByExampleFile: File | null;
   customMask: File | null;
   imageHeight: number;
@@ -176,7 +176,7 @@ type AppState = {
 
 type AppAction = {
   updateAppState: (newState: Partial<AppState>) => void;
-  setFile: (file: File) => Promise<void>;
+  setFile: (file: File | string) => Promise<void>;
   setCustomFile: (file: File) => void;
   setIsInpainting: (newValue: boolean) => void;
   getIsProcessing: () => boolean;
@@ -877,7 +877,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           state.isInpainting = newValue;
         }),
 
-      setFile: async (file: File) => {
+      setFile: async (file: File | string) => {
         // if (get().settings.enableAutoExtractPrompt) {
         //   try {
         //     const res = await getGenInfo(file);

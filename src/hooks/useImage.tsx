@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 
-function useImage(file: File | null): [HTMLImageElement, boolean] {
+type ImageInput = File | string | null;
+
+
+function useImage(file: ImageInput): [HTMLImageElement, boolean] {
   const [image] = useState(new Image());
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -12,9 +15,17 @@ function useImage(file: File | null): [HTMLImageElement, boolean] {
       setIsLoaded(true);
     };
     setIsLoaded(false);
-    image.src = URL.createObjectURL(file);
+
+    if (typeof file === 'string') {
+      image.src = file;
+    } else {
+      image.src = URL.createObjectURL(file);
+    }
     return () => {
       image.onload = null;
+      if (typeof file !== 'string') {
+        URL.revokeObjectURL(image.src); // Clean up the object URL
+      }
     };
   }, [file, image]);
 

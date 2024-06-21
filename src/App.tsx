@@ -51,17 +51,11 @@ function Home() {
   const handleDrop = useCallback((event: any) => {
     event.preventDefault();
     event.stopPropagation();
-    if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
-      if (event.dataTransfer.files.length > 1) {
-        // setToastState({
-        //   open: true,
-        //   desc: "Please drag and drop only one file",
-        //   state: "error",
-        //   duration: 3000,
-        // })
-      } else {
-        const dragFile = event.dataTransfer.files[0];
-        const fileType = dragFile.type;
+    const data = event.dataTransfer;
+    if (data?.files && data.files.length > 0) {
+      const dragFile = data.files[0];
+      const fileType = dragFile.type;
+
         if (SUPPORTED_FILE_TYPE.includes(fileType)) {
           setFile(dragFile);
         } else {
@@ -72,9 +66,13 @@ function Home() {
           //   duration: 3000,
           // })
         }
-      }
-      event.dataTransfer.clearData();
+      } else {
+        const url = data?.getData('text/plain');
+        if (url) {
+          setFile(url)
+        }
     }
+    event.dataTransfer.clearData();
   }, []);
 
   const onPaste = useCallback((event: any) => {

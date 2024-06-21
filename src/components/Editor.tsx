@@ -66,7 +66,7 @@ const DELTA_FRAME = 50;
 
 type EditorProps = {
   fabricRef: MutableRefObject<fabric.Canvas | null>;
-  file: File;
+  file: File | string;
 };
 
 const hexToRgba = (hex: string): string => {
@@ -1365,7 +1365,7 @@ const Editor = React.forwardRef(
               <Eraser />
             </IconButton>
 
-            <IconButton
+            {/* <IconButton
               tooltip="Brocha"
             >
               <Toggle
@@ -1381,7 +1381,7 @@ const Editor = React.forwardRef(
               >
             <Paintbrush/>
           </Toggle>
-          </IconButton>
+          </IconButton> */}
 
             {/* {settings.enableManualInpainting &&
           settings.model.model_type === "inpaint" ? (
