@@ -43,7 +43,12 @@ export function dataURItoBlob(dataURI: string) {
 }
 
 export async function urlToDataURI(url: string): Promise<string> {
-  const response = await fetch(url);
+  const response = await fetch(url, {method: 'GET',
+    mode: 'cors',
+    cache: 'no-cache',
+    headers: {
+        Origin: window.location.origin,
+    }},);
   const blob = await response.blob();
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();

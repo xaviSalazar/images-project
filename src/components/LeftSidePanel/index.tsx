@@ -45,19 +45,49 @@ export interface Artwork {
   art: string;
 }
 
+const domain_dist= "https://d1d5i0xjsb5dtw.cloudfront.net/"
+
 export const works: Artwork[] = [
   {
-    artist: "Ornella Binni",
-    art: "https://images.unsplash.com/photo-1465869185982-5a1a7522cbcb?auto=format&fit=crop&w=300&q=80",
+    artist: "Stable Diffusion 1",
+    art: `${domain_dist}photo-ai/TEST1_0.png`
   },
   {
-    artist: "Tom Byrom",
-    art: "https://images.unsplash.com/photo-1548516173-3cabfa4607e9?auto=format&fit=crop&w=300&q=80",
+    artist: "Stable Diffusion2",
+    art: `${domain_dist}photo-ai/TEST1_1.png`
   },
   {
-    artist: "Vladimir Malyavko",
-    art: "https://images.unsplash.com/photo-1494337480532-3725c85fd2ab?auto=format&fit=crop&w=300&q=80",
+    artist: "Stable Diffusion3",
+    art: `${domain_dist}photo-ai/TEST1_2.png`
   },
+  {
+    artist: "Stable Diffusion4",
+    art: `${domain_dist}photo-ai/TEST1_3.png`
+  },
+  {
+    artist: "Stable Diffusion5",
+    art: `${domain_dist}photo-ai/TEST2_0.png`
+  },
+  {
+    artist: "Stable Diffusion6",
+    art: `${domain_dist}photo-ai/TEST2_1.png`
+  },
+  {
+    artist: "Stable Diffusion7",
+    art: `${domain_dist}photo-ai/TEST2_2.png`
+  },
+  {
+    artist: "Stable Diffusion8",
+    art: `${domain_dist}photo-ai/TEST2_3.png`
+  },
+  {
+    artist: "Stable Diffusion9",
+    art: `${domain_dist}photo-ai/picture_3.png`
+  },
+  {
+    artist: "Stable Diffusion10",
+    art: `${domain_dist}photo-ai/picture_2.png`
+  }
 ];
 
 const LeftSidePanel = ({ fabricRef }: Props) => {
@@ -104,9 +134,7 @@ const LeftSidePanel = ({ fabricRef }: Props) => {
                       <img
                         src={artwork.art}
                         alt={`Photo by ${artwork.artist}`}
-                        className="aspect-[3/4] h-fit w-fit object-cover"
-                        width={300}
-                        height={400}
+                        className="h-[400px] w-[600px] object-cover"
                       />
                     </div>
                     <figcaption className="pt-2 text-xs text-muted-foreground">
