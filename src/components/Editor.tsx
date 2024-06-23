@@ -994,26 +994,15 @@ const Editor = React.forwardRef(
       canvas.renderAll();
     };
 
-    const download = () => {
+    const download = (chooseObject:string) => {
       const canvas = fabricRef.current;
       if (canvas) {
         const imageObjects = canvas
           .getObjects()
-          .filter((obj) => obj.type === "image");
-        downloadCanvas(canvas, imageObjects, "image.png");
+          .filter((obj) => obj.type === chooseObject);
+        downloadCanvas(canvas, imageObjects, `${chooseObject}.png`);
       }
     };
-
-    // const download = () => {
-    //   const canvas = fabricRef.current;
-    //   if (canvas) {
-    //     console.log(canvas.getObjects())
-    //     const maskObjects = canvas
-    //       .getObjects()
-    //       .filter((obj) => obj.type === "path");
-    //     downloadCanvas(canvas, maskObjects, "mask.png");
-    //   }
-    // };
 
     useHotKey("meta+s,ctrl+s", download);
 
@@ -1381,7 +1370,10 @@ const Editor = React.forwardRef(
             <IconButton
               tooltip="Save Image"
               //disabled={!renders.length}
-              onClick={download}
+              onClick={ () => {
+                download("image");
+                download("path")
+              }}
             >
               <Download />
             </IconButton>
