@@ -72,8 +72,6 @@ import { loadImage } from "@/lib/utils";
 const TOOLBAR_HEIGHT = 200;
 const COMPARE_SLIDER_DURATION_MS = 300;
 const DELTA_FRAME = 50;
-const CANVAS_WIDTH = 1024
-const CANVAS_HEIGTH = 576
 
 type EditorProps = {
   fabricRef: MutableRefObject<fabric.Canvas | null>;
@@ -477,9 +475,6 @@ const Editor = React.forwardRef(
 
       fabricRef.current = initMainCanvas();
 
-      fabricRef.current.setWidth(CANVAS_WIDTH);
-      fabricRef.current.setHeight(CANVAS_HEIGTH);
-
       // Activate drawing mode for mask overlay
       fabricRef.current.isDrawingMode = settings.showDrawing;
       fabricRef.current.freeDrawingBrush.width = DEFAULT_BRUSH_SIZE;
@@ -525,8 +520,8 @@ const Editor = React.forwardRef(
         };
       }
       fabric.Object.prototype.controls.removeBg = new fabric.Control({
-        x: 0.5,
-        y: -0.48,
+        x: -0.48,
+        y: -0.41,
         offsetY: 16,
         cursorStyle: "pointer",
         mouseUpHandler: rmBg,
@@ -546,8 +541,8 @@ const Editor = React.forwardRef(
       });
 
       fabric.Object.prototype.controls.delete = new fabric.Control({
-        x: 0.48,
-        y: 0.3,
+        x: 0.5,
+        y: -0.48,
         offsetY: 16,
         cursorStyle: "pointer",
         mouseUpHandler: deleteObject,
@@ -587,23 +582,20 @@ const Editor = React.forwardRef(
       if (!fabricRef.current) return;
 
       const [width, height] = getCurrentWidthHeight();
-
       if (width !== imageWidth || height !== imageHeight) {
         setImageSize(width, height);
       }
 
-        let scaleFactor = Math.min(CANVAS_WIDTH / width, CANVAS_HEIGTH / height);
-        const img = new fabric.Image(original);
-        img.scale(scaleFactor);
-         // Center the image
-         img.set({
-          left: (CANVAS_WIDTH- img.getScaledWidth()) / 2,
-          top: (CANVAS_HEIGTH - img.getScaledHeight()) / 2
-        });
+      fabricRef.current.setWidth(width + DELTA_FRAME);
+      fabricRef.current.setHeight(height + DELTA_FRAME);
+
+      const img = new fabric.Image(original, {
+        left: 0,
+        top: 0,
+      });
 
       fabricRef.current.add(img);
       fabricRef.current.renderAll();
-    
     }, [original, isOriginalLoaded]);
 
     // COMING RENDERS FROM BACKEND
