@@ -470,6 +470,8 @@ const Editor = React.forwardRef(
       const initMainCanvas = (): Canvas => {
         return new fabric.Canvas(canvasRef.current, {
           fireMiddleClick: true,
+          width: windowSize.width,
+          height: windowSize.height
         });
       };
 
@@ -588,8 +590,8 @@ const Editor = React.forwardRef(
 
       if (!initialCentered)
         { 
-      fabricRef.current.setWidth(width + DELTA_FRAME);
-      fabricRef.current.setHeight(height + DELTA_FRAME);
+      // fabricRef.current.setWidth(width + DELTA_FRAME);
+      // fabricRef.current.setHeight(height + DELTA_FRAME);
         }
 
       const img = new fabric.Image(original, {
@@ -697,16 +699,6 @@ const Editor = React.forwardRef(
       );
       // Save initial state
       if (initialCentered) saveState();
-
-      if (context?.canvas) {
-        console.log("[on file load] set canvas size");
-        if (width != context.canvas.width) {
-          context.canvas.width = width;
-        }
-        if (height != context.canvas.height) {
-          context.canvas.height = height;
-        }
-      }
 
       if (!initialCentered) {
         // 防止每次擦除以后图片 zoom 还原
@@ -1158,36 +1150,8 @@ const Editor = React.forwardRef(
 
     const renderCanvas = () => {
       return (
-        <TransformWrapper
-          ref={(r) => {
-            if (r) {
-              viewportRef.current = r;
-            }
-          }}
-          panning={{ disabled: !isPanning, velocityDisabled: true }}
-          wheel={{ step: 0.05, wheelDisabled: isChangingBrushSizeByWheel }}
-          centerZoomedOut
-          alignmentAnimation={{ disabled: true }}
-          centerOnInit
-          limitToBounds={false}
-          doubleClick={{ disabled: true }}
-          initialScale={minScale}
-          minScale={minScale * 0.3}
-          onPanning={() => {
-            if (!panned) {
-              setPanned(true);
-            }
-          }}
-          onZoom={(ref) => {
-            setScale(ref.state.scale);
-          }}
-        >
-          <TransformComponent
-            contentStyle={{
-              visibility: initialCentered ? "visible" : "hidden",
-            }}
-          >
-            <div className="relative">
+
+            <div className="relative top-[60px]">
               <canvas
                 className={cn(
                   isProcessing
@@ -1231,29 +1195,24 @@ const Editor = React.forwardRef(
               </div>
             </div>
 
-            <Cropper
-              maxHeight={imageHeight}
-              maxWidth={imageWidth}
-              minHeight={Math.min(512, imageHeight)}
-              minWidth={Math.min(512, imageWidth)}
-              scale={getCurScale()}
-              show={settings.showCropper}
-            />
+            // <Cropper
+            //   maxHeight={imageHeight}
+            //   maxWidth={imageWidth}
+            //   minHeight={Math.min(512, imageHeight)}
+            //   minWidth={Math.min(512, imageWidth)}
+            //   scale={getCurScale()}
+            //   show={settings.showCropper}
+            // />
 
-            <Extender
-              minHeight={Math.min(512, imageHeight)}
-              minWidth={Math.min(512, imageWidth)}
-              scale={getCurScale()}
-              show={settings.showExtender}
-            />
+            // <Extender
+            //   minHeight={Math.min(512, imageHeight)}
+            //   minWidth={Math.min(512, imageWidth)}
+            //   scale={getCurScale()}
+            //   show={settings.showExtender}
+            // />
 
-            {interactiveSegState.isInteractiveSeg ? (
-              <InteractiveSegPoints />
-            ) : (
-              <></>
-            )}
-          </TransformComponent>
-        </TransformWrapper>
+ 
+    
       );
     };
 
