@@ -71,7 +71,7 @@ import {
 import { loadImage } from "@/lib/utils";
 const TOOLBAR_HEIGHT = 200;
 const COMPARE_SLIDER_DURATION_MS = 300;
-const DELTA_FRAME = 50;
+const DELTA_FRAME = 0;
 
 type EditorProps = {
   fabricRef: MutableRefObject<fabric.Canvas | null>;
@@ -586,8 +586,11 @@ const Editor = React.forwardRef(
         setImageSize(width, height);
       }
 
+      if (!initialCentered)
+        { 
       fabricRef.current.setWidth(width + DELTA_FRAME);
       fabricRef.current.setHeight(height + DELTA_FRAME);
+        }
 
       const img = new fabric.Image(original, {
         left: 0,
