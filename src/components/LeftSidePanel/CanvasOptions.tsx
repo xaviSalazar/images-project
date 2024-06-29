@@ -4,6 +4,7 @@ import { Switch } from "../ui/switch";
 import { NumberInput } from "../ui/input";
 import { useTranslation } from "react-i18next";
 import { IconButton } from "@/components/ui/button";
+import { useRefContext } from "@/components/RefCanvas";
 
 import {
   Select,
@@ -55,11 +56,7 @@ const ExtenderButton = ({
   );
 };
 
-type Props = {
-  fabricRef: MutableRefObject<fabric.Canvas | null>;
-};
-
-const CanvasOptions = ({ fabricRef }: Props) => {
+const CanvasOptions = () => {
   const [
     samplers,
     settings,
@@ -87,6 +84,9 @@ const CanvasOptions = ({ fabricRef }: Props) => {
   ]);
   const [exampleImage, isExampleImageLoaded] = useImage(paintByExampleFile);
   const { t } = useTranslation();
+
+  const { fabricRef } = useRefContext();
+
 
   const newFileUpload = () => {
     return (

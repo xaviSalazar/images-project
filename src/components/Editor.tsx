@@ -69,14 +69,12 @@ import {
 } from "@imgly/background-removal";
 
 import { loadImage } from "@/lib/utils";
+import { useRefContext } from "./RefCanvas";
+
 const TOOLBAR_HEIGHT = 200;
 const COMPARE_SLIDER_DURATION_MS = 300;
 const DELTA_FRAME = 0;
 
-type EditorProps = {
-  fabricRef: MutableRefObject<fabric.Canvas | null>;
-  file: File;
-};
 
 const hexToRgba = (hex: string): string => {
   hex = hex.replace("#", "");
@@ -106,14 +104,9 @@ const config = {
   },
 };
 
-const Editor = React.forwardRef(
-  ({ fabricRef, file }: EditorProps, ref: ForwardedRef<HTMLCanvasElement>) => {
-    if (typeof ref === "function") {
-      throw new Error(
-        `Only React Refs that are created with createRef or useRef are supported`,
-      );
-    }
+const Editor = React.forwardRef(() => {
 
+    const { fabricRef, canvasRef } = useRefContext();
     const { toast } = useToast();
 
     const [
@@ -186,13 +179,9 @@ const Editor = React.forwardRef(
 
     // Local State
     const [showOriginal, setShowOriginal] = useState(false);
-    const [original, isOriginalLoaded] = useImage(file);
-    const [context, setContext] = useState<CanvasRenderingContext2D>();
-    const [imageContext, setImageContext] =
-      useState<CanvasRenderingContext2D>();
-    //
-    const [initCanvasState, SetInitCanvasState] = useState<string | null>(null);
+    const [original, isOriginalLoaded] = useImage(null);
 
+    
     const [{ x, y }, setCoords] = useState({ x: -1, y: -1 });
     const [showBrush, setShowBrush] = useState(false);
     const [showRefBrush, setShowRefBrush] = useState(false);
@@ -214,7 +203,6 @@ const Editor = React.forwardRef(
     const [isChangingBrushSizeByWheel, setIsChangingBrushSizeByWheel] =
       useState<boolean>(false);
 
-    const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const cropperCanvasRef = useRef<HTMLCanvasElement | null>(null);
     // crop
     const lastActiveObject = useRef<fabric.Object | null>(null);
@@ -468,19 +456,22 @@ const Editor = React.forwardRef(
 
     useEffect(() => {
       const initMainCanvas = (): Canvas => {
-        return new fabric.Canvas(canvasRef.current, {
+        return new fabric.Canvas(canvasRef.current!, {
           fireMiddleClick: true,
           width: windowSize.width,
           height: windowSize.height
         });
       };
 
-      fabricRef.current = initMainCanvas();
+      (fabricRef as MutableRefObject<fabric.Canvas | null>).current = initMainCanvas();
 
       // Activate drawing mode for mask overlay
+      if(fabricRef.current) 
+      {
       fabricRef.current.isDrawingMode = settings.showDrawing;
       fabricRef.current.freeDrawingBrush.width = DEFAULT_BRUSH_SIZE;
       fabricRef.current.freeDrawingBrush.color = hexToRgba(BRUSH_COLOR);
+      }
 
       fabric.Object.prototype.transparentCorners = false;
       fabric.Object.prototype.cornerColor = "yellow";
@@ -574,34 +565,8 @@ const Editor = React.forwardRef(
 
       return () => {
         fabricRef.current?.dispose();
-        fabricRef.current = null; // Reset the reference to null
       };
-    }, []);
-
-    // load image or coming image from plugins render in fabric js
-    useEffect(() => {
-      if (!isOriginalLoaded) return;
-      if (!fabricRef.current) return;
-
-      const [width, height] = getCurrentWidthHeight();
-      if (width !== imageWidth || height !== imageHeight) {
-        setImageSize(width, height);
-      }
-
-      if (!initialCentered)
-        { 
-      // fabricRef.current.setWidth(width + DELTA_FRAME);
-      // fabricRef.current.setHeight(height + DELTA_FRAME);
-        }
-
-      const img = new fabric.Image(original, {
-        left: 0,
-        top: 0,
-      });
-
-      fabricRef.current.add(img);
-      fabricRef.current.renderAll();
-    }, [original, isOriginalLoaded]);
+    }, [windowSize]);
 
     // COMING RENDERS FROM BACKEND
     useEffect(() => {
@@ -639,18 +604,18 @@ const Editor = React.forwardRef(
       fabricRef.current.freeDrawingBrush.width = baseBrushSize;
     }, [baseBrushSize]);
 
-    const getCurrentRender = useCallback(async () => {
-      let targetFile = file;
-      if (renders.length > 0) {
-        const lastRender = renders[renders.length - 1];
-        targetFile = await srcToFile(
-          lastRender.currentSrc,
-          file.name,
-          file.type,
-        );
-      }
-      return targetFile;
-    }, [file, renders]);
+    // const getCurrentRender = useCallback(async () => {
+    //   let targetFile = file;
+    //   if (renders.length > 0) {
+    //     const lastRender = renders[renders.length - 1];
+    //     targetFile = await srcToFile(
+    //       lastRender.currentSrc,
+    //       file.name,
+    //       file.type,
+    //     );
+    //   }
+    //   return targetFile;
+    // }, [file, renders]);
 
     const hadRunInpainting = () => {
       return renders.length !== 0;
@@ -673,49 +638,6 @@ const Editor = React.forwardRef(
       return [width, height];
     }, [original, isOriginalLoaded, renders]);
 
-    // Draw once the original image is loaded
-    useEffect(() => {
-      if (!isOriginalLoaded) {
-        return;
-      }
-
-      const [width, height] = getCurrentWidthHeight();
-      if (width !== imageWidth || height !== imageHeight) {
-        setImageSize(width, height);
-      }
-
-      const rW = windowSize.width / width;
-      const rH = (windowSize.height - TOOLBAR_HEIGHT) / height;
-
-      let s = 1.0;
-      if (rW < 1 || rH < 1) {
-        s = Math.min(rW, rH);
-      }
-      setMinScale(s);
-      setScale(s);
-
-      console.log(
-        `[on file load] image size: ${width}x${height}, scale: ${s}, initialCentered: ${initialCentered}`,
-      );
-      // Save initial state
-      if (initialCentered) saveState();
-
-      if (!initialCentered) {
-        // 防止每次擦除以后图片 zoom 还原
-        viewportRef.current?.centerView(s, 1);
-        console.log("[on file load] centerView");
-        setInitialCentered(true);
-      }
-    }, [
-      viewportRef,
-      imageHeight,
-      imageWidth,
-      original,
-      isOriginalLoaded,
-      windowSize,
-      initialCentered,
-      getCurrentWidthHeight,
-    ]);
 
     useEffect(() => {
       console.log("[useEffect] centerView");
@@ -806,113 +728,7 @@ const Editor = React.forwardRef(
       handleCanvasMouseMove(mouseXY(ev));
     };
 
-    const runInteractiveSeg = async (newClicks: number[][]) => {
-      updateAppState({ isPluginRunning: true });
-      const targetFile = await getCurrentRender();
-      try {
-        const res = await runPlugin(
-          true,
-          PluginName.InteractiveSeg,
-          targetFile,
-          undefined,
-          newClicks,
-        );
-        const { blob } = res;
-        const img = new Image();
-        img.onload = () => {
-          updateInteractiveSegState({ tmpInteractiveSegMask: img });
-        };
-        img.src = blob;
-      } catch (e: any) {
-        toast({
-          variant: "destructive",
-          description: e.message ? e.message : e.toString(),
-        });
-      }
-      updateAppState({ isPluginRunning: false });
-    };
 
-    const onPointerUp = (ev: SyntheticEvent) => {
-      if (isMidClick(ev)) {
-        setIsPanning(false);
-        return;
-      }
-      if (!hadDrawSomething()) {
-        return;
-      }
-      if (interactiveSegState.isInteractiveSeg) {
-        return;
-      }
-      if (isPanning) {
-        return;
-      }
-      if (!original.src) {
-        return;
-      }
-      const canvas = context?.canvas;
-      if (!canvas) {
-        return;
-      }
-      if (isInpainting) {
-        return;
-      }
-      if (!isDraging) {
-        return;
-      }
-
-      if (runMannually) {
-        setIsDraging(false);
-      } else {
-        runInpainting();
-      }
-    };
-
-    const onCanvasMouseUp = (ev: SyntheticEvent) => {
-      if (interactiveSegState.isInteractiveSeg) {
-        const xy = mouseXY(ev);
-        const newClicks: number[][] = [...interactiveSegState.clicks];
-        if (isRightClick(ev)) {
-          newClicks.push([xy.x, xy.y, 0, newClicks.length]);
-        } else {
-          newClicks.push([xy.x, xy.y, 1, newClicks.length]);
-        }
-        runInteractiveSeg(newClicks);
-        updateInteractiveSegState({ clicks: newClicks });
-      }
-    };
-
-    // here adds lines to group
-    const onMouseDown = (ev: SyntheticEvent) => {
-      if (isProcessing) {
-        return;
-      }
-      if (interactiveSegState.isInteractiveSeg) {
-        return;
-      }
-      if (isPanning) {
-        return;
-      }
-      if (!isOriginalLoaded) {
-        return;
-      }
-      const canvas = context?.canvas;
-      if (!canvas) {
-        return;
-      }
-
-      if (isRightClick(ev)) {
-        return;
-      }
-
-      if (isMidClick(ev)) {
-        console.log("midclick");
-        setIsPanning(true);
-        return;
-      }
-
-      setIsDraging(true);
-      handleCanvasMouseDown(mouseXY(ev));
-    };
 
     const handleUndo = () => {
       undo();
@@ -1039,21 +855,21 @@ const Editor = React.forwardRef(
     //   [runMannually, runInpainting, hadDrawSomething],
     // );
 
-    useHotKey(
-      "ctrl+c,meta+c",
-      async () => {
-        const hasPermission = await askWritePermission();
-        if (hasPermission && renders.length > 0) {
-          if (context?.canvas) {
-            await copyCanvasImage(context?.canvas);
-            toast({
-              title: "Copy inpainting result to clipboard",
-            });
-          }
-        }
-      },
-      [renders, context],
-    );
+    // useHotKey(
+    //   "ctrl+c,meta+c",
+    //   async () => {
+    //     const hasPermission = await askWritePermission();
+    //     if (hasPermission && renders.length > 0) {
+    //       if (context?.canvas) {
+    //         await copyCanvasImage(context?.canvas);
+    //         toast({
+    //           title: "Copy inpainting result to clipboard",
+    //         });
+    //       }
+    //     }
+    //   },
+    //   [renders, context],
+    // );
 
     // Toggle clean/zoom tool on spacebar.
     useKeyPressEvent(

@@ -36,9 +36,6 @@ import {
 // import DiffusionOptions from "./DiffusionOptions";
 // import CV2Options from "./CV2Options";
 
-type Props = {
-  fabricRef: MutableRefObject<fabric.Canvas | null>;
-};
 
 export interface Artwork {
   artist: string;
@@ -90,7 +87,8 @@ export const works: Artwork[] = [
   }
 ];
 
-const LeftSidePanel = ({ fabricRef }: Props) => {
+const LeftSidePanel = () => {
+
   const [settings, windowSize] = useStore((state) => [
     state.settings,
     state.windowSize,
@@ -215,7 +213,7 @@ const LeftSidePanel = ({ fabricRef }: Props) => {
             <Layers /> AJUSTA IMAGEN
           </MenubarTrigger>
           <MenubarContent>
-            <CanvasOptions fabricRef={fabricRef} />
+            <CanvasOptions />
             {/* <MenubarRadioGroup value="benoit">
               <MenubarRadioItem value="andy">Andy</MenubarRadioItem>
               <MenubarRadioItem value="benoit">Benoit</MenubarRadioItem>

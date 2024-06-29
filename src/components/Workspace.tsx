@@ -11,6 +11,7 @@ import RightSidePanel from "./RightSidePanel";
 import { ModelInfo } from "@/lib/types";
 import LeftSidePanel from "./LeftSidePanel";
 
+
 const model: ModelInfo = {
   name: "Fantasy-Studio/Paint-by-Example",
   path: "Fantasy-Studio/Paint-by-Example",
@@ -27,11 +28,8 @@ const model: ModelInfo = {
 
 const Workspace = () => {
   // remember only valid inside function
-  const fabricRef = React.useRef<fabric.Canvas | null>(null);
-  const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
-  const [file, updateSettings] = useStore((state) => [
-    state.file,
+  const [updateSettings] = useStore((state) => [
     state.updateSettings,
   ]);
 
@@ -53,13 +51,9 @@ const Workspace = () => {
       </div>
       {/* <InteractiveSeg />
       <DiffusionProgress />*/}
-      <LeftSidePanel fabricRef={fabricRef} />
+      <LeftSidePanel />
       <RightSidePanel />
-      {file ? (
-        <Editor fabricRef={fabricRef} file={file} ref={canvasRef} />
-      ) : (
-        <></>
-      )}
+      <Editor/>
     </>
   );
 };

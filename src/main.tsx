@@ -6,6 +6,7 @@ import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { TooltipProvider } from "./components/ui/tooltip.tsx";
 import "@/languages/index.tsx";
+import { RefProvider } from "@/components/RefCanvas";
 
 const queryClient = new QueryClient();
 
@@ -14,7 +15,9 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="dark" disableTransitionOnChange>
         <TooltipProvider>
+        <RefProvider>
           <App />
+          </RefProvider>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>

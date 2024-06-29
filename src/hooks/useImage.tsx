@@ -3,17 +3,18 @@ import { dataURItoBlob, urlToDataURI } from "@/lib/utils";
 
 type ImageInput = File | string | null;
 
-function useImage(input: ImageInput): [HTMLImageElement, boolean] {
-  const [image] = useState(new Image());
+function useImage(input: ImageInput): [HTMLImageElement | null, boolean] {
+  const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    let file: File | null = null;
+    if (!input) return;
+
+    setIsLoaded(false);
+    const newImage = new Image();
 
     const loadImage = async () => {
-      if (!input) return;
-
-      setIsLoaded(false);
+      let file: File | null = null;
 
       if (typeof input === "string") {
         const dataURI = await urlToDataURI(input);
@@ -24,9 +25,10 @@ function useImage(input: ImageInput): [HTMLImageElement, boolean] {
       }
 
       if (file) {
-        image.src = URL.createObjectURL(file);
-        image.onload = () => {
+        newImage.src = URL.createObjectURL(file);
+        newImage.onload = () => {
           setIsLoaded(true);
+          setImage(newImage);
         };
       }
     };
@@ -34,9 +36,9 @@ function useImage(input: ImageInput): [HTMLImageElement, boolean] {
     loadImage();
 
     return () => {
-      image.onload = null;
+      newImage.onload = null;
     };
-  }, [input, image]);
+  }, [input]);
 
   return [image, isLoaded];
 }

@@ -5,6 +5,13 @@ import Workspace from "@/components/Workspace";
 import { useStore } from "./lib/states";
 import FileSelect from "@/components/FileSelect";
 import { useWindowSize } from "react-use";
+import { useRefContext } from "@/components/RefCanvas";
+import { useImage } from "@/hooks/useImage";
+import { fabric } from "fabric";
+
+
+
+
 
 const SUPPORTED_FILE_TYPE = [
   "image/jpeg",
@@ -15,12 +22,18 @@ const SUPPORTED_FILE_TYPE = [
 ];
 
 function Home() {
+
   const [file, updateAppState, setServerConfig, setFile] = useStore((state) => [
     state.file,
     state.updateAppState,
     state.setServerConfig,
     state.setFile,
   ]);
+
+  const { fabricRef } = useRefContext();
+  const [image, isLoaded] = useImage(file);
+  const positionRef = useRef({ left: 0, top: 0 }); // Keep track of positions for new images
+
 
   const windowSize = useWindowSize();
 
@@ -51,6 +64,7 @@ function Home() {
   const handleDrop = useCallback((event: any) => {
     event.preventDefault();
     event.stopPropagation();
+    if(!fabricRef.current) return
     const data = event.dataTransfer;
     if (data?.files && data.files.length > 0) {
       const dragFile = data.files[0];
@@ -107,6 +121,18 @@ function Home() {
   }, []);
 
   useEffect(() => {
+    if (isLoaded && fabricRef.current) {
+      const img = new fabric.Image(image, {
+        left: positionRef.current.left,
+        top: positionRef.current.top,
+      });
+      fabricRef.current.add(img);
+      positionRef.current.left += 50;
+      positionRef.current.top += 50;
+    }
+  }, [image, isLoaded]);
+
+  useEffect(() => {
     window.addEventListener("dragenter", handleDragIn);
     window.addEventListener("dragleave", handleDragOut);
     window.addEventListener("dragover", handleDrag);
@@ -126,15 +152,6 @@ function Home() {
       <Toaster />
       <Header />
       <Workspace />
-      {!file ? (
-        <FileSelect
-          onSelection={async (f) => {
-            setFile(f);
-          }}
-        />
-      ) : (
-        <></>
-      )}
     </main>
   );
 }
