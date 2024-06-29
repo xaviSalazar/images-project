@@ -3,7 +3,6 @@ import { Toaster } from "./components/ui/toaster";
 import Header from "@/components/Header";
 import Workspace from "@/components/Workspace";
 import { useStore } from "./lib/states";
-import FileSelect from "@/components/FileSelect";
 import { useWindowSize } from "react-use";
 import { useRefContext } from "@/components/RefCanvas";
 import { useImage } from "@/hooks/useImage";
@@ -23,21 +22,23 @@ const SUPPORTED_FILE_TYPE = [
 
 function Home() {
 
-  const [file, updateAppState, setServerConfig, setFile] = useStore((state) => [
+  const [file, updateAppState, setServerConfig, setFile, scaledWidth,
+    scaledHeight] = useStore((state) => [
     state.file,
     state.updateAppState,
     state.setServerConfig,
     state.setFile,
+    state.scaledWidth,
+    state.scaledHeight
   ]);
 
   const { fabricRef } = useRefContext();
   const [image, isLoaded] = useImage(file);
-  const positionRef = useRef({ left: 0, top: 0 }); // Keep track of positions for new images
-
 
   const windowSize = useWindowSize();
 
   useEffect(() => {
+    console.log(windowSize)
     updateAppState({ windowSize });
   }, [windowSize]);
 
@@ -121,15 +122,33 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    if (isLoaded && fabricRef.current) {
-      const img = new fabric.Image(image, {
-        left: positionRef.current.left,
-        top: positionRef.current.top,
+
+    if (isLoaded && fabricRef.current && image) {
+
+      console.log("load img", image?.width, image?.height )
+      console.log("scaled dim", scaledWidth, scaledHeight)
+      const scaleX = scaledWidth / (image?.width ?? 1);
+      const scaleY = scaledHeight / (image?.height ?? 1);
+      const scale = Math.min(scaleX, scaleY);
+      // Scale the image
+      const scaledImage = new fabric.Image(image, {
+        scaleX: scale,
+        scaleY: scale
       });
-      fabricRef.current.add(img);
-      positionRef.current.left += 50;
-      positionRef.current.top += 50;
+
+    // Ensure that fabricRef.current and scaledImage's dimensions are defined
+    const canvasWidth = fabricRef.current.width ?? 0;
+    const canvasHeight = fabricRef.current.height ?? 0;
+    const imageWidth = scaledImage.width ?? 0;
+    const imageHeight = scaledImage.height ?? 0;
+
+    // Position the scaled image at the center of the canvas
+    scaledImage.left = (canvasWidth - imageWidth * scale) / 2;
+    scaledImage.top = (canvasHeight - imageHeight * scale) / 2;
+    // add image
+    fabricRef.current.add(scaledImage);
     }
+    
   }, [image, isLoaded]);
 
   useEffect(() => {

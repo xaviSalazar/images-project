@@ -1,34 +1,16 @@
-import { FormEvent, useRef, MutableRefObject } from "react";
 import { useStore } from "@/lib/states";
-import { Switch } from "../ui/switch";
-import { NumberInput } from "../ui/input";
+
 import { useTranslation } from "react-i18next";
 import { IconButton } from "@/components/ui/button";
 import { useRefContext } from "@/components/RefCanvas";
 
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../ui/select";
-import { Textarea } from "../ui/textarea";
-import { ExtenderDirection, PowerPaintTask } from "@/lib/types";
-import { Separator } from "../ui/separator";
+
+
 import { Button, ImageUploadButton } from "../ui/button";
-import { Slider } from "../ui/slider";
 import { useImage } from "@/hooks/useImage";
-import {
-  ANYTEXT,
-  INSTRUCT_PIX2PIX,
-  PAINT_BY_EXAMPLE,
-  POWERPAINT,
-} from "@/lib/const";
+
 import { RowContainer, LabelTitle } from "./LabelTitle";
 import { Upload } from "lucide-react";
-import { useClickAway } from "react-use";
 import {
   DoubleArrowDownIcon,
   DoubleArrowUpIcon,
@@ -58,17 +40,11 @@ const ExtenderButton = ({
 
 const CanvasOptions = () => {
   const [
-    samplers,
-    settings,
     paintByExampleFile,
     isProcessing,
-    updateSettings,
     runInpainting,
-    updateAppState,
-    updateExtenderByBuiltIn,
-    updateExtenderDirection,
-    adjustMask,
-    clearMask,
+    updateAppState
+
   ] = useStore((state) => [
     state.serverConfig.samplers,
     state.settings,
@@ -77,10 +53,6 @@ const CanvasOptions = () => {
     state.updateSettings,
     state.runInpainting,
     state.updateAppState,
-    state.updateExtenderByBuiltIn,
-    state.updateExtenderDirection,
-    state.adjustMask,
-    state.clearMask,
   ]);
   const [exampleImage, isExampleImageLoaded] = useImage(paintByExampleFile);
   const { t } = useTranslation();

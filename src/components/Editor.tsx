@@ -67,6 +67,8 @@ import {
   alphamask,
   applySegmentationMask,
 } from "@imgly/background-removal";
+import { useWindowSize } from "react-use";
+
 
 import { loadImage } from "@/lib/utils";
 import { useRefContext } from "./RefCanvas";
@@ -111,10 +113,10 @@ const Editor = React.forwardRef(() => {
 
     const [
       disableShortCuts,
-      windowSize,
       isInpainting,
       imageWidth,
       imageHeight,
+      aspectRatio,
       settings,
       enableAutoSaving,
       updateSettings,
@@ -138,10 +140,10 @@ const Editor = React.forwardRef(() => {
       increaseBaseBrushSize,
     ] = useStore((state) => [
       state.disableShortCuts,
-      state.windowSize,
       state.isInpainting,
       state.imageWidth,
       state.imageHeight,
+      state.aspectRatio,
       state.settings,
       state.serverConfig.enableAutoSaving,
       state.updateSettings,
@@ -180,8 +182,8 @@ const Editor = React.forwardRef(() => {
     // Local State
     const [showOriginal, setShowOriginal] = useState(false);
     const [original, isOriginalLoaded] = useImage(null);
+    const [zoomLevel, setZoomLevel] = useState<number> (0.5); // Initial zoom level
 
-    
     const [{ x, y }, setCoords] = useState({ x: -1, y: -1 });
     const [showBrush, setShowBrush] = useState(false);
     const [showRefBrush, setShowRefBrush] = useState(false);
@@ -190,8 +192,13 @@ const Editor = React.forwardRef(() => {
     const [scale, setScale] = useState<number>(1);
     const [panned, setPanned] = useState<boolean>(false);
     const [minScale, setMinScale] = useState<number>(1.0);
-    const windowCenterX = windowSize.width / 2;
-    const windowCenterY = windowSize.height / 2;
+    const isDragging = useRef(false);
+    const lastPosX = useRef(0);
+    const lastPosY = useRef(0);  
+    const windowSize = useWindowSize();
+
+    // const windowCenterX = windowSize.width / 2;
+    // const windowCenterY = windowSize.height / 2;
     const viewportRef = useRef<ReactZoomPanPinchContentRef | null>(null);
 
     // Indicates that the image has been loaded and is centered on first load
@@ -455,11 +462,17 @@ const Editor = React.forwardRef(() => {
     };
 
     useEffect(() => {
+
       const initMainCanvas = (): Canvas => {
-        return new fabric.Canvas(canvasRef.current!, {
-          fireMiddleClick: true,
+        return new fabric.Canvas(canvasRef.current, {
           width: windowSize.width,
-          height: windowSize.height
+          height: windowSize.height,
+          backgroundColor:  "#f0f0f0",
+          fireMiddleClick: true,
+          stopContextMenu: true, // 禁止默认右键菜单
+          enableRetinaScaling: true,
+          controlsAboveOverlay: true,
+          preserveObjectStacking: true,
         });
       };
 
@@ -468,14 +481,21 @@ const Editor = React.forwardRef(() => {
       // Activate drawing mode for mask overlay
       if(fabricRef.current) 
       {
-      fabricRef.current.isDrawingMode = settings.showDrawing;
-      fabricRef.current.freeDrawingBrush.width = DEFAULT_BRUSH_SIZE;
-      fabricRef.current.freeDrawingBrush.color = hexToRgba(BRUSH_COLOR);
+        fabricRef.current.isDrawingMode = settings.showDrawing;
+        fabricRef.current.freeDrawingBrush.width = DEFAULT_BRUSH_SIZE;
+        fabricRef.current.freeDrawingBrush.color = hexToRgba(BRUSH_COLOR);
       }
 
-      fabric.Object.prototype.transparentCorners = false;
-      fabric.Object.prototype.cornerColor = "yellow";
-      fabric.Object.prototype.cornerStyle = "circle";
+      // modify around image contour
+      fabric.Object.prototype.set({
+        transparentCorners: false,
+        borderColor: "#51B9F9",
+        cornerColor: "yellow",
+        borderScaleFactor: 2.5,
+        cornerStyle: "rect",
+        cornerStrokeColor: "#0E98FC",
+        borderOpacityWhenMoving: 1,
+      });
 
       //################DELETE SECTION#########################
       //const eraseBgIcon = "data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!DOCTYPE svg PUBLIC '-//W3C//DTD SVG 1.1//EN' 'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'%3E%3Csvg version='1.1' id='Ebene_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' width='595.275px' height='595.275px' viewBox='200 215 230 470' xml:space='preserve'%3E%3Ccircle style='fill:%23F44336;' cx='299.76' cy='439.067' r='218.516'/%3E%3Cg%3E%3Crect x='267.162' y='307.978' transform='matrix(0.7071 -0.7071 0.7071 0.7071 -222.6202 340.6915)' style='fill:white;' width='65.545' height='262.18'/%3E%3Crect x='266.988' y='308.153' transform='matrix(0.7071 0.7071 -0.7071 0.7071 398.3889 -83.3116)' style='fill:white;' width='65.544' height='262.179'/%3E%3C/g%3E%3C/svg%3E";
@@ -544,47 +564,219 @@ const Editor = React.forwardRef(() => {
       });
 
       // Event listener for panning
-      fabricRef.current.on("mouse:up", (event: fabric.IEvent<MouseEvent>) => {
-        if (isMidClick(event)) {
-          setIsPanning(false);
-        }
-      });
+      fabricRef.current.on("mouse:up",stopPanning);
 
-      fabricRef.current.on("mouse:down", (event: fabric.IEvent<MouseEvent>) => {
-        if (isMidClick(event)) {
-          setIsPanning(true);
-        }
-      });
+      fabricRef.current.on("mouse:down",startPanning);
+
+      fabricRef.current.on("mouse:move", panCanvas);
 
       fabricRef.current.on("path:created", () => {
         console.log("paht created");
         saveState();
       });
 
-      // #### DISPOSE
+      fabricRef.current.on('mouse:wheel', function(opt) {
+        const delta = opt.e.deltaY;
+        let zoom = fabricRef.current.getZoom();
+        zoom *= 0.999 ** delta;
+        if (zoom > 20) zoom = 20;
+        if (zoom < 0.01) zoom = 0.01;
+        fabricRef.current.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
+        opt.e.preventDefault();
+        opt.e.stopPropagation();
+      });
 
+      fabricRef.current.zoomToPoint({x: fabricRef.current.width / 2, y: fabricRef.current.height / 2}, zoomLevel);
+
+      // fabricRef.current.on("after:render", (e) => {
+      //   console.log("aspect ratio on render")
+      //   const { ctx } = e;
+      //   const fillStyle = "rgba(0, 0, 0, 0.5)";
+      //   const width = fabricRef.current.width;
+      //   const height = fabricRef.current.height;
+  
+      //   if (ctx) {
+      //     ctx.save();
+      //     ctx.beginPath();
+      //     ctx.moveTo(0, 0);
+      //     ctx.lineTo(width, 0);
+      //     ctx.lineTo(width, height);
+      //     ctx.lineTo(0, height);
+      //     ctx.closePath();
+  
+      //     // Apply the viewport transformation
+      //     ctx.transform.apply(ctx, Array.from(fabricRef.current.viewportTransform));
+  
+      //     // Adjust clipping area based on the aspect ratio
+      //     let clipWidth, clipHeight;
+
+      //     const [ratioWidth, ratioHeight] = aspectRatio.split(':').map(Number);
+  
+      //     if (ratioWidth >= ratioHeight) {
+      //       clipWidth = width;
+      //       clipHeight = width * (ratioHeight / ratioWidth);
+      //     } else {
+      //       clipHeight = height;
+      //       clipWidth = height * (ratioWidth / ratioHeight);
+      //     }
+
+      //     updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
+  
+      //     const clipX = (width - clipWidth) / 2;
+      //     const clipY = (height - clipHeight) / 2;
+  
+      //     ctx.moveTo(clipX, clipY);
+      //     ctx.lineTo(clipX, clipY + clipHeight);
+      //     ctx.lineTo(clipX + clipWidth, clipY + clipHeight);
+      //     ctx.lineTo(clipX + clipWidth, clipY);
+      //     ctx.closePath();
+  
+      //     ctx.fillStyle = fillStyle;
+      //     ctx.fill();
+      //     ctx.restore();
+      //   }
+      // }) 
+      // #### DISPOSE
       return () => {
         fabricRef.current?.dispose();
       };
-    }, [windowSize]);
+    }, []);
+
+    useEffect(() => {
+      // Your existing useEffect logic
+      if(!fabricRef.current) return;
+
+      const handleAfterRender = (e) => {
+
+        console.log("aspect ratio on render")
+        const { ctx } = e;
+        const fillStyle = "rgba(0, 0, 0, 0.7)";
+        const width = fabricRef.current?.width ?? 0;
+        const height = fabricRef.current?.height ?? 0;
+  
+        if (ctx) {
+          ctx.save();
+          // Clear only the specific area where the dark overlay was applied
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(width, 0);
+          ctx.lineTo(width, height);
+          ctx.lineTo(0, height);
+          ctx.closePath();
+  
+          // Apply the viewport transformation
+          ctx.transform.apply(ctx, Array.from(fabricRef.current.viewportTransform));
+  
+          // Adjust clipping area based on the aspect ratio
+          let clipWidth, clipHeight;
+
+          const [ratioWidth, ratioHeight] = aspectRatio.split(':').map(Number);
+  
+          if (ratioWidth >= ratioHeight) {
+            clipWidth = width;
+            clipHeight = width * (ratioHeight / ratioWidth);
+          } else {
+            clipHeight = height;
+            clipWidth = height * (ratioWidth / ratioHeight);
+          }
+
+          updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
+  
+          const clipX = (width - clipWidth) / 2;
+          const clipY = (height - clipHeight) / 2;
+  
+          ctx.moveTo(clipX, clipY);
+          ctx.lineTo(clipX, clipY + clipHeight);
+          ctx.lineTo(clipX + clipWidth, clipY + clipHeight);
+          ctx.lineTo(clipX + clipWidth, clipY);
+          ctx.closePath();
+          ctx.fillStyle = fillStyle;
+          ctx.fill();
+          ctx.restore();
+        }
+      }
+
+      // Attach the event listener
+    fabricRef.current.on("after:render", handleAfterRender);
+
+      return () => {
+        if (fabricRef.current) {
+          fabricRef.current.off("after:render", handleAfterRender);
+        }
+      };
+
+    }, [aspectRatio])
+
+    const stopPanning = useCallback((opt) => {
+      if (isMidClick(opt)) {
+      isDragging.current = false;
+      }
+    }, []);
+
+    const startPanning = useCallback((opt) => {
+      if (isMidClick(opt)) {
+        const evt = opt.e;
+        isDragging.current = true;
+        lastPosX.current = evt.clientX;
+        lastPosY.current = evt.clientY;
+      }
+    }, []);
+  
+    const panCanvas = useCallback((opt) => {
+      if (isDragging.current) {
+        const e = opt.e;
+        const vpt = fabricRef.current.viewportTransform;
+        vpt[4] += e.clientX - lastPosX.current;
+        vpt[5] += e.clientY - lastPosY.current;
+        fabricRef.current.requestRenderAll();
+        lastPosX.current = e.clientX;
+        lastPosY.current = e.clientY;
+      }
+    }, [fabricRef.current]);
+
+    useEffect(() => {
+      // Your existing useEffect logic
+      if(!fabricRef.current) return;
+      const width = fabricRef.current.width ?? 1024;
+      const height = fabricRef.current.height ?? 1024
+      fabricRef.current.zoomToPoint({ x: width / 2, y: height / 2 },zoomLevel);
+    }, [zoomLevel])
+
+
+        // useEffect(() => {
+    //   if (!fabricRef.current) return;
+
+    //   const render = renders[renders.length - 1];
+
+    //   const img = new fabric.Image(render, {
+    //     left: 0,
+    //     top: 0,
+    //   });
+
+    //   // Clear the canvas
+    //   fabricRef.current.clear();
+    //   fabricRef.current.add(img);
+    //   saveState();
+    //   fabricRef.current.renderAll();
+    // }, [renders]);
 
     // COMING RENDERS FROM BACKEND
-    useEffect(() => {
-      if (!fabricRef.current) return;
+    // useEffect(() => {
+    //   if (!fabricRef.current) return;
 
-      const render = renders[renders.length - 1];
+    //   const render = renders[renders.length - 1];
 
-      const img = new fabric.Image(render, {
-        left: 0,
-        top: 0,
-      });
+    //   const img = new fabric.Image(render, {
+    //     left: 0,
+    //     top: 0,
+    //   });
 
-      // Clear the canvas
-      fabricRef.current.clear();
-      fabricRef.current.add(img);
-      saveState();
-      fabricRef.current.renderAll();
-    }, [renders]);
+    //   // Clear the canvas
+    //   fabricRef.current.clear();
+    //   fabricRef.current.add(img);
+    //   saveState();
+    //   fabricRef.current.renderAll();
+    // }, [renders]);
 
     // REDO / UNDO ACTION
     useEffect(() => {
@@ -639,11 +831,11 @@ const Editor = React.forwardRef(() => {
     }, [original, isOriginalLoaded, renders]);
 
 
-    useEffect(() => {
-      console.log("[useEffect] centerView");
-      // render 改变尺寸以后，undo/redo 重新 center
-      viewportRef?.current?.centerView(minScale, 1);
-    }, [imageHeight, imageWidth, viewportRef, minScale]);
+    // useEffect(() => {
+    //   console.log("[useEffect] centerView");
+    //   // render 改变尺寸以后，undo/redo 重新 center
+    //   viewportRef?.current?.centerView(minScale, 1);
+    // }, [imageHeight, imageWidth, viewportRef, minScale]);
 
     // Zoom reset
     const resetZoom = useCallback(() => {
@@ -672,16 +864,16 @@ const Editor = React.forwardRef(() => {
       minScale,
     ]);
 
-    useEffect(() => {
-      window.addEventListener("resize", () => {
-        resetZoom();
-      });
-      return () => {
-        window.removeEventListener("resize", () => {
-          resetZoom();
-        });
-      };
-    }, [windowSize, resetZoom]);
+    // useEffect(() => {
+    //   window.addEventListener("resize", () => {
+    //     resetZoom();
+    //   });
+    //   return () => {
+    //     window.removeEventListener("resize", () => {
+    //       resetZoom();
+    //     });
+    //   };
+    // }, [windowSize, resetZoom]);
 
     const handleEscPressed = () => {
       if (isProcessing) {
@@ -967,7 +1159,7 @@ const Editor = React.forwardRef(() => {
     const renderCanvas = () => {
       return (
 
-            <div className="relative top-[60px]">
+            <div className="relative top-[60px] bg-stone-600">
               <canvas
                 className={cn(
                   isProcessing
@@ -1067,16 +1259,6 @@ const Editor = React.forwardRef(() => {
         // onWheel={handleScroll}
       >
         {renderCanvas()}
-        {showBrush &&
-          !isInpainting &&
-          !isPanning &&
-          (interactiveSegState.isInteractiveSeg
-            ? renderInteractiveSegCursor()
-            : renderBrush(getBrushStyle(x, y)))}
-
-        {showRefBrush &&
-          renderBrush(getBrushStyle(windowCenterX, windowCenterY))}
-
         <div className="fixed flex bottom-5 border px-4 py-2 rounded-[3rem] gap-8 items-center justify-center backdrop-filter backdrop-blur-md bg-background/70">
           <Slider
             className="w-48"

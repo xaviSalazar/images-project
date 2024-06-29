@@ -155,22 +155,23 @@ type AppState = {
   customMask: File | null;
   imageHeight: number;
   imageWidth: number;
+  clipWidth: number;
+  clipHeight: number;
+  scaledWidth: number;
+  scaledHeight: number;
+  aspectRatio: string;
   isInpainting: boolean;
   isPluginRunning: boolean;
   isAdjustingMask: boolean;
   windowSize: Size;
   editorState: EditorState;
   disableShortCuts: boolean;
-
   interactiveSegState: InteractiveSegState;
   fileManagerState: FileManagerState;
-
   cropperState: CropperState;
   extenderState: CropperState;
   isCropperExtenderResizing: boolean;
-
   serverConfig: ServerConfig;
-
   settings: Settings;
 };
 
@@ -250,6 +251,11 @@ const defaultValues: AppState = {
   customMask: null,
   imageHeight: 0,
   imageWidth: 0,
+  clipWidth: 0,
+  clipHeight: 0,
+  scaledWidth: 0,
+  scaledHeight: 0,
+  aspectRatio: "1:1",
   isInpainting: false,
   isPluginRunning: false,
   isAdjustingMask: false,

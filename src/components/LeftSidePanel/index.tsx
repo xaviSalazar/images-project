@@ -8,6 +8,7 @@ import { Button } from "../ui/button";
 import useHotKey from "@/hooks/useHotkey";
 import { RowContainer, LabelTitle } from "./LabelTitle";
 import CanvasOptions from "./CanvasOptions";
+import RatioOptions from "./RatioOptions";
 import { useTranslation } from "react-i18next";
 import React, { MutableRefObject } from "react";
 import { Settings } from "lucide-react";
@@ -214,17 +215,19 @@ const LeftSidePanel = () => {
           </MenubarTrigger>
           <MenubarContent>
             <CanvasOptions />
-            {/* <MenubarRadioGroup value="benoit">
-              <MenubarRadioItem value="andy">Andy</MenubarRadioItem>
-              <MenubarRadioItem value="benoit">Benoit</MenubarRadioItem>
-              <MenubarRadioItem value="Luis">Luis</MenubarRadioItem>
-            </MenubarRadioGroup>
-            <MenubarSeparator />
-            <MenubarItem inset>Edit...</MenubarItem>
-            <MenubarSeparator />
-            <MenubarItem inset>Add Profile...</MenubarItem> */}
           </MenubarContent>
         </MenubarMenu>
+
+        <MenubarMenu>
+          <MenubarTrigger>
+            {" "}
+            <Layers /> DEVICE RATIO
+          </MenubarTrigger>
+          <MenubarContent>
+            <RatioOptions />
+          </MenubarContent>
+        </MenubarMenu>
+
       </Menubar>
     );
   }
