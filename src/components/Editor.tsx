@@ -7,7 +7,7 @@ import React, {
   ForwardedRef,
   MutableRefObject,
 } from "react";
-
+import { predefinedRatios } from "@/lib/const";
 import { CursorArrowRaysIcon } from "@heroicons/react/24/outline";
 import { useToast } from "@/components/ui/use-toast";
 import { TransformIcon } from "@radix-ui/react-icons";
@@ -115,7 +115,9 @@ const Editor = React.forwardRef(() => {
       disableShortCuts,
       isInpainting,
       imageWidth,
+      scaledWidth,
       imageHeight,
+      scaledHeight,
       aspectRatio,
       settings,
       enableAutoSaving,
@@ -142,7 +144,9 @@ const Editor = React.forwardRef(() => {
       state.disableShortCuts,
       state.isInpainting,
       state.imageWidth,
+      state.scaledWidth,
       state.imageHeight,
+      state.scaledHeight,
       state.aspectRatio,
       state.settings,
       state.serverConfig.enableAutoSaving,
@@ -182,7 +186,7 @@ const Editor = React.forwardRef(() => {
     // Local State
     const [showOriginal, setShowOriginal] = useState(false);
     const [original, isOriginalLoaded] = useImage(null);
-    const [zoomLevel, setZoomLevel] = useState<number> (0.5); // Initial zoom level
+    const [zoomLevel, setZoomLevel] = useState<number> (0.7); // Initial zoom level
 
     const [{ x, y }, setCoords] = useState({ x: -1, y: -1 });
     const [showBrush, setShowBrush] = useState(false);
@@ -588,54 +592,6 @@ const Editor = React.forwardRef(() => {
 
       fabricRef.current.zoomToPoint({x: fabricRef.current.width / 2, y: fabricRef.current.height / 2}, zoomLevel);
 
-      // fabricRef.current.on("after:render", (e) => {
-      //   console.log("aspect ratio on render")
-      //   const { ctx } = e;
-      //   const fillStyle = "rgba(0, 0, 0, 0.5)";
-      //   const width = fabricRef.current.width;
-      //   const height = fabricRef.current.height;
-  
-      //   if (ctx) {
-      //     ctx.save();
-      //     ctx.beginPath();
-      //     ctx.moveTo(0, 0);
-      //     ctx.lineTo(width, 0);
-      //     ctx.lineTo(width, height);
-      //     ctx.lineTo(0, height);
-      //     ctx.closePath();
-  
-      //     // Apply the viewport transformation
-      //     ctx.transform.apply(ctx, Array.from(fabricRef.current.viewportTransform));
-  
-      //     // Adjust clipping area based on the aspect ratio
-      //     let clipWidth, clipHeight;
-
-      //     const [ratioWidth, ratioHeight] = aspectRatio.split(':').map(Number);
-  
-      //     if (ratioWidth >= ratioHeight) {
-      //       clipWidth = width;
-      //       clipHeight = width * (ratioHeight / ratioWidth);
-      //     } else {
-      //       clipHeight = height;
-      //       clipWidth = height * (ratioWidth / ratioHeight);
-      //     }
-
-      //     updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
-  
-      //     const clipX = (width - clipWidth) / 2;
-      //     const clipY = (height - clipHeight) / 2;
-  
-      //     ctx.moveTo(clipX, clipY);
-      //     ctx.lineTo(clipX, clipY + clipHeight);
-      //     ctx.lineTo(clipX + clipWidth, clipY + clipHeight);
-      //     ctx.lineTo(clipX + clipWidth, clipY);
-      //     ctx.closePath();
-  
-      //     ctx.fillStyle = fillStyle;
-      //     ctx.fill();
-      //     ctx.restore();
-      //   }
-      // }) 
       // #### DISPOSE
       return () => {
         fabricRef.current?.dispose();
@@ -648,7 +604,7 @@ const Editor = React.forwardRef(() => {
 
       const handleAfterRender = (e) => {
 
-        console.log("aspect ratio on render")
+        // console.log("aspect ratio on render")
         const { ctx } = e;
         const fillStyle = "rgba(0, 0, 0, 0.7)";
         const width = fabricRef.current?.width ?? 0;
@@ -668,17 +624,20 @@ const Editor = React.forwardRef(() => {
           ctx.transform.apply(ctx, Array.from(fabricRef.current.viewportTransform));
   
           // Adjust clipping area based on the aspect ratio
-          let clipWidth, clipHeight;
+          let clipWidth, clipHeight, scale;
 
           const [ratioWidth, ratioHeight] = aspectRatio.split(':').map(Number);
   
           if (ratioWidth >= ratioHeight) {
             clipWidth = width;
-            clipHeight = width * (ratioHeight / ratioWidth);
+            scale = (ratioHeight / ratioWidth)
+            clipHeight = width * scale;
           } else {
             clipHeight = height;
-            clipWidth = height * (ratioWidth / ratioHeight);
+            scale = (ratioWidth / ratioHeight)
+            clipWidth = height * scale;
           }
+          // console.log("clip width", clipWidth, "clip height", clipHeight, "scale", scale)
 
           updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
   
@@ -1240,6 +1199,86 @@ const Editor = React.forwardRef(() => {
       }
     };
 
+      // kind of work 
+    // const handleDownload = () => {
+
+    //   const clipX = (fabricRef.current.width - scaledWidth) / 2;
+    //   const clipY = (fabricRef.current.height - scaledHeight) / 2;
+  
+    //   const tempCanvas = new fabric.Canvas(null, {
+    //     width: scaledWidth,
+    //     height: scaledHeight,
+    //   });
+  
+    //   fabricRef.current.getObjects().forEach((obj) => {
+    //     const clone = fabric.util.object.clone(obj);
+    //     clone.set({
+    //       left: clone.left - clipX,
+    //       top: clone.top - clipY,
+    //     });
+    //     tempCanvas.add(clone);
+    //   });
+  
+    //   tempCanvas.renderAll();
+    //   const dataURL = tempCanvas.toDataURL({
+    //     format: 'png',
+    //     quality: 1,
+    //   });
+  
+    //   const link = document.createElement('a');
+    //   link.href = dataURL;
+    //   link.download = 'canvas.png';
+    //   document.body.appendChild(link);
+    //   link.click();
+    //   document.body.removeChild(link);
+    // };
+    const handleDownload = () => {
+
+      const predefinedRatio = predefinedRatios.find(ratio => ratio.name === aspectRatio);
+      console.log(predefinedRatio)
+      if (!predefinedRatio) {
+        console.error("Invalid aspect ratio");
+        return;
+      }
+
+      const { width: outputWidth, height: outputHeight } = predefinedRatio;
+
+      const clipX = (fabricRef.current.width - scaledWidth) / 2;
+      const clipY = (fabricRef.current.height - scaledHeight) / 2;
+  
+      const tempCanvas = new fabric.Canvas(null, {
+        width: outputWidth,
+        height: outputHeight,
+      });
+  
+      const scaleX = outputWidth / scaledWidth;
+      const scaleY = outputHeight / scaledHeight;
+  
+      fabricRef.current.getObjects().forEach((obj) => {
+        const clone = fabric.util.object.clone(obj);
+        clone.set({
+          left: (clone.left - clipX) * scaleX,
+          top: (clone.top - clipY) * scaleY,
+          scaleX: clone.scaleX * scaleX,
+          scaleY: clone.scaleY * scaleY,
+        });
+        tempCanvas.add(clone);
+      });
+  
+      tempCanvas.renderAll();
+      const dataURL = tempCanvas.toDataURL({
+        format: 'png',
+        quality: 1,
+      });
+  
+      const link = document.createElement('a');
+      link.href = dataURL;
+      link.download = 'canvas.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
+
     const handleDrawingMode = (value: boolean) => {
       console.log(value);
       console.log(settings.showDrawing);
@@ -1322,10 +1361,11 @@ const Editor = React.forwardRef(() => {
             <IconButton
               tooltip="Save Image"
               //disabled={!renders.length}
-              onClick={ () => {
-                download("image");
-                download("path")
-              }}
+              // onClick={ () => {
+              //   download("image");
+              //   download("path")
+              // }}
+              onClick={() => handleDownload()}
             >
               <Download />
             </IconButton>

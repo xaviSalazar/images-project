@@ -38,7 +38,7 @@ function Home() {
   const windowSize = useWindowSize();
 
   useEffect(() => {
-    console.log(windowSize)
+    // console.log(windowSize)
     updateAppState({ windowSize });
   }, [windowSize]);
 
@@ -125,11 +125,12 @@ function Home() {
 
     if (isLoaded && fabricRef.current && image) {
 
-      console.log("load img", image?.width, image?.height )
-      console.log("scaled dim", scaledWidth, scaledHeight)
+      //console.log("load img", image?.width, image?.height )
+      //console.log("scaled dim", scaledWidth, scaledHeight)
       const scaleX = scaledWidth / (image?.width ?? 1);
       const scaleY = scaledHeight / (image?.height ?? 1);
       const scale = Math.min(scaleX, scaleY);
+      //console.log("scale min", scale, "img scaleX", scaleX, "img scaleY", scaleY)
       // Scale the image
       const scaledImage = new fabric.Image(image, {
         scaleX: scale,
