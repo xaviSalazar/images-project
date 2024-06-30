@@ -45,10 +45,10 @@ const RatioOptions = () => {
     if (fabricInstance) {
       switch (mode) {
         case "Horizontal":
-          updateAppState({aspectRatio: "2:1"})
+          updateAppState({aspectRatio: "16:9"})
           break;
         case "Vertical":
-          updateAppState({aspectRatio: "1:2"})
+          updateAppState({aspectRatio: "9:16"})
           break;
         case "Cuadrado":
           updateAppState({aspectRatio: "1:1"})

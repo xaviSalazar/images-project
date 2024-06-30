@@ -22,3 +22,13 @@ export const ANYTEXT = "Sanster/AnyText";
 
 export const DEFAULT_NEGATIVE_PROMPT =
   "out of frame, lowres, error, cropped, worst quality, low quality, jpeg artifacts, ugly, duplicate, morbid, mutilated, out of frame, mutation, deformed, blurry, dehydrated, bad anatomy, bad proportions, extra limbs, disfigured, gross proportions, malformed limbs, watermark, signature";
+
+export const predefinedRatios = [
+  { name: "1:1", ratio: 1, width: 1024, height: 1024 },
+  { name: "3:2", ratio: 3 / 2, width: 1152, height: 768 },
+  { name: "2:3", ratio: 2 / 3, width: 768, height: 1152 },
+  { name: "4:3", ratio: 4 / 3, width: 1152, height: 864 },
+  { name: "3:4", ratio: 3 / 4, width: 864, height: 1152 },
+  { name: "16:9", ratio: 16 / 9, width: 1024, height: 576 },
+  { name: "9:16", ratio: 9 / 16, width: 768, height: 1360 },
+];

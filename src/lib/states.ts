@@ -255,7 +255,7 @@ const defaultValues: AppState = {
   clipHeight: 0,
   scaledWidth: 0,
   scaledHeight: 0,
-  aspectRatio: "1:1",
+  aspectRatio: "16:9",
   isInpainting: false,
   isPluginRunning: false,
   isAdjustingMask: false,

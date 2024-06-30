@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { dataURItoBlob, urlToDataURI } from "@/lib/utils";
+import { predefinedRatios } from "@/lib/const";
 
 type ImageInput = File | string | null;
 
@@ -7,16 +8,6 @@ function useImage(input: ImageInput): [HTMLImageElement | null, boolean] {
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(document.createElement('canvas'));
-
-  const predefinedRatios = [
-    { ratio: 1, width: 1024, height: 1024 },
-    { ratio: 3 / 2, width: 1152, height: 768 },
-    { ratio: 2 / 3, width: 768, height: 1152 },
-    { ratio: 4 / 3, width: 1152, height: 864 },
-    { ratio: 3 / 4, width: 864, height: 1152 },
-    { ratio: 16 / 9, width: 1360, height: 768 },
-    { ratio: 9 / 16, width: 768, height: 1360 },
-  ];
 
   const getClosestDimensions = (width: number, height: number) => {
     const aspectRatio = width / height;
