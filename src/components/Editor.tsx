@@ -205,9 +205,6 @@ const Editor = React.forwardRef(() => {
     // const windowCenterY = windowSize.height / 2;
     const viewportRef = useRef<ReactZoomPanPinchContentRef | null>(null);
 
-    // Indicates that the image has been loaded and is centered on first load
-    const [initialCentered, setInitialCentered] = useState(false);
-
     const [isDraging, setIsDraging] = useState(false);
 
     const [sliderPos, setSliderPos] = useState<number>(0);
@@ -488,6 +485,8 @@ const Editor = React.forwardRef(() => {
         fabricRef.current.isDrawingMode = settings.showDrawing;
         fabricRef.current.freeDrawingBrush.width = DEFAULT_BRUSH_SIZE;
         fabricRef.current.freeDrawingBrush.color = hexToRgba(BRUSH_COLOR);
+        fabricRef.current?.zoomToPoint({x: fabricRef.current?.width / 2, y: fabricRef.current?.height / 2}, zoomLevel);
+        setZoomLevel(fabricRef.current.getZoom())
       }
 
       // modify around image contour
@@ -568,29 +567,28 @@ const Editor = React.forwardRef(() => {
       });
 
       // Event listener for panning
-      fabricRef.current.on("mouse:up",stopPanning);
+      fabricRef.current?.on("mouse:up",stopPanning);
 
-      fabricRef.current.on("mouse:down",startPanning);
+      fabricRef.current?.on("mouse:down",startPanning);
 
-      fabricRef.current.on("mouse:move", panCanvas);
+      fabricRef.current?.on("mouse:move", panCanvas);
 
-      fabricRef.current.on("path:created", () => {
-        console.log("paht created");
+      fabricRef.current?.on("path:created", () => {
         saveState();
       });
 
-      fabricRef.current.on('mouse:wheel', function(opt) {
+      fabricRef.current?.on('mouse:wheel', function(opt) {
         const delta = opt.e.deltaY;
-        let zoom = fabricRef.current.getZoom();
-        zoom *= 0.999 ** delta;
+        let zoom = fabricRef.current?.getZoom();
+        zoom *= (0.999 ** delta);
         if (zoom > 20) zoom = 20;
         if (zoom < 0.01) zoom = 0.01;
-        fabricRef.current.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
+        console.log(fabricRef.current?.width, fabricRef.current?.height)
+        fabricRef.current?.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
         opt.e.preventDefault();
         opt.e.stopPropagation();
       });
 
-      fabricRef.current.zoomToPoint({x: fabricRef.current.width / 2, y: fabricRef.current.height / 2}, zoomLevel);
 
       // #### DISPOSE
       return () => {
@@ -666,13 +664,13 @@ const Editor = React.forwardRef(() => {
 
     }, [aspectRatio])
 
-    const stopPanning = useCallback((opt) => {
+    const stopPanning = useCallback((opt: fabric.IEvent<MouseEvent>) => {
       if (isMidClick(opt)) {
       isDragging.current = false;
       }
     }, []);
 
-    const startPanning = useCallback((opt) => {
+    const startPanning = useCallback((opt: fabric.IEvent<MouseEvent>) => {
       if (isMidClick(opt)) {
         const evt = opt.e;
         isDragging.current = true;
@@ -681,8 +679,9 @@ const Editor = React.forwardRef(() => {
       }
     }, []);
   
-    const panCanvas = useCallback((opt) => {
+    const panCanvas = useCallback((opt: fabric.IEvent<MouseEvent>) => {
       if (isDragging.current) {
+        if(!fabricRef.current) return;
         const e = opt.e;
         const vpt = fabricRef.current.viewportTransform;
         vpt[4] += e.clientX - lastPosX.current;
@@ -693,13 +692,14 @@ const Editor = React.forwardRef(() => {
       }
     }, [fabricRef.current]);
 
-    useEffect(() => {
-      // Your existing useEffect logic
-      if(!fabricRef.current) return;
-      const width = fabricRef.current.width ?? 1024;
-      const height = fabricRef.current.height ?? 1024
-      fabricRef.current.zoomToPoint({ x: width / 2, y: height / 2 },zoomLevel);
-    }, [zoomLevel])
+    // useEffect(() => {
+    //   // Your existing useEffect logic
+    //   if(!fabricRef.current) return;
+    //   console.log("zoom level")
+    //   const width = fabricRef.current.width ?? 1024;
+    //   const height = fabricRef.current.height ?? 1024
+    //   fabricRef.current.zoomToPoint({ x: width / 2, y: height / 2 },zoomLevel);
+    // }, [zoomLevel])
 
 
         // useEffect(() => {
@@ -798,29 +798,35 @@ const Editor = React.forwardRef(() => {
 
     // Zoom reset
     const resetZoom = useCallback(() => {
-      if (!minScale || !windowSize) {
-        return;
+      console.log("called zoom")
+      if (fabricRef.current) {
+        fabricRef.current.zoomToPoint({ x: fabricRef.current.width / 2, y: fabricRef.current.height / 2 }, zoomLevel);
+        fabricRef.current.setViewportTransform([1, 0, 0, 1, 0, 0]); // Reset panning
+        fabricRef.current.requestRenderAll();
       }
-      const viewport = viewportRef.current;
-      if (!viewport) {
-        return;
-      }
-      const offsetX = (windowSize.width - imageWidth * minScale) / 2;
-      const offsetY = (windowSize.height - imageHeight * minScale) / 2;
-      viewport.setTransform(offsetX, offsetY, minScale, 200, "easeOutQuad");
-      if (viewport.instance.transformState.scale) {
-        viewport.instance.transformState.scale = minScale;
-      }
+      // if (!minScale || !windowSize) {
+      //   return;
+      // }
+      // const viewport = viewportRef.current;
+      // if (!viewport) {
+      //   return;
+      // }
+      // const offsetX = (windowSize.width - imageWidth * minScale) / 2;
+      // const offsetY = (windowSize.height - imageHeight * minScale) / 2;
+      // viewport.setTransform(offsetX, offsetY, minScale, 200, "easeOutQuad");
+      // if (viewport.instance.transformState.scale) {
+      //   viewport.instance.transformState.scale = minScale;
+      // }
 
-      setScale(minScale);
-      setPanned(false);
+      // setScale(minScale);
+      // setPanned(false);
     }, [
-      viewportRef,
-      windowSize,
-      imageHeight,
-      imageWidth,
-      windowSize.height,
-      minScale,
+      // viewportRef,
+      // windowSize,
+      // imageHeight,
+      // imageWidth,
+      // windowSize.height,
+      // minScale,
     ]);
 
     // useEffect(() => {
@@ -1280,11 +1286,8 @@ const Editor = React.forwardRef(() => {
     };
 
     const handleDrawingMode = (value: boolean) => {
-      console.log(value);
-      console.log(settings.showDrawing);
       const fabricInstance = fabricRef.current;
       if (fabricInstance) {
-        console.log("here");
         fabricInstance.isDrawingMode = value;
       }
     };
@@ -1313,7 +1316,7 @@ const Editor = React.forwardRef(() => {
           <div className="flex gap-2">
             <IconButton
               tooltip="Reset zoom & pan"
-              disabled={scale === minScale && panned === false}
+              // disabled={scale === minScale && panned === false}
               onClick={resetZoom}
             >
               <Expand />
