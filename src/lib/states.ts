@@ -232,7 +232,7 @@ type AppAction = {
   updateEditorState: (newState: Partial<EditorState>) => void;
   runMannually: () => boolean;
   handleCanvasMouseDown: (point: Point) => void;
-  handleSaveState: (saveState: string) => void;
+  handleSaveState: (current_canvas: fabric.Canvas) => void;
   handleCanvasMouseMove: (point: Point) => void;
   cleanCurLineGroup: () => void;
   resetRedoState: () => void;
@@ -623,16 +623,23 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         });
       },
 
-      handleSaveState: (saveState: string) => {
+      handleSaveState: (current_canvas: fabric.Canvas) => {
         let canvaGroup: CanvaState[] = []; // initialized variable
         const state = get();
-        // if (state.runMannually()) {
-        //   canvaGroup = [...state.editorState.currCanvasGroups];
-        // }
-        canvaGroup.push(saveState);
-        // set((state) => {
-        //   state.editorState.currCanvasGroups = canvaGroup;
-        // });
+        if (state.runMannually()) {
+          canvaGroup = [...state.editorState.currCanvasGroups];
+        }
+        console.log("save state")
+        const jsonData = current_canvas.toJSON(['lockMovementX', 'lockMovementY', 'lockRotation', 'lockScalingX', 'lockScalingY' ,'gradientAngle',
+          'selectable',
+          'hasControls',
+          'source',
+          'editable',]);
+        const canvasAsJson = JSON.stringify(jsonData)
+        canvaGroup.push(canvasAsJson);
+        set((state) => {
+          state.editorState.currCanvasGroups = canvaGroup;
+        });
       },
 
       handleCanvasMouseMove: (point: Point) => {
@@ -699,6 +706,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
             // const lastLine = editorState.curLineGroup.pop()!;
             // editorState.redoCurLines.push(lastLine)
             editorState.redoCurCanvas.push(lastLine);
+            console.log("here")
           });
         } else {
           set((state) => {

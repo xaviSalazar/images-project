@@ -22,14 +22,18 @@ const SUPPORTED_FILE_TYPE = [
 
 function Home() {
 
-  const [file, updateAppState, setServerConfig, setFile, scaledWidth,
-    scaledHeight] = useStore((state) => [
-    state.file,
-    state.updateAppState,
-    state.setServerConfig,
-    state.setFile,
-    state.scaledWidth,
-    state.scaledHeight
+  const [file, 
+         handleSaveState,
+         updateAppState, 
+         setFile, 
+         scaledWidth,
+         scaledHeight] = useStore((state) => [
+         state.file,
+         state.handleSaveState,
+         state.updateAppState,
+         state.setFile,
+         state.scaledWidth,
+         state.scaledHeight
   ]);
 
   const { fabricRef } = useRefContext();
@@ -125,12 +129,9 @@ function Home() {
 
     if (isLoaded && fabricRef.current && image) {
 
-      //console.log("load img", image?.width, image?.height )
-      //console.log("scaled dim", scaledWidth, scaledHeight)
       const scaleX = scaledWidth / (image?.width ?? 1);
       const scaleY = scaledHeight / (image?.height ?? 1);
       const scale = Math.min(scaleX, scaleY);
-      //console.log("scale min", scale, "img scaleX", scaleX, "img scaleY", scaleY)
       // Scale the image
       const scaledImage = new fabric.Image(image, {
         scaleX: scale,
@@ -148,6 +149,11 @@ function Home() {
     scaledImage.top = (canvasHeight - imageHeight * scale) / 2;
     // add image
     fabricRef.current.add(scaledImage);
+    fabricRef.current.requestRenderAll();
+    // ??? probably do a render 
+
+    // save state
+    handleSaveState(fabricRef.current);
     }
     
   }, [image, isLoaded]);

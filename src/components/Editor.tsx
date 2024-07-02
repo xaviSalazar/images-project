@@ -222,10 +222,9 @@ const Editor = React.forwardRef(() => {
     }, [currCanvasGroups]);
 
     const saveState = useCallback(() => {
-      console.log("save state");
       if (fabricRef.current) {
-        const state = fabricRef.current.toJSON();
-        handleSaveState(JSON.stringify(state));
+        const canva_instance = fabricRef.current
+        handleSaveState(canva_instance);
       }
     }, [fabricRef.current]);
 
@@ -635,7 +634,10 @@ const Editor = React.forwardRef(() => {
             scale = (ratioWidth / ratioHeight)
             clipWidth = height * scale;
           }
-          // console.log("clip width", clipWidth, "clip height", clipHeight, "scale", scale)
+          
+          // console.log("windown size", windowSize)
+          // console.log("fabric width", width, "fabric height", height)
+          // console.log("scaledWidth", clipWidth, "scaledHeight", clipHeight)
 
           updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
   
@@ -738,16 +740,18 @@ const Editor = React.forwardRef(() => {
     // }, [renders]);
 
     // REDO / UNDO ACTION
-    // useEffect(() => {
-    //   if (!fabricRef.current) return;
-    //   if (currCanvasGroups.length === 0) return;
-    //   const state = JSON.parse(currCanvasGroups[currCanvasGroups.length - 1]);
-    //   // console.log(currCanvasGroups[currCanvasGroups.length - 1])
-    //   fabricRef.current.loadFromJSON(
-    //     state,
-    //     fabricRef.current.renderAll.bind(fabricRef.current),
-    //   );
-    // }, [currCanvasGroups]);
+    useEffect(() => {
+      if (!fabricRef.current) return;
+      if (currCanvasGroups.length === 0) return;
+      console.log(currCanvasGroups)
+      const state = JSON.parse(currCanvasGroups[currCanvasGroups.length - 1]);
+      console.log(state)
+          fabricRef.current.loadFromJSON(
+        state,
+        fabricRef.current.renderAll.bind(fabricRef.current),
+      );
+
+    }, [currCanvasGroups]);
 
     // CHANGE BRUSH SIZE
     useEffect(() => {
@@ -1189,59 +1193,26 @@ const Editor = React.forwardRef(() => {
       );
     };
 
-    const handleScroll = (event: React.WheelEvent<HTMLDivElement>) => {
-      // deltaY 是垂直滚动增量，正值表示向下滚动，负值表示向上滚动
-      // deltaX 是水平滚动增量，正值表示向右滚动，负值表示向左滚动
-      if (!isChangingBrushSizeByWheel) {
-        return;
-      }
+    // const handleScroll = (event: React.WheelEvent<HTMLDivElement>) => {
+    //   // deltaY 是垂直滚动增量，正值表示向下滚动，负值表示向上滚动
+    //   // deltaX 是水平滚动增量，正值表示向右滚动，负值表示向左滚动
+    //   if (!isChangingBrushSizeByWheel) {
+    //     return;
+    //   }
 
-      const { deltaY } = event;
-      // console.log(`水平滚动增量: ${deltaX}, 垂直滚动增量: ${deltaY}`)
-      if (deltaY > 0) {
-        increaseBaseBrushSize();
-      } else if (deltaY < 0) {
-        decreaseBaseBrushSize();
-      }
-    };
-
-      // kind of work 
-    // const handleDownload = () => {
-
-    //   const clipX = (fabricRef.current.width - scaledWidth) / 2;
-    //   const clipY = (fabricRef.current.height - scaledHeight) / 2;
-  
-    //   const tempCanvas = new fabric.Canvas(null, {
-    //     width: scaledWidth,
-    //     height: scaledHeight,
-    //   });
-  
-    //   fabricRef.current.getObjects().forEach((obj) => {
-    //     const clone = fabric.util.object.clone(obj);
-    //     clone.set({
-    //       left: clone.left - clipX,
-    //       top: clone.top - clipY,
-    //     });
-    //     tempCanvas.add(clone);
-    //   });
-  
-    //   tempCanvas.renderAll();
-    //   const dataURL = tempCanvas.toDataURL({
-    //     format: 'png',
-    //     quality: 1,
-    //   });
-  
-    //   const link = document.createElement('a');
-    //   link.href = dataURL;
-    //   link.download = 'canvas.png';
-    //   document.body.appendChild(link);
-    //   link.click();
-    //   document.body.removeChild(link);
+    //   const { deltaY } = event;
+    //   // console.log(`水平滚动增量: ${deltaX}, 垂直滚动增量: ${deltaY}`)
+    //   if (deltaY > 0) {
+    //     increaseBaseBrushSize();
+    //   } else if (deltaY < 0) {
+    //     decreaseBaseBrushSize();
+    //   }
     // };
+
     const handleDownload = () => {
 
       const predefinedRatio = predefinedRatios.find(ratio => ratio.name === aspectRatio);
-      console.log(predefinedRatio)
+      
       if (!predefinedRatio) {
         console.error("Invalid aspect ratio");
         return;
