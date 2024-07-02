@@ -626,13 +626,13 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
       handleSaveState: (saveState: string) => {
         let canvaGroup: CanvaState[] = []; // initialized variable
         const state = get();
-        if (state.runMannually()) {
-          canvaGroup = [...state.editorState.currCanvasGroups];
-        }
+        // if (state.runMannually()) {
+        //   canvaGroup = [...state.editorState.currCanvasGroups];
+        // }
         canvaGroup.push(saveState);
-        set((state) => {
-          state.editorState.currCanvasGroups = canvaGroup;
-        });
+        // set((state) => {
+        //   state.editorState.currCanvasGroups = canvaGroup;
+        // });
       },
 
       handleCanvasMouseMove: (point: Point) => {

@@ -738,16 +738,16 @@ const Editor = React.forwardRef(() => {
     // }, [renders]);
 
     // REDO / UNDO ACTION
-    useEffect(() => {
-      if (!fabricRef.current) return;
-      if (currCanvasGroups.length === 0) return;
-      const state = JSON.parse(currCanvasGroups[currCanvasGroups.length - 1]);
-      // console.log(currCanvasGroups[currCanvasGroups.length - 1])
-      fabricRef.current.loadFromJSON(
-        state,
-        fabricRef.current.renderAll.bind(fabricRef.current),
-      );
-    }, [currCanvasGroups]);
+    // useEffect(() => {
+    //   if (!fabricRef.current) return;
+    //   if (currCanvasGroups.length === 0) return;
+    //   const state = JSON.parse(currCanvasGroups[currCanvasGroups.length - 1]);
+    //   // console.log(currCanvasGroups[currCanvasGroups.length - 1])
+    //   fabricRef.current.loadFromJSON(
+    //     state,
+    //     fabricRef.current.renderAll.bind(fabricRef.current),
+    //   );
+    // }, [currCanvasGroups]);
 
     // CHANGE BRUSH SIZE
     useEffect(() => {
