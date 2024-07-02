@@ -30,6 +30,7 @@ import {
   MAX_BRUSH_SIZE,
   MODEL_TYPE_INPAINT,
   PAINT_BY_EXAMPLE,
+  LOG_LEVELS,
 } from "./const";
 import {
   blobToImage,
@@ -39,6 +40,7 @@ import {
   generateFromCanvas,
   loadImage,
   srcToFile,
+  debugLog
 } from "./utils";
 import inpaint, { getGenInfo, postAdjustMask, runPlugin } from "./api";
 import { toast } from "@/components/ui/use-toast";
@@ -124,7 +126,6 @@ type InteractiveSegState = {
 };
 
 type EditorState = {
-  currentCanvas: CanvaState;
   canvasGroups: CanvaState[];
   currCanvasGroups: CanvaState[];
   lastCanvasGroups: CanvaState[];
@@ -275,7 +276,6 @@ const defaultValues: AppState = {
     lineGroups: [],
     lastLineGroup: [],
     curLineGroup: [],
-    currentCanvas: "",
     canvasGroups: [],
     currCanvasGroups: [],
     lastCanvasGroups: [],
@@ -430,6 +430,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
       runInpainting: async (modelToCall: String) => {
         const {
           isInpainting,
+          aspectRatio,
           file,
           paintByExampleFile,
           imageWidth,
@@ -626,17 +627,15 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
       handleSaveState: (current_canvas: fabric.Canvas) => {
         let canvaGroup: CanvaState[] = []; // initialized variable
         const state = get();
-        if (state.runMannually()) {
-          canvaGroup = [...state.editorState.currCanvasGroups];
-        }
-        console.log("save state")
-        const jsonData = current_canvas.toJSON(['lockMovementX', 'lockMovementY', 'lockRotation', 'lockScalingX', 'lockScalingY' ,'gradientAngle',
-          'selectable',
-          'hasControls',
-          'source',
-          'editable',]);
-        const canvasAsJson = JSON.stringify(jsonData)
-        canvaGroup.push(canvasAsJson);
+        canvaGroup = [...state.editorState.currCanvasGroups];
+        debugLog(LOG_LEVELS.DEBUG, "canvaGroup\n", canvaGroup)  
+
+        const jsonData = current_canvas.toJSON(['lockMovementX', 'lockMovementY', 'lockRotation', 'lockScalingX', 'lockScalingY' ,'gradientAngle','selectable','hasControls','source','editable',]);
+        const stringData = JSON.stringify(jsonData)
+        const id = Date.now() + '_' + Math.floor(Math.random() * 10000);
+        const newElement = {id, data: stringData}
+        debugLog(LOG_LEVELS.DEBUG, "newElement\n", newElement)  
+        canvaGroup.push(newElement)
         set((state) => {
           state.editorState.currCanvasGroups = canvaGroup;
         });
@@ -689,7 +688,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
 
       undo: () => {
         if (
-          get().runMannually() &&
+          // get().runMannually() &&
           get().editorState.currCanvasGroups.length !== 0
           //get().editorState.curLineGroup.length !== 0
         ) {
@@ -703,10 +702,8 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
             //editorState.lastLineGroup = [];
             editorState.lastCanvasGroups = [];
             const lastLine = editorState.currCanvasGroups.pop()!;
-            // const lastLine = editorState.curLineGroup.pop()!;
-            // editorState.redoCurLines.push(lastLine)
+            debugLog(LOG_LEVELS.DEBUG, "lastSaved\n", JSON.parse(lastLine.data))
             editorState.redoCurCanvas.push(lastLine);
-            console.log("here")
           });
         } else {
           set((state) => {
@@ -914,11 +911,11 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         // }
         set((state) => {
           state.file = file;
-          state.interactiveSegState = castDraft(
-            defaultValues.interactiveSegState,
-          );
-          state.editorState = castDraft(defaultValues.editorState);
-          state.cropperState = defaultValues.cropperState;
+          // state.interactiveSegState = castDraft(
+          //   defaultValues.interactiveSegState,
+          // );
+          // state.editorState = castDraft(defaultValues.editorState);
+          // state.cropperState = defaultValues.cropperState;
         });
       },
 

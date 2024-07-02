@@ -635,8 +635,8 @@ const Editor = React.forwardRef(() => {
           }
           
           debugLog(LOG_LEVELS.DEBUG, "windown size", windowSize)
-          debugLog(LOG_LEVELS.DEBUG, "fabric width", width, "fabric height", height)
-          debugLog(LOG_LEVELS.DEBUG, "scaledWidth", clipWidth, "scaledHeight", clipHeight)
+          // debugLog(LOG_LEVELS.DEBUG, "fabric width", width, "fabric height", height)
+          // debugLog(LOG_LEVELS.DEBUG, "scaledWidth", clipWidth, "scaledHeight", clipHeight)
 
           updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
   
@@ -742,12 +742,12 @@ const Editor = React.forwardRef(() => {
     useEffect(() => {
       if (!fabricRef.current) return;
       if (currCanvasGroups.length === 0) return;
-      const state = JSON.parse(currCanvasGroups[currCanvasGroups.length - 1]);
-          fabricRef.current.loadFromJSON(
+      const lastElement = currCanvasGroups[currCanvasGroups.length - 1];
+      const state = JSON.parse(lastElement.data);
+        fabricRef.current.loadFromJSON(
         state,
         fabricRef.current.renderAll.bind(fabricRef.current),
       );
-
     }, [currCanvasGroups]);
 
     // CHANGE BRUSH SIZE
@@ -1216,8 +1216,8 @@ const Editor = React.forwardRef(() => {
 
       const { width: outputWidth, height: outputHeight } = predefinedRatio;
 
-      const clipX = (fabricRef.current.width - scaledWidth) / 2;
-      const clipY = (fabricRef.current.height - scaledHeight) / 2;
+      const clipX = (windowSize.width - scaledWidth) / 2;
+      const clipY = (windowSize.height - scaledHeight) / 2;
   
       const tempCanvas = new fabric.Canvas(null, {
         width: outputWidth,

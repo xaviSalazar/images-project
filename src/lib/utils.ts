@@ -1,10 +1,10 @@
 import { type ClassValue, clsx } from "clsx";
 import { SyntheticEvent } from "react";
 import { twMerge } from "tailwind-merge";
-import { LineGroup } from "./types";
+import { LineGroup, Size } from "./types";
 import { BRUSH_COLOR } from "./const";
 import { LOG_LEVELS } from "./const";
-
+import { predefinedRatios } from "@/lib/const";
 import { fabric } from "fabric";
 
 export function cn(...inputs: ClassValue[]) {

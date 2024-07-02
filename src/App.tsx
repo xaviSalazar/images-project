@@ -148,11 +148,8 @@ function Home() {
     scaledImage.top = (canvasHeight - imageHeight * scale) / 2;
     // add image
     fabricRef.current.add(scaledImage);
-    fabricRef.current.requestRenderAll();
-    // ??? probably do a render 
+    handleSaveState(fabricRef.current)
 
-    // save state
-    handleSaveState(fabricRef.current);
     }
     
   }, [image, isLoaded]);
