@@ -42,7 +42,6 @@ function Home() {
   const windowSize = useWindowSize();
 
   useEffect(() => {
-    // console.log(windowSize)
     updateAppState({ windowSize });
   }, [windowSize]);
 

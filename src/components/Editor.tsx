@@ -32,6 +32,7 @@ import {
   isLeftClick,
   mouseXY,
   srcToFile,
+  debugLog,
 } from "@/lib/utils";
 import {
   Eraser,
@@ -56,6 +57,7 @@ import {
   MIN_BRUSH_SIZE,
   DEFAULT_BRUSH_SIZE,
   BRUSH_COLOR,
+  LOG_LEVELS
 } from "@/lib/const";
 import { Toggle } from "@/components/ui/toggle";
 import { fabric } from "fabric";
@@ -582,7 +584,6 @@ const Editor = React.forwardRef(() => {
         zoom *= (0.999 ** delta);
         if (zoom > 20) zoom = 20;
         if (zoom < 0.01) zoom = 0.01;
-        console.log(fabricRef.current?.width, fabricRef.current?.height)
         fabricRef.current?.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
         opt.e.preventDefault();
         opt.e.stopPropagation();
@@ -600,8 +601,6 @@ const Editor = React.forwardRef(() => {
       if(!fabricRef.current) return;
 
       const handleAfterRender = (e) => {
-
-        // console.log("aspect ratio on render")
         const { ctx } = e;
         const fillStyle = "rgba(0, 0, 0, 0.7)";
         const width = fabricRef.current?.width ?? 0;
@@ -635,9 +634,9 @@ const Editor = React.forwardRef(() => {
             clipWidth = height * scale;
           }
           
-          // console.log("windown size", windowSize)
-          // console.log("fabric width", width, "fabric height", height)
-          // console.log("scaledWidth", clipWidth, "scaledHeight", clipHeight)
+          debugLog(LOG_LEVELS.DEBUG, "windown size", windowSize)
+          debugLog(LOG_LEVELS.DEBUG, "fabric width", width, "fabric height", height)
+          debugLog(LOG_LEVELS.DEBUG, "scaledWidth", clipWidth, "scaledHeight", clipHeight)
 
           updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
   
@@ -743,9 +742,7 @@ const Editor = React.forwardRef(() => {
     useEffect(() => {
       if (!fabricRef.current) return;
       if (currCanvasGroups.length === 0) return;
-      console.log(currCanvasGroups)
       const state = JSON.parse(currCanvasGroups[currCanvasGroups.length - 1]);
-      console.log(state)
           fabricRef.current.loadFromJSON(
         state,
         fabricRef.current.renderAll.bind(fabricRef.current),
@@ -802,7 +799,6 @@ const Editor = React.forwardRef(() => {
 
     // Zoom reset
     const resetZoom = useCallback(() => {
-      console.log("called zoom")
       if (fabricRef.current) {
         fabricRef.current.zoomToPoint({ x: fabricRef.current.width / 2, y: fabricRef.current.height / 2 }, zoomLevel);
         fabricRef.current.setViewportTransform([1, 0, 0, 1, 0, 0]); // Reset panning

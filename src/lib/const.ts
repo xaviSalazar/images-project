@@ -32,3 +32,9 @@ export const predefinedRatios = [
   { name: "16:9", ratio: 16 / 9, width: 1024, height: 576 },
   { name: "9:16", ratio: 9 / 16, width: 768, height: 1360 },
 ];
+
+export const LOG_LEVELS = {
+  DEBUG: 'debug',
+  INFO: 'info',
+  ERROR: 'error',
+};

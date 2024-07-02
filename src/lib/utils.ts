@@ -3,6 +3,7 @@ import { SyntheticEvent } from "react";
 import { twMerge } from "tailwind-merge";
 import { LineGroup } from "./types";
 import { BRUSH_COLOR } from "./const";
+import { LOG_LEVELS } from "./const";
 
 import { fabric } from "fabric";
 
@@ -336,4 +337,54 @@ export const convertToBase64 = (fileOrBlob: File | Blob): Promise<string> => {
     };
     reader.readAsDataURL(fileOrBlob);
   });
+};
+
+
+// LOGGS
+const getLogLevelPriority = (level) => {
+  switch (level) {
+    case LOG_LEVELS.DEBUG:
+      return 0;
+    case LOG_LEVELS.INFO:
+      return 1;
+    case LOG_LEVELS.ERROR:
+      return 2;
+    default:
+      return 0;
+  }
+};
+
+const currentLogLevel = import.meta.env.VITE_LOG_LEVEL || LOG_LEVELS.DEBUG;
+const currentLogLevelPriority = getLogLevelPriority(currentLogLevel);
+
+const getCallerInfo = () => {
+  const error = new Error();
+  const stack = error.stack.split('\n');
+
+  // Depending on the environment, the stack trace might have different formats.
+  // Adjust the index based on your needs. Typically, the caller would be on the 3rd line.
+  const callerInfo = stack[3].trim();
+  const fileLineInfo = callerInfo.match(/\((.*):(\d+):(\d+)\)/);
+
+  if (fileLineInfo) {
+    return `${fileLineInfo[1]}:${fileLineInfo[2]}`;
+  } else {
+    // For different environments/formats
+    const fileInfo = callerInfo.match(/at\s+(.*):(\d+):(\d+)/);
+    if (fileInfo) {
+      return `${fileInfo[1]}:${fileInfo[2]}`;
+    }
+  }
+
+  return 'unknown';
+};
+
+
+export const debugLog = (level, ...messages) => {
+  const logLevelPriority = getLogLevelPriority(level);
+
+  if (logLevelPriority >= currentLogLevelPriority) {
+    const callerInfo = getCallerInfo();
+    console.log(`[${level.toUpperCase()}] [${callerInfo}] \n`, ...messages);
+  }
 };
