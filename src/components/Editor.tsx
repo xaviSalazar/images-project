@@ -256,24 +256,20 @@ const Editor = React.forwardRef(() => {
       eventData: fabric.IEvent<MouseEvent>,
       transform: { target: fabric.Object },
     ): void => {
-      const single_instance: fabric.Canvas | null =
-        transform.target.canvas ?? null;
+      const single_instance: fabric.Canvas | null = transform.target.canvas ?? null;
       console.log(single_instance);
-      const current_active: fabric.Object | null =
-        single_instance?._activeObject ?? null;
-
+      const current_active: fabric.Object | null = single_instance?._activeObject ?? null;
+    
       console.log(current_active);
-
+    
       if (!current_active) return;
-
+    
       animateImageOpacity(current_active, 1000); // Start the continuous animation
-      const objectWidth =
-        (current_active.width ?? 0) * (current_active.scaleX ?? 0);
-      const objectHeight =
-        (current_active.height ?? 0) * (current_active.scaleY ?? 0);
-      const objectTop = current_active.top;
-      const objectLeft = current_active.left;
-
+      const objectWidth = (current_active.width ?? 0) * (current_active.scaleX ?? 0);
+      const objectHeight = (current_active.height ?? 0) * (current_active.scaleY ?? 0);
+      const objectCenterTop = current_active.top ?? 0;
+      const objectCenterLeft = current_active.left ?? 0;
+    
       let CvRef: HTMLCanvasElement | null = null;
       // Create a temporary canvas
       var tempCanvas = new fabric.Canvas(CvRef, {
@@ -283,18 +279,20 @@ const Editor = React.forwardRef(() => {
       // Clone the active object to the temporary canvas
       current_active.clone((clonedObject: fabric.Object) => {
         clonedObject.set({
-          left: 0,
-          top: 0,
+          left: objectWidth / 2,
+          top: objectHeight / 2,
           scaleX: current_active.scaleX,
-          scaleY: current_active.scaleX,
+          scaleY: current_active.scaleY,
+          originX: 'center',
+          originY: 'center',
         });
-
+    
         tempCanvas.add(clonedObject);
         tempCanvas.renderAll();
-
+    
         // Get the data URL of the cloned object
         const objectDataUrl = tempCanvas.toDataURL({ format: "png" });
-
+    
         removeBackground(objectDataUrl, config).then((blob: Blob) => {
           // The result is a blob encoded as PNG. It can be converted to an URL to be used as HTMLImage.src
           const url = URL.createObjectURL(blob);
@@ -303,8 +301,10 @@ const Editor = React.forwardRef(() => {
             console.log(newRender);
             single_instance?.remove(transform.target);
             const img_without_background = new fabric.Image(newRender, {
-              left: objectLeft,
-              top: objectTop,
+              left: objectCenterLeft,
+              top: objectCenterTop,
+              originX: 'center',
+              originY: 'center',
             });
             single_instance?.add(img_without_background);
             single_instance?.requestRenderAll();
@@ -480,6 +480,9 @@ const Editor = React.forwardRef(() => {
 
       (fabricRef as MutableRefObject<fabric.Canvas | null>).current = initMainCanvas();
 
+      fabric.Object.prototype.originX = "center";
+      fabric.Object.prototype.originY = "center";
+
       // Activate drawing mode for mask overlay
       if(fabricRef.current) 
       {
@@ -598,13 +601,15 @@ const Editor = React.forwardRef(() => {
 
     useEffect(() => {
       // Your existing useEffect logic
-      if(!fabricRef.current) return;
+      const canvas_instance = fabricRef.current;
+
+      if(!canvas_instance) return;
 
       const handleAfterRender = (e) => {
         const { ctx } = e;
         const fillStyle = "rgba(0, 0, 0, 0.7)";
-        const width = fabricRef.current?.width ?? 0;
-        const height = fabricRef.current?.height ?? 0;
+        const width = canvas_instance?.width ?? 0;
+        const height = canvas_instance?.height ?? 0;
   
         if (ctx) {
           ctx.save();
@@ -614,16 +619,13 @@ const Editor = React.forwardRef(() => {
           ctx.lineTo(width, 0);
           ctx.lineTo(width, height);
           ctx.lineTo(0, height);
-          ctx.closePath();
-  
+          ctx.lineTo(0, 0);  
           // Apply the viewport transformation
-          ctx.transform.apply(ctx, Array.from(fabricRef.current.viewportTransform));
-  
+          ctx.transform.apply(ctx, Array.from(canvas_instance.viewportTransform));
           // Adjust clipping area based on the aspect ratio
           let clipWidth, clipHeight, scale;
 
           const [ratioWidth, ratioHeight] = aspectRatio.split(':').map(Number);
-  
           if (ratioWidth >= ratioHeight) {
             clipWidth = width;
             scale = (ratioHeight / ratioWidth)
@@ -634,15 +636,17 @@ const Editor = React.forwardRef(() => {
             clipWidth = height * scale;
           }
           
-          debugLog(LOG_LEVELS.DEBUG, "windown size", windowSize)
-          // debugLog(LOG_LEVELS.DEBUG, "fabric width", width, "fabric height", height)
-          // debugLog(LOG_LEVELS.DEBUG, "scaledWidth", clipWidth, "scaledHeight", clipHeight)
+          debugLog(LOG_LEVELS.DEBUG, "window size", windowSize)
+          debugLog(LOG_LEVELS.DEBUG, "fabric width", width, "fabric height", height)
+          debugLog(LOG_LEVELS.DEBUG, "clipWidth", clipWidth, "clipHeight", clipHeight)
 
           updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
   
           const clipX = (width - clipWidth) / 2;
           const clipY = (height - clipHeight) / 2;
-  
+
+          debugLog(LOG_LEVELS.DEBUG, "clipX", clipX, "clipY", clipY)
+
           ctx.moveTo(clipX, clipY);
           ctx.lineTo(clipX, clipY + clipHeight);
           ctx.lineTo(clipX + clipWidth, clipY + clipHeight);
@@ -1206,9 +1210,7 @@ const Editor = React.forwardRef(() => {
     // };
 
     const handleDownload = () => {
-
       const predefinedRatio = predefinedRatios.find(ratio => ratio.name === aspectRatio);
-      
       if (!predefinedRatio) {
         console.error("Invalid aspect ratio");
         return;
@@ -1227,7 +1229,7 @@ const Editor = React.forwardRef(() => {
       const scaleX = outputWidth / scaledWidth;
       const scaleY = outputHeight / scaledHeight;
   
-      fabricRef.current.getObjects().forEach((obj) => {
+      fabricRef.current?.getObjects().forEach((obj) => {
         const clone = fabric.util.object.clone(obj);
         clone.set({
           left: (clone.left - clipX) * scaleX,
@@ -1239,6 +1241,7 @@ const Editor = React.forwardRef(() => {
       });
   
       tempCanvas.renderAll();
+      
       const dataURL = tempCanvas.toDataURL({
         format: 'png',
         quality: 1,

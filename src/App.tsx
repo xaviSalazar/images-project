@@ -140,16 +140,13 @@ function Home() {
     // Ensure that fabricRef.current and scaledImage's dimensions are defined
     const canvasWidth = fabricRef.current.width ?? 0;
     const canvasHeight = fabricRef.current.height ?? 0;
-    const imageWidth = scaledImage.width ?? 0;
-    const imageHeight = scaledImage.height ?? 0;
 
     // Position the scaled image at the center of the canvas
-    scaledImage.left = (canvasWidth - imageWidth * scale) / 2;
-    scaledImage.top = (canvasHeight - imageHeight * scale) / 2;
+    scaledImage.left = (canvasWidth / 2);
+    scaledImage.top = (canvasHeight / 2);
     // add image
     fabricRef.current.add(scaledImage);
     handleSaveState(fabricRef.current)
-
     }
     
   }, [image, isLoaded]);
