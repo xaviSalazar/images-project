@@ -125,7 +125,6 @@ function Home() {
   }, []);
 
   useEffect(() => {
-
     if (isLoaded && fabricRef.current && image) {
 
       const scaleX = scaledWidth / (image?.width ?? 1);
@@ -134,7 +133,7 @@ function Home() {
       // Scale the image
       const scaledImage = new fabric.Image(image, {
         scaleX: scale,
-        scaleY: scale
+        scaleY: scale,
       });
 
     // Ensure that fabricRef.current and scaledImage's dimensions are defined
@@ -146,6 +145,7 @@ function Home() {
     scaledImage.top = (canvasHeight / 2);
     // add image
     fabricRef.current.add(scaledImage);
+
     handleSaveState(fabricRef.current)
     }
     

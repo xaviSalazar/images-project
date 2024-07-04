@@ -313,95 +313,82 @@ const Editor = React.forwardRef(() => {
       });
     };
 
-    function cropImage() {
-      if (
-        !fabricRef.current ||
-        !lastActiveObject.current ||
-        !rectangleCut.current
-      )
-        return;
-
-      console.log(lastActiveObject.current);
-      console.log(rectangleCut.current);
-
-      let height = parseInt(
-        lastActiveObject.current.height * lastActiveObject.current.scaleY,
-      ); // default height
-      let width = parseInt(
-        lastActiveObject.current.width * lastActiveObject.current.scaleX,
-      ); // default width
-      let top = lastActiveObject.current.top; // default top
-      let left = lastActiveObject.current.left; // default left
-
-      if (top < rectangleCut.current.top) {
-        console.log("case top < rectangular");
-        height = height - (rectangleCut.current.top - top);
-        top = rectangleCut.current.top;
-        console.log(top);
-      }
-
-      if (left < rectangleCut.current.left) {
-        console.log("case left < rectangular");
-        width = width - (rectangleCut.current.left - left);
-        left = rectangleCut.current.left;
-        console.log(left);
-      }
-
-      // validated part
-      if (
-        top + height >
-        rectangleCut.current.top +
-          rectangleCut.current.height * rectangleCut.current.scaleY
-      ) {
-        console.log("trim case 1");
-        height =
-          rectangleCut.current.top +
-          rectangleCut.current.height * rectangleCut.current.scaleY -
-          top;
-      }
-
-      if (
-        left + width >
-        rectangleCut.current.left +
-          rectangleCut.current.width * rectangleCut.current.scaleX
-      ) {
-        console.log("trim case 2");
-        width =
-          rectangleCut.current.left +
-          rectangleCut.current.width * rectangleCut.current.scaleX -
-          left;
-      }
-
-      //var canvas_crop = new fabric.Canvas("canvas_crop");
-
-      var canvas_crop = new fabric.Canvas(cropperCanvasRef.current, {});
-
-      fabricRef.current?.remove(rectangleCut.current);
-      rectangleCut.current = null;
-
-      fabric.Image.fromURL(
-        fabricRef.current.toDataURL({ format: "png" }),
-        function (img) {
-          img.set("left", -left);
-          img.set("top", -top);
-          canvas_crop.add(img);
-          canvas_crop.setHeight(height);
-          canvas_crop.setWidth(width);
-          canvas_crop.renderAll();
-          fabric.Image.fromURL(
-            canvas_crop.toDataURL({ format: "png" }),
-            function (croppedImg) {
-              croppedImg.set("left", left);
-              croppedImg.set("top", top);
-              fabricRef.current?.remove(lastActiveObject.current);
-              lastActiveObject.current = null;
-              fabricRef.current?.add(croppedImg).renderAll();
-            },
-          );
-        },
+    const cropImage = () => {
+      if (!fabricRef.current || !lastActiveObject.current || !rectangleCut.current) return;
+    
+      const canvas = fabricRef.current;
+      const objectToCrop = lastActiveObject.current;
+      const rectCrop = rectangleCut.current;
+    
+      // Calculate the bounding box of the object and the crop rectangle
+      const objectBoundingBox = objectToCrop.getBoundingRect(true, true);
+      const cropBoundingBox = rectCrop.getBoundingRect(true, true);
+    
+      // Calculate the crop area's position relative to the object's bounding box
+      const scaleX = objectToCrop.scaleX || 1;
+      const scaleY = objectToCrop.scaleY || 1;
+      const angle = fabric.util.degreesToRadians(objectToCrop.angle || 0);
+    
+      // Calculate the top-left corner of the crop area relative to the object's origin
+      const cropLeftRelativeToObject = (cropBoundingBox.left - objectBoundingBox.left) / scaleX;
+      const cropTopRelativeToObject = (cropBoundingBox.top - objectBoundingBox.top) / scaleY;
+      const cropWidthRelativeToObject = cropBoundingBox.width / scaleX;
+      const cropHeightRelativeToObject = cropBoundingBox.height / scaleY;
+    
+      // Create an off-screen canvas to draw the cropped image
+      const offScreenCanvas = document.createElement('canvas');
+      offScreenCanvas.width = cropBoundingBox.width;
+      offScreenCanvas.height = cropBoundingBox.height;
+    
+      const ctx = offScreenCanvas.getContext('2d');
+      if (!ctx) return;
+    
+      // Adjust for rotation
+      ctx.translate(offScreenCanvas.width / 2, offScreenCanvas.height / 2);
+      ctx.rotate(-angle);
+      ctx.translate(-offScreenCanvas.width / 2, -offScreenCanvas.height / 2);
+    
+      // Draw the image onto the off-screen canvas
+      ctx.drawImage(
+        objectToCrop.getElement(),
+        cropLeftRelativeToObject,
+        cropTopRelativeToObject,
+        cropWidthRelativeToObject,
+        cropHeightRelativeToObject,
+        0,
+        0,
+        cropBoundingBox.width,
+        cropBoundingBox.height
       );
-    }
-
+    
+      // Create a new fabric image from the cropped canvas
+      const croppedDataUrl = offScreenCanvas.toDataURL();
+      fabric.Image.fromURL(croppedDataUrl, (croppedImage) => {
+        croppedImage.set({
+          left: rectCrop.left,
+          top: rectCrop.top,
+          originX: 'center',
+          originY: 'center'
+        });
+    
+        // Remove the original object and rectangle from the canvas
+        canvas.remove(objectToCrop);
+        canvas.remove(rectCrop);
+    
+        // Add the new cropped image to the canvas
+        canvas.add(croppedImage);
+        canvas.setActiveObject(croppedImage);
+        canvas.renderAll();
+      });
+    
+      // Reset the crop state
+      isCropping.current = false;
+    };
+    
+    
+    
+    
+  
     const deleteObject = (
       eventData: fabric.IEvent<MouseEvent>,
       transform: { target: fabric.Object },
@@ -412,56 +399,58 @@ const Editor = React.forwardRef(() => {
       canvas?.requestRenderAll();
     };
 
-    // function to crop an image
-    const drawCropRect = (
-      eventData: fabric.IEvent<MouseEvent>,
-      transform: { target: fabric.Object },
-    ): void => {
-      if (isCropping.current) {
-        isCropping.current = false;
-        return cropImage();
-      }
-      // continue to draw rectangle
-      isCropping.current = true;
+   const drawCropRect = (
+  eventData: fabric.IEvent<MouseEvent>,
+  transform: { target: fabric.Object },
+): void => {
+  if (isCropping.current) {
+    isCropping.current = false;
+    return cropImage();
+  }
 
-      const target = transform.target;
-      let selection_object_left = 0;
-      let selection_object_top = 0;
+  isCropping.current = true;
+  const target = transform.target;
+  const canvas = target.canvas;
 
-      const rectangle = new fabric.Rect({
-        fill: "rgba(0,0,0,0)",
-        originX: "left",
-        originY: "top",
-        stroke: "#ccc",
-        hasBorders: true,
-        lockMovementX: true,
-        lockMovementY: true,
-        //strokeDashArray: [2, 2],
-        strokeWidth: 5,
-        //opacity: 1,
-        width: 1,
-        height: 1,
-        borderColor: "yellow",
-        cornerColor: "green",
-        hasRotatingPoint: false,
-        selectable: true,
-      });
+  const activeObject = canvas?.getActiveObject();
+  if (!activeObject || !canvas) return;
 
-      const canvas = target.canvas;
-      lastActiveObject.current = canvas?.getActiveObject();
-      rectangle.left = canvas?.getActiveObject()?.left;
-      selection_object_left = canvas?.getActiveObject()?.left;
-      selection_object_top = canvas?.getActiveObject()?.top;
-      rectangle.top = canvas?.getActiveObject()?.top;
-      rectangle.width =
-        canvas?.getActiveObject()?.width * canvas?.getActiveObject()?.scaleX;
-      rectangle.height =
-        canvas?.getActiveObject()?.height * canvas?.getActiveObject()?.scaleY;
-      rectangleCut.current = rectangle;
-      canvas?.add(rectangle);
-      console.log("added crop rectangle");
-      canvas?.setActiveObject(rectangle);
-    };
+  // Calculate the maximum width and height for the crop rectangle
+  const maxWidth = activeObject.width * activeObject.scaleX;
+  const maxHeight = activeObject.height * activeObject.scaleY;
+
+  // Calculate initial dimensions of the crop rectangle
+  let width = maxWidth * 0.5;
+  let height = maxHeight * 0.5;
+  
+  const rectangle = new fabric.Rect({
+    fill: 'rgba(0,0,0,0.3)',
+    originX: 'center',
+    originY: 'center',
+    stroke: 'black',
+    opacity: 1,
+    width: width,
+    height: height,
+    left: activeObject.left,
+    top: activeObject.top,
+    hasRotatingPoint: false,
+    transparentCorners: false,
+    cornerColor: 'white',
+    cornerStrokeColor: 'black',
+    borderColor: 'black',
+    lockMovementX: true,
+    lockMovementY: true,
+  });
+
+  // Save selected image and rectangle
+  lastActiveObject.current = activeObject;
+  rectangleCut.current = rectangle;
+
+  canvas.add(rectangle);
+  canvas.setActiveObject(rectangle);
+};
+
+    
 
     useEffect(() => {
 
@@ -539,6 +528,7 @@ const Editor = React.forwardRef(() => {
           ctx.restore();
         };
       }
+      
       fabric.Object.prototype.controls.removeBg = new fabric.Control({
         x: -0.48,
         y: -0.41,
@@ -626,15 +616,16 @@ const Editor = React.forwardRef(() => {
           let clipWidth, clipHeight, scale;
 
           const [ratioWidth, ratioHeight] = aspectRatio.split(':').map(Number);
-          if (ratioWidth >= ratioHeight) {
-            clipWidth = width;
-            scale = (ratioHeight / ratioWidth)
-            clipHeight = width * scale;
-          } else {
-            clipHeight = height;
-            scale = (ratioWidth / ratioHeight)
-            clipWidth = height * scale;
-          }
+
+          if (width / ratioWidth < height / ratioHeight) {
+          clipWidth = width;
+          scale = (ratioHeight / ratioWidth);
+          clipHeight = width * scale;
+        } else {
+          clipHeight = height;
+          scale = (ratioWidth / ratioHeight);
+          clipWidth = height * scale;
+        }
           
           debugLog(LOG_LEVELS.DEBUG, "window size", windowSize)
           debugLog(LOG_LEVELS.DEBUG, "fabric width", width, "fabric height", height)
@@ -777,22 +768,22 @@ const Editor = React.forwardRef(() => {
       return renders.length !== 0;
     };
 
-    const getCurrentWidthHeight = useCallback(() => {
-      let width = 512;
-      let height = 512;
-      if (!isOriginalLoaded) {
-        return [width, height];
-      }
-      if (renders.length === 0) {
-        width = original.naturalWidth;
-        height = original.naturalHeight;
-      } else if (renders.length !== 0) {
-        width = renders[renders.length - 1].width;
-        height = renders[renders.length - 1].height;
-      }
+    // const getCurrentWidthHeight = useCallback(() => {
+    //   let width = 512;
+    //   let height = 512;
+    //   if (!isOriginalLoaded) {
+    //     return [width, height];
+    //   }
+    //   if (renders.length === 0) {
+    //     width = original.naturalWidth;
+    //     height = original.naturalHeight;
+    //   } else if (renders.length !== 0) {
+    //     width = renders[renders.length - 1].width;
+    //     height = renders[renders.length - 1].height;
+    //   }
 
-      return [width, height];
-    }, [original, isOriginalLoaded, renders]);
+    //   return [width, height];
+    // }, [original, isOriginalLoaded, renders]);
 
 
     // useEffect(() => {
@@ -1139,7 +1130,6 @@ const Editor = React.forwardRef(() => {
                 style={{
                   clipPath: `inset(0 ${sliderPos}% 0 0)`,
                   transition: `clip-path ${COMPARE_SLIDER_DURATION_MS}ms`,
-                  border: `1px solid white`,
                 }}
               />
               <div
