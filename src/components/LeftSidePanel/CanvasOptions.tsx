@@ -4,8 +4,6 @@ import { useTranslation } from "react-i18next";
 import { IconButton } from "@/components/ui/button";
 import { useRefContext } from "@/components/RefCanvas";
 
-
-
 import { Button, ImageUploadButton } from "../ui/button";
 import { useImage } from "@/hooks/useImage";
 
@@ -39,26 +37,20 @@ const ExtenderButton = ({
 };
 
 const CanvasOptions = () => {
-  const [
-    paintByExampleFile,
-    isProcessing,
-    runInpainting,
-    updateAppState
-
-  ] = useStore((state) => [
-    state.serverConfig.samplers,
-    state.settings,
-    state.paintByExampleFile,
-    state.getIsProcessing(),
-    state.updateSettings,
-    state.runInpainting,
-    state.updateAppState,
-  ]);
+  const [paintByExampleFile, isProcessing, runInpainting, updateAppState] =
+    useStore((state) => [
+      state.serverConfig.samplers,
+      state.settings,
+      state.paintByExampleFile,
+      state.getIsProcessing(),
+      state.updateSettings,
+      state.runInpainting,
+      state.updateAppState,
+    ]);
   const [exampleImage, isExampleImageLoaded] = useImage(paintByExampleFile);
   const { t } = useTranslation();
 
   const { fabricRef } = useRefContext();
-
 
   const newFileUpload = () => {
     return (

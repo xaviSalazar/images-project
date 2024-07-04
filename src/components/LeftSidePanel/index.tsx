@@ -37,59 +37,57 @@ import {
 // import DiffusionOptions from "./DiffusionOptions";
 // import CV2Options from "./CV2Options";
 
-
 export interface Artwork {
   artist: string;
   art: string;
 }
 
-const domain_dist= "https://d1d5i0xjsb5dtw.cloudfront.net/"
+const domain_dist = "https://d1d5i0xjsb5dtw.cloudfront.net/";
 
 export const works: Artwork[] = [
   {
     artist: "Stable Diffusion 1",
-    art: `${domain_dist}photo-ai/TEST1_0.png`
+    art: `${domain_dist}photo-ai/TEST1_0.png`,
   },
   {
     artist: "Stable Diffusion2",
-    art: `${domain_dist}photo-ai/TEST1_1.png`
+    art: `${domain_dist}photo-ai/TEST1_1.png`,
   },
   {
     artist: "Stable Diffusion3",
-    art: `${domain_dist}photo-ai/TEST1_2.png`
+    art: `${domain_dist}photo-ai/TEST1_2.png`,
   },
   {
     artist: "Stable Diffusion4",
-    art: `${domain_dist}photo-ai/TEST1_3.png`
+    art: `${domain_dist}photo-ai/TEST1_3.png`,
   },
   {
     artist: "Stable Diffusion5",
-    art: `${domain_dist}photo-ai/TEST2_0.png`
+    art: `${domain_dist}photo-ai/TEST2_0.png`,
   },
   {
     artist: "Stable Diffusion6",
-    art: `${domain_dist}photo-ai/TEST2_1.png`
+    art: `${domain_dist}photo-ai/TEST2_1.png`,
   },
   {
     artist: "Stable Diffusion7",
-    art: `${domain_dist}photo-ai/TEST2_2.png`
+    art: `${domain_dist}photo-ai/TEST2_2.png`,
   },
   {
     artist: "Stable Diffusion8",
-    art: `${domain_dist}photo-ai/TEST2_3.png`
+    art: `${domain_dist}photo-ai/TEST2_3.png`,
   },
   {
     artist: "Stable Diffusion9",
-    art: `${domain_dist}photo-ai/picture_3.png`
+    art: `${domain_dist}photo-ai/picture_3.png`,
   },
   {
     artist: "Stable Diffusion10",
-    art: `${domain_dist}photo-ai/picture_2.png`
-  }
+    art: `${domain_dist}photo-ai/picture_2.png`,
+  },
 ];
 
 const LeftSidePanel = () => {
-
   const [settings, windowSize] = useStore((state) => [
     state.settings,
     state.windowSize,
@@ -227,7 +225,6 @@ const LeftSidePanel = () => {
             <RatioOptions />
           </MenubarContent>
         </MenubarMenu>
-
       </Menubar>
     );
   }

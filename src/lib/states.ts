@@ -40,7 +40,7 @@ import {
   generateFromCanvas,
   loadImage,
   srcToFile,
-  debugLog
+  debugLog,
 } from "./utils";
 import inpaint, { getGenInfo, postAdjustMask, runPlugin } from "./api";
 import { toast } from "@/components/ui/use-toast";
@@ -628,14 +628,25 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         let canvaGroup: CanvaState[] = []; // initialized variable
         const state = get();
         canvaGroup = [...state.editorState.currCanvasGroups];
-        debugLog(LOG_LEVELS.DEBUG, "canvaGroup\n", canvaGroup)  
+        debugLog(LOG_LEVELS.DEBUG, "canvaGroup\n", canvaGroup);
 
-        const jsonData = current_canvas.toJSON(['lockMovementX', 'lockMovementY', 'lockRotation', 'lockScalingX', 'lockScalingY' ,'gradientAngle','selectable','hasControls','source','editable',]);
-        const stringData = JSON.stringify(jsonData)
-        const id = Date.now() + '_' + Math.floor(Math.random() * 10000);
-        const newElement = {id, data: stringData}
-        debugLog(LOG_LEVELS.DEBUG, "newElement\n", newElement)  
-        canvaGroup.push(newElement)
+        const jsonData = current_canvas.toJSON([
+          "lockMovementX",
+          "lockMovementY",
+          "lockRotation",
+          "lockScalingX",
+          "lockScalingY",
+          "gradientAngle",
+          "selectable",
+          "hasControls",
+          "source",
+          "editable",
+        ]);
+        const stringData = JSON.stringify(jsonData);
+        const id = Date.now() + "_" + Math.floor(Math.random() * 10000);
+        const newElement = { id, data: stringData };
+        debugLog(LOG_LEVELS.DEBUG, "newElement\n", newElement);
+        canvaGroup.push(newElement);
         set((state) => {
           state.editorState.currCanvasGroups = canvaGroup;
         });
@@ -702,7 +713,11 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
             //editorState.lastLineGroup = [];
             editorState.lastCanvasGroups = [];
             const lastLine = editorState.currCanvasGroups.pop()!;
-            debugLog(LOG_LEVELS.DEBUG, "lastSaved\n", JSON.parse(lastLine.data))
+            debugLog(
+              LOG_LEVELS.DEBUG,
+              "lastSaved\n",
+              JSON.parse(lastLine.data),
+            );
             editorState.redoCurCanvas.push(lastLine);
           });
         } else {

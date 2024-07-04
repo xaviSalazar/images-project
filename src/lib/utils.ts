@@ -44,12 +44,14 @@ export function dataURItoBlob(dataURI: string) {
 }
 
 export async function urlToDataURI(url: string): Promise<string> {
-  const response = await fetch(url, {method: 'GET',
-    mode: 'cors',
-    cache: 'no-cache',
+  const response = await fetch(url, {
+    method: "GET",
+    mode: "cors",
+    cache: "no-cache",
     headers: {
-        Origin: window.location.origin,
-    }},);
+      Origin: window.location.origin,
+    },
+  });
   const blob = await response.blob();
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
@@ -339,7 +341,6 @@ export const convertToBase64 = (fileOrBlob: File | Blob): Promise<string> => {
   });
 };
 
-
 // LOGGS
 const getLogLevelPriority = (level) => {
   switch (level) {
@@ -359,7 +360,7 @@ const currentLogLevelPriority = getLogLevelPriority(currentLogLevel);
 
 const getCallerInfo = () => {
   const error = new Error();
-  const stack = error.stack.split('\n');
+  const stack = error.stack.split("\n");
 
   // Depending on the environment, the stack trace might have different formats.
   // Adjust the index based on your needs. Typically, the caller would be on the 3rd line.
@@ -376,9 +377,8 @@ const getCallerInfo = () => {
     }
   }
 
-  return 'unknown';
+  return "unknown";
 };
-
 
 export const debugLog = (level, ...messages) => {
   const logLevelPriority = getLogLevelPriority(level);

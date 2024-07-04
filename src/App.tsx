@@ -8,10 +8,6 @@ import { useRefContext } from "@/components/RefCanvas";
 import { useImage } from "@/hooks/useImage";
 import { fabric } from "fabric";
 
-
-
-
-
 const SUPPORTED_FILE_TYPE = [
   "image/jpeg",
   "image/png",
@@ -21,19 +17,20 @@ const SUPPORTED_FILE_TYPE = [
 ];
 
 function Home() {
-
-  const [file, 
-         handleSaveState,
-         updateAppState, 
-         setFile, 
-         scaledWidth,
-         scaledHeight] = useStore((state) => [
-         state.file,
-         state.handleSaveState,
-         state.updateAppState,
-         state.setFile,
-         state.scaledWidth,
-         state.scaledHeight
+  const [
+    file,
+    handleSaveState,
+    updateAppState,
+    setFile,
+    scaledWidth,
+    scaledHeight,
+  ] = useStore((state) => [
+    state.file,
+    state.handleSaveState,
+    state.updateAppState,
+    state.setFile,
+    state.scaledWidth,
+    state.scaledHeight,
   ]);
 
   const { fabricRef } = useRefContext();
@@ -68,7 +65,7 @@ function Home() {
   const handleDrop = useCallback((event: any) => {
     event.preventDefault();
     event.stopPropagation();
-    if(!fabricRef.current) return
+    if (!fabricRef.current) return;
     const data = event.dataTransfer;
     if (data?.files && data.files.length > 0) {
       const dragFile = data.files[0];
@@ -126,7 +123,6 @@ function Home() {
 
   useEffect(() => {
     if (isLoaded && fabricRef.current && image) {
-
       const scaleX = scaledWidth / (image?.width ?? 1);
       const scaleY = scaledHeight / (image?.height ?? 1);
       const scale = Math.min(scaleX, scaleY);
@@ -136,19 +132,18 @@ function Home() {
         scaleY: scale,
       });
 
-    // Ensure that fabricRef.current and scaledImage's dimensions are defined
-    const canvasWidth = fabricRef.current.width ?? 0;
-    const canvasHeight = fabricRef.current.height ?? 0;
+      // Ensure that fabricRef.current and scaledImage's dimensions are defined
+      const canvasWidth = fabricRef.current.width ?? 0;
+      const canvasHeight = fabricRef.current.height ?? 0;
 
-    // Position the scaled image at the center of the canvas
-    scaledImage.left = (canvasWidth / 2);
-    scaledImage.top = (canvasHeight / 2);
-    // add image
-    fabricRef.current.add(scaledImage);
+      // Position the scaled image at the center of the canvas
+      scaledImage.left = canvasWidth / 2;
+      scaledImage.top = canvasHeight / 2;
+      // add image
+      fabricRef.current.add(scaledImage);
 
-    handleSaveState(fabricRef.current)
+      handleSaveState(fabricRef.current);
     }
-    
   }, [image, isLoaded]);
 
   useEffect(() => {

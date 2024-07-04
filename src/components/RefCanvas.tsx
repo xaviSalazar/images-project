@@ -15,7 +15,9 @@ export const useRefContext = () => {
   return context;
 };
 
-export const RefProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const RefProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const fabricRef = useRef<fabric.Canvas | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 

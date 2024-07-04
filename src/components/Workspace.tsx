@@ -11,7 +11,6 @@ import RightSidePanel from "./RightSidePanel";
 import { ModelInfo } from "@/lib/types";
 import LeftSidePanel from "./LeftSidePanel";
 
-
 const model: ModelInfo = {
   name: "Fantasy-Studio/Paint-by-Example",
   path: "Fantasy-Studio/Paint-by-Example",
@@ -29,9 +28,7 @@ const model: ModelInfo = {
 const Workspace = () => {
   // remember only valid inside function
 
-  const [updateSettings] = useStore((state) => [
-    state.updateSettings,
-  ]);
+  const [updateSettings] = useStore((state) => [state.updateSettings]);
 
   // TO UPDATE TO SELECT CURRENT MODEL WITHIN INTERFACE
   useEffect(() => {
@@ -53,7 +50,7 @@ const Workspace = () => {
       <DiffusionProgress />*/}
       <LeftSidePanel />
       <RightSidePanel />
-      <Editor/>
+      <Editor />
     </>
   );
 };

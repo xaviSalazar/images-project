@@ -13,19 +13,19 @@ import {
   ArrowUpIcon,
 } from "@radix-ui/react-icons";
 
-import { RectangleHorizontalIcon, RectangleVerticalIcon, SquareIcon } from "lucide-react";
-
-
+import {
+  RectangleHorizontalIcon,
+  RectangleVerticalIcon,
+  SquareIcon,
+} from "lucide-react";
 
 const RatioOptions = () => {
-
   const [
     aspectRatio,
     paintByExampleFile,
     isProcessing,
     runInpainting,
-    updateAppState
-
+    updateAppState,
   ] = useStore((state) => [
     state.aspectRatio,
     state.paintByExampleFile,
@@ -45,13 +45,13 @@ const RatioOptions = () => {
     if (fabricInstance) {
       switch (mode) {
         case "Horizontal":
-          updateAppState({aspectRatio: "16:9"})
+          updateAppState({ aspectRatio: "16:9" });
           break;
         case "Vertical":
-          updateAppState({aspectRatio: "9:16"})
+          updateAppState({ aspectRatio: "9:16" });
           break;
         case "Cuadrado":
-          updateAppState({aspectRatio: "1:1"})
+          updateAppState({ aspectRatio: "1:1" });
           break;
       }
       fabricRef.current?.requestRenderAll();
@@ -96,11 +96,7 @@ const RatioOptions = () => {
     );
   };
 
-  return (
-    <div className="flex flex-col gap-4 mt-4">
-      {renderLayerControl()}
-    </div>
-  );
+  return <div className="flex flex-col gap-4 mt-4">{renderLayerControl()}</div>;
 };
 
 export default RatioOptions;
