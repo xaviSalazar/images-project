@@ -613,28 +613,10 @@ const Editor = React.forwardRef(() => {
           clipWidth = height * scale;
         }
 
-        debugLog(LOG_LEVELS.DEBUG, "window size", windowSize);
-        debugLog(
-          LOG_LEVELS.DEBUG,
-          "fabric width",
-          width,
-          "fabric height",
-          height,
-        );
-        debugLog(
-          LOG_LEVELS.DEBUG,
-          "clipWidth",
-          clipWidth,
-          "clipHeight",
-          clipHeight,
-        );
-
         updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
 
         const clipX = (width - clipWidth) / 2;
         const clipY = (height - clipHeight) / 2;
-
-        debugLog(LOG_LEVELS.DEBUG, "clipX", clipX, "clipY", clipY);
 
         ctx.moveTo(clipX, clipY);
         ctx.lineTo(clipX, clipY + clipHeight);
