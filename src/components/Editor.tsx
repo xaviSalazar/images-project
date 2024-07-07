@@ -1083,7 +1083,7 @@ const Editor = React.forwardRef(() => {
   //   }
   // };
 
-  const handleDownload = () => {
+  const handleDownload = (source : string) => {
     const predefinedRatio = predefinedRatios.find(
       (ratio) => ratio.name === aspectRatio,
     );
@@ -1113,7 +1113,8 @@ const Editor = React.forwardRef(() => {
         scaleX: clone.scaleX * scaleX,
         scaleY: clone.scaleY * scaleY,
       });
-      tempCanvas.add(clone);
+      if(obj.type === source)
+        tempCanvas.add(clone);
     });
 
     tempCanvas.renderAll();
@@ -1125,7 +1126,7 @@ const Editor = React.forwardRef(() => {
 
     const link = document.createElement("a");
     link.href = dataURL;
-    link.download = "canvas.png";
+    link.download = `${source}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -1213,7 +1214,7 @@ const Editor = React.forwardRef(() => {
             //   download("image");
             //   download("path")
             // }}
-            onClick={() => handleDownload()}
+            onClick={() => { handleDownload("image"),handleDownload("path")} }
           >
             <Download />
           </IconButton>
