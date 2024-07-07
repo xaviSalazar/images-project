@@ -160,6 +160,8 @@ type AppState = {
   clipHeight: number;
   scaledWidth: number;
   scaledHeight: number;
+  userWindowWidth: number;
+  userWindowHeight: number;
   aspectRatio: string;
   isInpainting: boolean;
   isPluginRunning: boolean;
@@ -255,6 +257,8 @@ const defaultValues: AppState = {
   clipWidth: 0,
   clipHeight: 0,
   scaledWidth: 0,
+  userWindowWidth: 0,
+  userWindowHeight: 0,
   scaledHeight: 0,
   aspectRatio: "16:9",
   isInpainting: false,
@@ -438,6 +442,8 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           settings,
           cropperState,
           extenderState,
+          userWindowWidth, 
+          userWindowHeight,
         } = get();
         if (isInpainting || file === null) {
           return;
@@ -498,11 +504,13 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           state.isInpainting = true;
         });
 
+        console.log("run inpainging")
         // Generate mask and image separately
         const { targetMask, targetFile } = await generateFromCanvas(
           currCanvasGroups[currCanvasGroups.length - 1],
-          imageWidth,
-          imageHeight,
+          aspectRatio,
+          userWindowWidth,
+          userWindowHeight,
         );
 
         try {
@@ -641,11 +649,13 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           "hasControls",
           "source",
           "editable",
+          "top",
+          "left",
         ]);
         const stringData = JSON.stringify(jsonData);
         const id = Date.now() + "_" + Math.floor(Math.random() * 10000);
         const newElement = { id, data: stringData };
-        debugLog(LOG_LEVELS.DEBUG, "newElement\n", newElement);
+        debugLog(LOG_LEVELS.DEBUG, "newElement data\n", JSON.parse(newElement.data));
         canvaGroup.push(newElement);
         set((state) => {
           state.editorState.currCanvasGroups = canvaGroup;

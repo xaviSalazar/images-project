@@ -274,58 +274,115 @@ export const generateMask = (
 };
 
 export const generateFromCanvas = (
-  canvasObject: string,
-  imageWidth: number,
-  imageHeight: number,
+  canvasObject: object,
+  aspectRatio: string,
+  userWindowWidth: number,
+  userWindowHeight: number,
 ): Promise<{ targetMask: string; targetFile: string }> => {
   return new Promise((resolve, reject) => {
-    // Create an off-screen canvas
-    var canvas = new fabric.Canvas(null, {
-      width: imageWidth,
-      height: imageHeight,
+    const predefinedRatio = predefinedRatios.find(
+      (ratio) => ratio.name === aspectRatio,
+    );
+    if (!predefinedRatio) {
+      console.error("Invalid aspect ratio");
+      reject(new Error("Invalid aspect ratio"));
+      return;
+    }
+
+    const { width: outputWidth, height: outputHeight } = predefinedRatio;
+
+    const canvas = new fabric.Canvas(null);
+    const tmpPathCanvas = new fabric.Canvas(null, {
+      width: outputWidth,
+      height: outputHeight,
     });
+    const tmpImgCanvas = new fabric.Canvas(null, {
+      width: outputWidth,
+      height: outputHeight,
+    });
+
+    const objCanvas = JSON.parse(canvasObject.data);
+    console.log(objCanvas)
+    // Retrieve original canvas dimensions from JSON
+
+    const clipX = (userWindowWidth - outputWidth) / 2;
+    const clipY = (userWindowHeight - outputHeight) / 2;
+    // Set canvas dimensions based on output width and height
+    canvas.setWidth(outputWidth);
+    canvas.setHeight(outputHeight);
+
     let image: string;
     let mask: string;
 
-    // Parse the input JSON to filter only path objects
-    const objCanvas = JSON.parse(canvasObject);
-    const filteredObjects = objCanvas.objects.filter(
-      (obj) => obj.type === "path",
-    ); // Adjust the condition based on your needs
-    const maskToLoad = { ...objCanvas, objects: filteredObjects };
+    // Load the full canvas JSON
+    canvas.loadFromJSON(objCanvas, () => {
+      const allObjects = canvas.getObjects();
+      // Adjust objects to top-left corner and scale
+      allObjects.forEach((obj) => {
+        // console.log(obj)
+        const clone = fabric.util.object.clone(obj);
+        
+        clone.set({
+          left: (clone.left - clipX),
+          top: (clone.top - clipY),
+          scaleX: clone.scaleX ,
+          scaleY: clone.scaleY ,
+        });
 
-    const filteredTargetFile = objCanvas.objects.filter(
-      (obj) => obj.type === "image",
-    );
-    const imageToLoad = { ...objCanvas, objects: filteredTargetFile };
-
-    // Load the canvas from the JSON string
-    canvas.loadFromJSON(maskToLoad, () => {
-      try {
-        mask = canvas.toDataURL();
-        if (!mask) {
-          throw new Error("Mask generation failed");
+        if(obj.type === "path")
+        {
+          tmpPathCanvas.add(clone);
+          // mask = canvas.toDataURL();
+          // const link = document.createElement("a");
+          // link.href = mask
+          // link.download = "mask.png";
+          // document.body.appendChild(link);
+          // link.click();
+          // document.body.removeChild(link);
+          // canvas.clear();
         }
-      } catch (error) {
-        reject(error);
-      }
-    });
 
-    canvas.clear();
-
-    canvas.loadFromJSON(imageToLoad, () => {
-      try {
-        image = canvas.toDataURL();
-        if (!image) {
-          throw new Error("Image generation failed");
+        if(obj.type === "image")
+        {
+          tmpImgCanvas.add(clone);
+          // canvas.add(clone);
+          // image = canvas.toDataURL();
+          // const link = document.createElement("a");
+          // link.href = image
+          // link.download = "image.png";
+          // document.body.appendChild(link);
+          // link.click();
+          // document.body.removeChild(link);
+          // canvas.clear();
         }
-        resolve({ targetMask: mask, targetFile: image });
-      } catch (error) {
-        reject(error);
+      });
+
+      tmpPathCanvas.renderAll();
+      const pathURL = tmpPathCanvas.toDataURL({
+        format: "png",
+        quality: 1,
+      });
+
+      mask = pathURL;
+
+      tmpImgCanvas.renderAll();
+      const imgURL = tmpImgCanvas.toDataURL({
+        format: "png",
+        quality: 1,
+      });
+
+      image = imgURL;
+
+      if (!image) {
+        reject(new Error("Image generation failed"));
+        return;
       }
+      resolve({ targetMask: mask, targetFile: image });
     });
   });
 };
+
+
 
 export const convertToBase64 = (fileOrBlob: File | Blob): Promise<string> => {
   return new Promise((resolve, reject) => {

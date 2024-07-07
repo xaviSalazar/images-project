@@ -111,6 +111,8 @@ const Editor = React.forwardRef(() => {
     isInpainting,
     imageWidth,
     scaledWidth,
+    userWindowWidth,
+    userWindowHeight,
     imageHeight,
     scaledHeight,
     aspectRatio,
@@ -140,6 +142,8 @@ const Editor = React.forwardRef(() => {
     state.isInpainting,
     state.imageWidth,
     state.scaledWidth,
+    state.userWindowWidth,
+    state.userWindowHeight,
     state.imageHeight,
     state.scaledHeight,
     state.aspectRatio,
@@ -190,11 +194,19 @@ const Editor = React.forwardRef(() => {
   const lastPosY = useRef(0);
   const windowSize = useWindowSize();
 
+  const roundToNearest8 = (value) => Math.floor(value / 8) * 8;
+  const roundToNearest64 = (value) => Math.floor(value / 64) * 64;
+
+  const [compatibleWidth, setCompatibleWidth] =  useState<number> (roundToNearest64(windowSize.width))
+  const [compatibleHeight, setCompatibleHeight] =  useState<number> (roundToNearest64(windowSize.height))
+
   const [isDraging, setIsDraging] = useState(false);
 
   const [sliderPos, setSliderPos] = useState<number>(0);
   const [isChangingBrushSizeByWheel, setIsChangingBrushSizeByWheel] =
     useState<boolean>(false);
+
+
 
   const cropperCanvasRef = useRef<HTMLCanvasElement | null>(null);
   // crop
@@ -442,9 +454,12 @@ const Editor = React.forwardRef(() => {
 
   useEffect(() => {
     const initMainCanvas = (): Canvas => {
+
+      updateAppState({ userWindowWidth: compatibleWidth, userWindowHeight: compatibleHeight});
+
       return new fabric.Canvas(canvasRef.current, {
-        width: windowSize.width,
-        height: windowSize.height,
+        width: compatibleWidth,
+        height: compatibleHeight,
         backgroundColor: "#f0f0f0",
         fireMiddleClick: true,
         stopContextMenu: true, // 禁止默认右键菜单
@@ -454,11 +469,12 @@ const Editor = React.forwardRef(() => {
       });
     };
 
+    fabric.Object.prototype.originX = "center";
+    fabric.Object.prototype.originY = "center";
     (fabricRef as MutableRefObject<fabric.Canvas | null>).current =
       initMainCanvas();
 
-    fabric.Object.prototype.originX = "center";
-    fabric.Object.prototype.originY = "center";
+
 
     // Activate drawing mode for mask overlay
     if (fabricRef.current) {
@@ -575,6 +591,8 @@ const Editor = React.forwardRef(() => {
     };
   }, []);
 
+  const gcd = (a, b) => (b === 0 ? a : gcd(b, a % b));
+
   useEffect(() => {
     // Your existing useEffect logic
     const canvas_instance = fabricRef.current;
@@ -598,25 +616,28 @@ const Editor = React.forwardRef(() => {
         ctx.lineTo(0, 0);
         // Apply the viewport transformation
         ctx.transform.apply(ctx, Array.from(canvas_instance.viewportTransform));
+        // ctx.transform(...canvas_instance.viewportTransform);
+
         // Adjust clipping area based on the aspect ratio
-        let clipWidth, clipHeight, scale;
+        let clipWidth, clipHeight
 
-        const [ratioWidth, ratioHeight] = aspectRatio.split(":").map(Number);
+        const ratioObject = predefinedRatios.find(ratio => ratio.name === aspectRatio);
 
-        if (width / ratioWidth < height / ratioHeight) {
-          clipWidth = width;
-          scale = ratioHeight / ratioWidth;
-          clipHeight = width * scale;
-        } else {
-          clipHeight = height;
-          scale = ratioWidth / ratioHeight;
-          clipWidth = height * scale;
+        if (ratioObject) {
+          debugLog(LOG_LEVELS.DEBUG, "choosed Ratio\n", ratioObject )
+          const { width: ratioWidth, height: ratioHeight } = ratioObject;
+          clipWidth = ratioWidth;
+          clipHeight = ratioHeight;
         }
+  
+        const clipX = Math.floor((width - clipWidth) / 2);
+        const clipY = Math.floor((height - clipHeight) / 2);
 
-        updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
+        debugLog(LOG_LEVELS.DEBUG, " <<user canvas window>>  width, heigth ", [canvas_instance.width,canvas_instance.height] )
+        debugLog(LOG_LEVELS.DEBUG, "<<user choosedWidth, choosedHeigth>> ", [clipWidth,clipHeight])
+        debugLog(LOG_LEVELS.DEBUG, "<<user transf canvas  matrix>>\n", canvas_instance.viewportTransform)
 
-        const clipX = (width - clipWidth) / 2;
-        const clipY = (height - clipHeight) / 2;
+        updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight});
 
         ctx.moveTo(clipX, clipY);
         ctx.lineTo(clipX, clipY + clipHeight);
@@ -670,40 +691,40 @@ const Editor = React.forwardRef(() => {
     [fabricRef.current],
   );
 
-  // useEffect(() => {
-  //   if (!fabricRef.current) return;
+// COMING RENDERS FROM BACKEND
+  useEffect(() => {
 
-  //   const render = renders[renders.length - 1];
+    const render = renders[renders.length - 1];
 
-  //   const img = new fabric.Image(render, {
-  //     left: 0,
-  //     top: 0,
-  //   });
+    if (!fabricRef.current || !render) return;
 
-  //   // Clear the canvas
-  //   fabricRef.current.clear();
-  //   fabricRef.current.add(img);
-  //   saveState();
-  //   fabricRef.current.renderAll();
-  // }, [renders]);
+    debugLog(LOG_LEVELS.DEBUG,"renddeers", render)
 
-  // COMING RENDERS FROM BACKEND
-  // useEffect(() => {
-  //   if (!fabricRef.current) return;
+    const scaledImage = new fabric.Image(render, {
+      scaleX: 1,
+      scaleY: 1,
+      originX: 'center',
+      originY: 'center'
+    });
 
-  //   const render = renders[renders.length - 1];
+    const canvasWidth = fabricRef.current.width ?? 0;
+    const canvasHeight = fabricRef.current.height ?? 0;
 
-  //   const img = new fabric.Image(render, {
-  //     left: 0,
-  //     top: 0,
-  //   });
+    const centerX = canvasWidth / 2;
+    const centerY = canvasHeight / 2;
 
-  //   // Clear the canvas
-  //   fabricRef.current.clear();
-  //   fabricRef.current.add(img);
-  //   saveState();
-  //   fabricRef.current.renderAll();
-  // }, [renders]);
+    scaledImage.set({
+      left: centerX ,
+      top: centerY,
+    });
+    // Clear the canvas
+    // fabricRef.current.clear();
+    fabricRef.current.add(scaledImage);
+    fabricRef.current.renderAll();
+
+    handleSaveState(fabricRef.current);
+
+  }, [renders]);
 
   // REDO / UNDO ACTION
   useEffect(() => {
@@ -1073,8 +1094,8 @@ const Editor = React.forwardRef(() => {
 
     const { width: outputWidth, height: outputHeight } = predefinedRatio;
 
-    const clipX = (windowSize.width - scaledWidth) / 2;
-    const clipY = (windowSize.height - scaledHeight) / 2;
+    const clipX = (compatibleWidth - scaledWidth) / 2;
+    const clipY = (compatibleHeight - scaledHeight) / 2;
 
     const tempCanvas = new fabric.Canvas(null, {
       width: outputWidth,

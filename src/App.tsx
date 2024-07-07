@@ -7,7 +7,8 @@ import { useWindowSize } from "react-use";
 import { useRefContext } from "@/components/RefCanvas";
 import { useImage } from "@/hooks/useImage";
 import { fabric } from "fabric";
-
+import { LOG_LEVELS } from "./lib/const";
+import { debugLog } from "./lib/utils";
 const SUPPORTED_FILE_TYPE = [
   "image/jpeg",
   "image/png",
@@ -123,24 +124,40 @@ function Home() {
 
   useEffect(() => {
     if (isLoaded && fabricRef.current && image) {
-      const scaleX = scaledWidth / (image?.width ?? 1);
-      const scaleY = scaledHeight / (image?.height ?? 1);
-      const scale = Math.min(scaleX, scaleY);
-      // Scale the image
-      const scaledImage = new fabric.Image(image, {
-        scaleX: scale,
-        scaleY: scale,
-      });
-
       // Ensure that fabricRef.current and scaledImage's dimensions are defined
       const canvasWidth = fabricRef.current.width ?? 0;
       const canvasHeight = fabricRef.current.height ?? 0;
+      const imageWidth = image?.width ?? 1;
+      const imageHeight = image?.height ?? 1; 
 
-      // Position the scaled image at the center of the canvas
-      scaledImage.left = canvasWidth / 2;
-      scaledImage.top = canvasHeight / 2;
+      const scaleX = (scaledWidth) / imageWidth;
+      const scaleY = (scaledHeight) / imageHeight;
+    // Calculate integer scale factor
+    const integerScale = Math.floor(Math.min(scaleX, scaleY) * 100) / 100;
+
+    // Scale the image with integer scale factor
+    const scaledImage = new fabric.Image(image, {
+      scaleX: integerScale,
+      scaleY: integerScale,
+      originX: 'center',
+      originY: 'center'
+    });
+    // Position the scaled image at the center of the canvas
+    const centerX = canvasWidth / 2;
+    const centerY = canvasHeight / 2;
+
+    scaledImage.set({
+      left: centerX ,
+      top: centerY,
+    });
+
       // add image
       fabricRef.current.add(scaledImage);
+      debugLog(LOG_LEVELS.DEBUG, "imageWidth, imageHeigth", [imageWidth, imageHeight] )
+      debugLog(LOG_LEVELS.DEBUG, "img scale added", integerScale )
+      debugLog(LOG_LEVELS.DEBUG, "img canvas plane Matrix Transf\n",scaledImage.calcTransformMatrix() )
+      debugLog(LOG_LEVELS.DEBUG, "img Object plane Matrix Transf\n",scaledImage.calcOwnMatrix() )
+      fabricRef.current.renderAll();
 
       handleSaveState(fabricRef.current);
     }
