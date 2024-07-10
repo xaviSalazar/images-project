@@ -369,6 +369,7 @@ export const generateFromCanvas = (
       const imgURL = tmpImgCanvas.toDataURL({
         format: "png",
         quality: 1,
+        multiplier: 10,
       });
 
       image = imgURL;
