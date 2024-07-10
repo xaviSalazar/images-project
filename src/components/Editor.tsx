@@ -469,6 +469,7 @@ const Editor = React.forwardRef(() => {
       });
     };
 
+    fabric.Object.prototype.noCache = true;
     fabric.Object.prototype.originX = "center";
     fabric.Object.prototype.originY = "center";
     (fabricRef as MutableRefObject<fabric.Canvas | null>).current =
@@ -570,6 +571,10 @@ const Editor = React.forwardRef(() => {
     fabricRef.current?.on("path:created", () => {
       saveState();
     });
+
+    fabricRef.current?.on("object:modified", () => {
+      saveState();
+    })
 
     fabricRef.current?.on("mouse:wheel", function (opt) {
       const delta = opt.e.deltaY;
@@ -1122,6 +1127,7 @@ const Editor = React.forwardRef(() => {
     const dataURL = tempCanvas.toDataURL({
       format: "png",
       quality: 1,
+      multiplier: 10
     });
 
     const link = document.createElement("a");
@@ -1130,6 +1136,7 @@ const Editor = React.forwardRef(() => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+
   };
 
   useHotKey("meta+s,ctrl+s", handleDownload);
@@ -1214,7 +1221,7 @@ const Editor = React.forwardRef(() => {
             //   download("image");
             //   download("path")
             // }}
-            onClick={() => { handleDownload("image"),handleDownload("path")} }
+            onClick={() => { handleDownload("image")} }
           >
             <Download />
           </IconButton>
