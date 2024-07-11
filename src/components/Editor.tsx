@@ -16,6 +16,20 @@ import { useKeyPressEvent } from "react-use";
 import { downloadToOutput, runPlugin } from "@/lib/api";
 import { Canvas, Object as FabricObject } from "fabric/fabric-impl";
 import { IconButton } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
+
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarCheckboxItem,
+  MenubarShortcut,
+  MenubarTrigger,
+} from "@/components/ui/menubar-horizontal"
+
+
 import {
   askWritePermission,
   cn,
@@ -35,10 +49,12 @@ import {
   Eye,
   Redo,
   Undo,
+  Copy,
+  Scissors,
+  Trash2,
   Expand,
   Download,
   Paintbrush,
-  SignalMedium,
 } from "lucide-react";
 import { useImage } from "@/hooks/useImage";
 import { Slider } from "./ui/slider";
@@ -194,7 +210,6 @@ const Editor = React.forwardRef(() => {
   const lastPosY = useRef(0);
   const windowSize = useWindowSize();
 
-  const roundToNearest8 = (value) => Math.floor(value / 8) * 8;
   const roundToNearest64 = (value) => Math.floor(value / 64) * 64;
 
   const [compatibleWidth, setCompatibleWidth] =  useState<number> (roundToNearest64(windowSize.width))
@@ -206,9 +221,6 @@ const Editor = React.forwardRef(() => {
   const [isChangingBrushSizeByWheel, setIsChangingBrushSizeByWheel] =
     useState<boolean>(false);
 
-
-
-  const cropperCanvasRef = useRef<HTMLCanvasElement | null>(null);
   // crop
   const lastActiveObject = useRef<fabric.Object | null>(null);
   const rectangleCut = useRef<fabric.Object | null>(null);
@@ -322,6 +334,7 @@ const Editor = React.forwardRef(() => {
 
     const canvas = fabricRef.current;
     const objectToCrop = lastActiveObject.current;
+    console.log(objectToCrop)
     const rectCrop = rectangleCut.current;
 
     // Calculate the bounding box of the object and the crop rectangle
@@ -391,66 +404,8 @@ const Editor = React.forwardRef(() => {
     isCropping.current = false;
   };
 
-  const deleteObject = (
-    eventData: fabric.IEvent<MouseEvent>,
-    transform: { target: fabric.Object },
-  ): void => {
-    const target = transform.target;
-    const canvas = target.canvas;
-    canvas?.remove(target);
-    canvas?.requestRenderAll();
-  };
-
-  const drawCropRect = (
-    eventData: fabric.IEvent<MouseEvent>,
-    transform: { target: fabric.Object },
-  ): void => {
-    if (isCropping.current) {
-      isCropping.current = false;
-      return cropImage();
-    }
-
-    isCropping.current = true;
-    const target = transform.target;
-    const canvas = target.canvas;
-
-    const activeObject = canvas?.getActiveObject();
-    if (!activeObject || !canvas) return;
-
-    // Calculate the maximum width and height for the crop rectangle
-    const maxWidth = activeObject.width * activeObject.scaleX;
-    const maxHeight = activeObject.height * activeObject.scaleY;
-
-    // Calculate initial dimensions of the crop rectangle
-    let width = maxWidth * 0.5;
-    let height = maxHeight * 0.5;
-
-    const rectangle = new fabric.Rect({
-      fill: "rgba(0,0,0,0.3)",
-      originX: "center",
-      originY: "center",
-      stroke: "black",
-      opacity: 1,
-      width: width,
-      height: height,
-      left: activeObject.left,
-      top: activeObject.top,
-      hasRotatingPoint: false,
-      transparentCorners: false,
-      cornerColor: "white",
-      cornerStrokeColor: "black",
-      borderColor: "black",
-      lockMovementX: true,
-      lockMovementY: true,
-    });
-
-    // Save selected image and rectangle
-    lastActiveObject.current = activeObject;
-    rectangleCut.current = rectangle;
-
-    canvas.add(rectangle);
-    canvas.setActiveObject(rectangle);
-  };
+  const [buttonPosition, setButtonPosition] = useState({ left: 0, top: 0 });
+  const [buttonVisible, setButtonVisible] = useState(false);
 
   useEffect(() => {
     const initMainCanvas = (): Canvas => {
@@ -475,7 +430,28 @@ const Editor = React.forwardRef(() => {
     (fabricRef as MutableRefObject<fabric.Canvas | null>).current =
       initMainCanvas();
 
-
+      fabric.Canvas.prototype.getAbsoluteCoords = function(object) {
+        // const zoom = this.getZoom();
+        // const viewportTransform = this.viewportTransform;
+        return {
+          // left: object.left * zoom + viewportTransform[4],
+          // top: object.top * zoom + viewportTransform[5]
+          left: object.left,
+          top:  object.top
+        };
+      };
+      
+      function positionBtn(obj) {
+        const btnContainer = document.getElementById('button-container');
+        if (!btnContainer) return;
+        const zoom = fabricRef.current.getZoom();
+        const viewportTransform = fabricRef.current.viewportTransform;
+        const absCoords = fabricRef.current.getAbsoluteCoords(obj);
+        const left = (absCoords.left + (obj.width * obj.scaleX) / 2) * zoom + viewportTransform[4] - btnContainer.offsetWidth / 2;
+        const top = (absCoords.top - (obj.height * obj.scaleY) / 2) * zoom + viewportTransform[5] - btnContainer.offsetHeight;
+        setButtonPosition({ left, top });
+        setButtonVisible(true);
+      }
 
     // Activate drawing mode for mask overlay
     if (fabricRef.current) {
@@ -541,25 +517,15 @@ const Editor = React.forwardRef(() => {
     });
     //########### END delete section
 
-    fabric.Object.prototype.controls.crop = new fabric.Control({
-      x: -0.48,
-      y: -0.48,
-      offsetY: 16,
-      cursorStyle: "pointer",
-      mouseUpHandler: drawCropRect,
-      render: renderIconCorner(cropImg),
-      cornerSize: 60,
-    });
-
-    fabric.Object.prototype.controls.delete = new fabric.Control({
-      x: 0.5,
-      y: -0.48,
-      offsetY: 16,
-      cursorStyle: "pointer",
-      mouseUpHandler: deleteObject,
-      render: renderIconCorner(deleteImg),
-      cornerSize: 60,
-    });
+    // fabric.Object.prototype.controls.crop = new fabric.Control({
+    //   x: -0.48,
+    //   y: -0.48,
+    //   offsetY: 16,
+    //   cursorStyle: "pointer",
+    //   mouseUpHandler: drawCropRect,
+    //   render: renderIconCorner(cropImg),
+    //   cornerSize: 60,
+    // });
 
     // Event listener for panning
     fabricRef.current?.on("mouse:up", stopPanning);
@@ -567,6 +533,22 @@ const Editor = React.forwardRef(() => {
     fabricRef.current?.on("mouse:down", startPanning);
 
     fabricRef.current?.on("mouse:move", panCanvas);
+
+    fabricRef.current?.on('selection:updated', function(e) {
+      positionBtn(e.selected[0]);
+    });
+
+    fabricRef.current?.on('selection:created', function(e) {
+      positionBtn(e.selected[0]);
+    });
+
+    fabricRef.current?.on('object:moving', function(e) {
+      setButtonVisible(false)
+    });
+
+    fabricRef.current?.on('selection:cleared', function() {
+      setButtonVisible(false)
+    });
 
     fabricRef.current?.on("path:created", () => {
       saveState();
@@ -586,6 +568,8 @@ const Editor = React.forwardRef(() => {
         { x: opt.e.offsetX, y: opt.e.offsetY },
         zoom,
       );
+
+      setButtonVisible(false)
       opt.e.preventDefault();
       opt.e.stopPropagation();
     });
@@ -732,16 +716,16 @@ const Editor = React.forwardRef(() => {
   }, [renders]);
 
   // REDO / UNDO ACTION
-  useEffect(() => {
-    if (!fabricRef.current) return;
-    if (currCanvasGroups.length === 0) return;
-    const lastElement = currCanvasGroups[currCanvasGroups.length - 1];
-    const state = JSON.parse(lastElement.data);
-    fabricRef.current.loadFromJSON(
-      state,
-      fabricRef.current.renderAll.bind(fabricRef.current),
-    );
-  }, [currCanvasGroups]);
+  // useEffect(() => {
+  //   if (!fabricRef.current) return;
+  //   if (currCanvasGroups.length === 0) return;
+  //   const lastElement = currCanvasGroups[currCanvasGroups.length - 1];
+  //   const state = JSON.parse(lastElement.data);
+  //   fabricRef.current.loadFromJSON(
+  //     state,
+  //     fabricRef.current.renderAll.bind(fabricRef.current),
+  //   );
+  // }, [currCanvasGroups]);
 
   // CHANGE BRUSH SIZE
   useEffect(() => {
@@ -1148,11 +1132,130 @@ const Editor = React.forwardRef(() => {
     }
   };
 
+  const handleCopy = () => {
+    const canvas_instance = fabricRef.current
+    if(!canvas_instance) return;
+    const target = canvas_instance.getActiveObject();
+    if (target)
+    {
+      target.clone(function(cloned) {
+        cloned.left += 100;
+        cloned.top += 100;
+        canvas_instance.add(cloned);
+      });
+    }
+  };
+
+  // *******************
+
+  const handleCut = () => {
+    const canvas_instance = fabricRef.current
+    if(!canvas_instance) return;
+
+      if (isCropping.current) {
+        isCropping.current = false;
+        console.log("crop img")
+        return cropImage();
+      }
+  
+      isCropping.current = true;
+      const target = canvas_instance.getActiveObject(); // object
+      if(target)
+      {
+      const canvas = target.canvas;
+  
+      const activeObject = canvas?.getActiveObject();
+      if (!activeObject || !canvas) return;
+  
+      // Calculate the maximum width and height for the crop rectangle
+      const maxWidth = activeObject.width * activeObject.scaleX;
+      const maxHeight = activeObject.height * activeObject.scaleY;
+  
+      // Calculate initial dimensions of the crop rectangle
+      let width = maxWidth * 0.5;
+      let height = maxHeight * 0.5;
+  
+      const rectangle = new fabric.Rect({
+        fill: "rgba(0,0,0,0.3)",
+        originX: "center",
+        originY: "center",
+        stroke: "black",
+        opacity: 1,
+        width: width,
+        height: height,
+        left: activeObject.left,
+        top: activeObject.top,
+        hasRotatingPoint: false,
+        transparentCorners: false,
+        cornerColor: "white",
+        cornerStrokeColor: "black",
+        borderColor: "black",
+        lockMovementX: true,
+        lockMovementY: true,
+      });
+  
+      // Save selected image and rectangle
+      lastActiveObject.current = activeObject;
+      rectangleCut.current = rectangle;
+  
+      canvas.add(rectangle);
+      canvas.setActiveObject(rectangle);
+    }
+  };
+
+  const handleDelete = () => {
+      const canvas_instance = fabricRef.current
+      if(!canvas_instance) return;
+      const target = canvas_instance.getActiveObject();
+      if (target)
+      {
+        canvas_instance?.remove(target);
+        canvas_instance?.requestRenderAll();
+      }
+  };
+
   return (
     <div
       className="flex w-screen h-screen justify-center items-center"
       aria-hidden="true"
     >
+        <Menubar
+                 id="button-container"
+                 style={{
+                   position: 'absolute',
+                   left: buttonPosition.left,
+                   top: buttonPosition.top,
+                   display: buttonVisible ? 'flex' : 'none', // Toggle visibility
+                   zIndex: 9999,
+                 }}           
+        >
+        <MenubarMenu>
+          <MenubarTrigger>Action</MenubarTrigger>
+          <MenubarContent>
+            <MenubarItem onClick={handleCopy}>
+              Copy <MenubarShortcut><Copy /></MenubarShortcut>
+            </MenubarItem >
+            <MenubarItem onClick={handleCut}>
+              Cut <MenubarShortcut><Scissors/></MenubarShortcut>
+            </MenubarItem>
+            <MenubarItem onClick={handleDelete}>
+              Delete <MenubarShortcut> <Trash2/> </MenubarShortcut>
+            </MenubarItem>
+          </MenubarContent>
+        </MenubarMenu>
+        <MenubarMenu>
+          <MenubarTrigger>View</MenubarTrigger>
+          <MenubarContent>
+            <MenubarCheckboxItem checked>
+              Stay fixed
+            </MenubarCheckboxItem>
+            <MenubarCheckboxItem >
+              Modify
+            </MenubarCheckboxItem>
+          </MenubarContent>
+        </MenubarMenu>
+      </Menubar>
+
       {renderCanvas()}
       <div className="fixed flex bottom-5 border px-4 py-2 rounded-[3rem] gap-8 items-center justify-center backdrop-filter backdrop-blur-md bg-background/70">
         <Slider
