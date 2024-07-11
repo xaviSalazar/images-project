@@ -1164,6 +1164,44 @@ const Editor = React.forwardRef(() => {
       }
   };
 
+  const [isFixed, setIsFixed] = useState(false);
+  const [isModify, setIsModify] = useState(false);
+
+  const handleViewMenuOpen = () => {
+    const canvas_instance = fabricRef.current;
+    if (!canvas_instance) return;
+    const target = canvas_instance.getActiveObject();
+    if (target) {
+      console.log(target.img_view)
+      setIsFixed(target.img_view === 'fixed');
+      setIsModify(target.img_view === 'modify');
+    }
+  };
+
+  const handleModifyClick = () => {
+    const canvas_instance = fabricRef.current;
+    if (!canvas_instance) return;
+    const target = canvas_instance.getActiveObject();
+    if (target) {
+      target.img_view = 'modify';
+      setIsFixed(false);
+      setIsModify(true);
+      canvas_instance.requestRenderAll();
+    }
+  };
+
+  const handleStayFixedClick = () => {
+    const canvas_instance = fabricRef.current;
+    if (!canvas_instance) return;
+    const target = canvas_instance.getActiveObject();
+    if (target) {
+      target.img_view = 'fixed';
+      setIsFixed(true);
+      setIsModify(false);
+      canvas_instance.requestRenderAll();
+    }
+  };
+
   return (
     <div
       className="flex w-screen h-screen justify-center items-center"
@@ -1194,12 +1232,12 @@ const Editor = React.forwardRef(() => {
           </MenubarContent>
         </MenubarMenu>
         <MenubarMenu>
-          <MenubarTrigger>View</MenubarTrigger>
+          <MenubarTrigger onClick={handleViewMenuOpen}>View</MenubarTrigger>
           <MenubarContent>
-            <MenubarCheckboxItem checked>
+            <MenubarCheckboxItem checked={isFixed} onClick={handleStayFixedClick}>
               Stay fixed
             </MenubarCheckboxItem>
-            <MenubarCheckboxItem >
+            <MenubarCheckboxItem checked={isModify} onClick={handleModifyClick}>
               Modify
             </MenubarCheckboxItem>
           </MenubarContent>
