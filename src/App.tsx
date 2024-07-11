@@ -149,6 +149,7 @@ function Home() {
     scaledImage.set({
       left: centerX ,
       top: centerY,
+      img_view: "fixed", // created custom property in object
     });
 
       // add image

@@ -430,12 +430,19 @@ const Editor = React.forwardRef(() => {
     (fabricRef as MutableRefObject<fabric.Canvas | null>).current =
       initMainCanvas();
 
-      fabric.Canvas.prototype.getAbsoluteCoords = function(object) {
-        return {
-          left: object.left,
-          top:  object.top
-        };
+    // Extend fabric.Object to include custom properties in serialization
+    const originalToObject = fabric.Object.prototype.toObject;
+    const myAdditional = ['img_view'];
+    fabric.Object.prototype.toObject = function (additionalProperties = []) {
+      return originalToObject.call(this, [...myAdditional, ...additionalProperties]);
+    };
+
+    fabric.Canvas.prototype.getAbsoluteCoords = function(object) {
+      return {
+        left: object.left,
+        top:  object.top
       };
+    };
       
       function positionBtn(obj) {
         const btnContainer = document.getElementById('button-container');
