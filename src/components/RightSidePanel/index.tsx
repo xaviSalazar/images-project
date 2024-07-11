@@ -18,7 +18,7 @@ const RightSidePanel = () => {
     state.windowSize,
   ]);
 
-  const [open, toggleOpen] = useToggle(true);
+  const [open, toggleOpen] = useToggle(false);
 
   useHotKey("c", () => {
     toggleOpen();
