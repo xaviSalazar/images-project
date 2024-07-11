@@ -278,7 +278,7 @@ export const generateFromCanvas = (
   aspectRatio: string,
   userWindowWidth: number,
   userWindowHeight: number,
-): Promise<{ targetMask: string; targetFile: string }> => {
+): Promise<{ targetMask: string; targetFile: string; staticElements: string }> => {
   return new Promise((resolve, reject) => {
     const predefinedRatio = predefinedRatios.find(
       (ratio) => ratio.name === aspectRatio,
@@ -292,11 +292,18 @@ export const generateFromCanvas = (
     const { width: outputWidth, height: outputHeight } = predefinedRatio;
 
     const canvas = new fabric.Canvas(null);
+    // to save any drawn path 
     const tmpPathCanvas = new fabric.Canvas(null, {
       width: outputWidth,
       height: outputHeight,
     });
+    // to store images only
     const tmpImgCanvas = new fabric.Canvas(null, {
+      width: outputWidth,
+      height: outputHeight,
+    });
+
+    const fixedImgCanvas = new fabric.Canvas(null, {
       width: outputWidth,
       height: outputHeight,
     });
@@ -313,20 +320,29 @@ export const generateFromCanvas = (
 
     let image: string;
     let mask: string;
+    let elements: string;
 
     // Load the full canvas JSON
     canvas.loadFromJSON(objCanvas, () => {
       const allObjects = canvas.getObjects();
       // Adjust objects to top-left corner and scale
       allObjects.forEach((obj) => {
-        // console.log(obj)
+
         const clone = fabric.util.object.clone(obj);
+        const clone_fixed_elements = fabric.util.object.clone(obj);
         
         clone.set({
           left: (clone.left - clipX),
           top: (clone.top - clipY),
           scaleX: clone.scaleX ,
           scaleY: clone.scaleY ,
+        });
+
+        clone_fixed_elements.set({
+          left: (clone_fixed_elements.left - clipX),
+          top: (clone_fixed_elements.top - clipY),
+          scaleX: clone_fixed_elements.scaleX ,
+          scaleY: clone_fixed_elements.scaleY ,
         });
 
         if(obj.type === "path")
@@ -345,7 +361,11 @@ export const generateFromCanvas = (
         if(obj.type === "image")
         {
           tmpImgCanvas.add(clone);
-          // canvas.add(clone);
+            // add object: keeps fixed image to not being modified
+            if(obj.img_view === "fixed")
+            {
+              fixedImgCanvas.add(clone_fixed_elements);
+            }
           // image = canvas.toDataURL();
           // const link = document.createElement("a");
           // link.href = image
@@ -369,16 +389,24 @@ export const generateFromCanvas = (
       const imgURL = tmpImgCanvas.toDataURL({
         format: "png",
         quality: 1,
-        multiplier: 10,
       });
 
       image = imgURL;
+
+      fixedImgCanvas.renderAll();
+      const fixedImages = fixedImgCanvas.toDataURL({
+        format: "png",
+        quality: 1,
+      });
+
+      elements = fixedImages;
 
       if (!image) {
         reject(new Error("Image generation failed"));
         return;
       }
-      resolve({ targetMask: mask, targetFile: image });
+
+      resolve({ targetMask: mask, targetFile: image, staticElements: elements });
     });
   });
 };

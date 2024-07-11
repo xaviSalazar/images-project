@@ -88,10 +88,14 @@ export const works: Artwork[] = [
 ];
 
 const LeftSidePanel = () => {
-  const [settings, windowSize] = useStore((state) => [
-    state.settings,
-    state.windowSize,
-  ]);
+  const [
+          runImgRendering,
+          windowSize
+        ] = useStore((state) => 
+        [
+          state.runImgRendering,
+          state.windowSize,
+        ]);
 
   const [open, toggleOpen] = useToggle(true);
 
@@ -182,25 +186,13 @@ const LeftSidePanel = () => {
 
         <MenubarMenu>
           <MenubarTrigger>
-            {" "}
             <WandSparkles /> MAGIC AI
           </MenubarTrigger>
           <MenubarContent>
-            <MenubarCheckboxItem>Always Show Bookmarks Bar</MenubarCheckboxItem>
-            <MenubarCheckboxItem checked>
-              Always Show Full URLs
-            </MenubarCheckboxItem>
-            <MenubarSeparator />
-            <MenubarItem inset>
-              Reload <MenubarShortcut>⌘R</MenubarShortcut>
+            <MenubarItem 
+              onClick={ () => { runImgRendering()} } >
+              Create image 
             </MenubarItem>
-            <MenubarItem disabled inset>
-              Force Reload <MenubarShortcut>⇧⌘R</MenubarShortcut>
-            </MenubarItem>
-            <MenubarSeparator />
-            <MenubarItem inset>Toggle Fullscreen</MenubarItem>
-            <MenubarSeparator />
-            <MenubarItem inset>Hide Sidebar</MenubarItem>
           </MenubarContent>
         </MenubarMenu>
 

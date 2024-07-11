@@ -222,6 +222,7 @@ type AppAction = {
   showPromptInput: () => boolean;
 
   runInpainting: (modelToCall: string) => Promise<void>;
+  runImgRendering: () => Promise<void>;
   showPrevMask: () => Promise<void>;
   hidePrevMask: () => void;
   runRenderablePlugin: (
@@ -552,6 +553,72 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           state.isInpainting = false;
           state.editorState.temporaryMasks = [];
         });
+      },
+
+      runImgRendering: async() => {
+
+        const {
+          aspectRatio,
+          userWindowWidth, 
+          userWindowHeight,
+        } = get();
+
+        const {
+          currCanvasGroups, // added to support fabric js
+        } = get().editorState;
+
+        const { targetMask, targetFile, staticElements } = await generateFromCanvas(
+          currCanvasGroups[currCanvasGroups.length - 1],
+          aspectRatio,
+          userWindowWidth,
+          userWindowHeight,
+        );
+
+        // retrieve mask, target whole image and elements
+        console.log(targetMask)
+        console.log(targetFile)
+        console.log(staticElements)
+
+        // try {
+        //   const res = await inpaint(
+        //     dataURItoBlob(targetFile),
+        //     settings,
+        //     cropperState,
+        //     extenderState,
+        //     dataURItoBlob(targetMask),
+        //     paintByExampleFile,
+        //     modelToCall,
+        //   );
+
+        //   const { blob, seed } = res;
+        //   if (seed) {
+        //     get().setSeed(parseInt(seed, 10));
+        //   }
+        //   const newRender = new Image();
+        //   await loadImage(newRender, blob);
+        //   const newRenders = [...renders, newRender];
+        //   get().setImageSize(newRender.width, newRender.height);
+        //   get().updateEditorState({
+        //     renders: newRenders,
+        //     lineGroups: newLineGroups,
+        //     lastLineGroup: maskLineGroup,
+        //     curLineGroup: [],
+        //     extraMasks: [],
+        //     prevExtraMasks: maskImages,
+        //   });
+        // } catch (e: any) {
+        //   toast({
+        //     variant: "destructive",
+        //     description: e.message ? e.message : e.toString(),
+        //   });
+        // }
+
+        // get().resetRedoState();
+        // set((state) => {
+        //   state.isInpainting = false;
+        //   state.editorState.temporaryMasks = [];
+        // });
+
       },
 
       runRenderablePlugin: async (

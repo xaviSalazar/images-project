@@ -1186,7 +1186,8 @@ const Editor = React.forwardRef(() => {
       target.img_view = 'modify';
       setIsFixed(false);
       setIsModify(true);
-      canvas_instance.requestRenderAll();
+      saveState();
+      // canvas_instance.requestRenderAll();
     }
   };
 
@@ -1198,7 +1199,8 @@ const Editor = React.forwardRef(() => {
       target.img_view = 'fixed';
       setIsFixed(true);
       setIsModify(false);
-      canvas_instance.requestRenderAll();
+      saveState();
+      // canvas_instance.requestRenderAll();
     }
   };
 
