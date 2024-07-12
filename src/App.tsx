@@ -6,7 +6,7 @@ import { useStore } from "./lib/states";
 import { useWindowSize } from "react-use";
 import { useRefContext } from "@/components/RefCanvas";
 import { useImage } from "@/hooks/useImage";
-import { fabric } from "fabric";
+import { FabricImage } from "fabric";
 import { LOG_LEVELS } from "./lib/const";
 import { debugLog } from "./lib/utils";
 const SUPPORTED_FILE_TYPE = [
@@ -136,7 +136,7 @@ function Home() {
     const integerScale = Math.floor(Math.min(scaleX, scaleY) * 100) / 100;
 
     // Scale the image with integer scale factor
-    const scaledImage = new fabric.Image(image, {
+    const scaledImage = new FabricImage(image, {
       scaleX: integerScale,
       scaleY: integerScale,
       originX: 'center',
@@ -158,8 +158,8 @@ function Home() {
       debugLog(LOG_LEVELS.DEBUG, "img scale added", integerScale )
       debugLog(LOG_LEVELS.DEBUG, "img canvas plane Matrix Transf\n",scaledImage.calcTransformMatrix() )
       debugLog(LOG_LEVELS.DEBUG, "img Object plane Matrix Transf\n",scaledImage.calcOwnMatrix() )
-      fabricRef.current.renderAll();
 
+      // fabricRef.current.renderAll();
       handleSaveState(fabricRef.current);
     }
   }, [image, isLoaded]);

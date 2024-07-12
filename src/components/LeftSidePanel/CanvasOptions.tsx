@@ -104,16 +104,16 @@ const CanvasOptions = () => {
 
       switch (mode) {
         case "toFront":
-          fabricInstance.bringToFront(activeObject);
+          fabricInstance.bringObjectToFront(activeObject);
           break;
         case "toBack":
-          fabricInstance.sendToBack(activeObject);
+          fabricInstance.sendObjectToBack(activeObject);
           break;
         case "toForward":
-          fabricInstance.bringForward(activeObject);
+          fabricInstance.bringObjectForward(activeObject);
           break;
         case "toBackward":
-          fabricInstance.sendBackwards(activeObject);
+          fabricInstance.sendObjectBackwards(activeObject);
       }
       fabricInstance.discardActiveObject();
       fabricInstance.renderAll();

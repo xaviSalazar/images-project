@@ -5,7 +5,9 @@ import { LineGroup, Size } from "./types";
 import { BRUSH_COLOR } from "./const";
 import { LOG_LEVELS } from "./const";
 import { predefinedRatios } from "@/lib/const";
-import { fabric } from "fabric";
+import * as fabric from 'fabric'; // v6
+import { FabricObject } from 'fabric'; // migration path
+
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -273,13 +275,13 @@ export const generateMask = (
   return maskCanvas;
 };
 
-export const generateFromCanvas = (
+export const generateFromCanvas = async (
   canvasObject: object,
   aspectRatio: string,
   userWindowWidth: number,
   userWindowHeight: number,
 ): Promise<{ targetMask: string; targetFile: string; staticElements: string }> => {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     const predefinedRatio = predefinedRatios.find(
       (ratio) => ratio.name === aspectRatio,
     );
@@ -322,15 +324,19 @@ export const generateFromCanvas = (
     let mask: string;
     let elements: string;
 
-    // Load the full canvas JSON
-    canvas.loadFromJSON(objCanvas, () => {
-      const allObjects = canvas.getObjects();
-      // Adjust objects to top-left corner and scale
-      allObjects.forEach((obj) => {
+    try {
 
-        const clone = fabric.util.object.clone(obj);
-        const clone_fixed_elements = fabric.util.object.clone(obj);
-        
+      await canvas.loadFromJSON(objCanvas);
+      const allObjects = canvas.getObjects();
+      let clone: fabric.Object;
+      let clone_fixed_elements: fabric.Object;
+
+      for (const single_obj of allObjects) {
+
+        clone = await single_obj.clone();
+        clone_fixed_elements = await single_obj.clone();
+        console.log(clone);
+
         clone.set({
           left: (clone.left - clipX),
           top: (clone.top - clipY),
@@ -345,69 +351,48 @@ export const generateFromCanvas = (
           scaleY: clone_fixed_elements.scaleY ,
         });
 
-        if(obj.type === "path")
+        if(single_obj.type === "path")
         {
           tmpPathCanvas.add(clone);
-          // mask = canvas.toDataURL();
-          // const link = document.createElement("a");
-          // link.href = mask
-          // link.download = "mask.png";
-          // document.body.appendChild(link);
-          // link.click();
-          // document.body.removeChild(link);
-          // canvas.clear();
         }
 
-        if(obj.type === "image")
+        if(single_obj.type === "image")
         {
           tmpImgCanvas.add(clone);
             // add object: keeps fixed image to not being modified
-            if(obj.img_view === "fixed")
+            if(single_obj.img_view === "fixed")
             {
               fixedImgCanvas.add(clone_fixed_elements);
             }
-          // image = canvas.toDataURL();
-          // const link = document.createElement("a");
-          // link.href = image
-          // link.download = "image.png";
-          // document.body.appendChild(link);
-          // link.click();
-          // document.body.removeChild(link);
-          // canvas.clear();
         }
-      });
-
-      tmpPathCanvas.renderAll();
-      const pathURL = tmpPathCanvas.toDataURL({
-        format: "png",
-        quality: 1,
-      });
-
-      mask = pathURL;
-
-      tmpImgCanvas.renderAll();
-      const imgURL = tmpImgCanvas.toDataURL({
-        format: "png",
-        quality: 1,
-      });
-
-      image = imgURL;
-
-      fixedImgCanvas.renderAll();
-      const fixedImages = fixedImgCanvas.toDataURL({
-        format: "png",
-        quality: 1,
-      });
-
-      elements = fixedImages;
-
-      if (!image) {
-        reject(new Error("Image generation failed"));
-        return;
       }
+          tmpPathCanvas.renderAll();
+          const pathURL = tmpPathCanvas.toDataURL({format: "png", quality: 1, multiplier:1});
+          mask = pathURL;
 
-      resolve({ targetMask: mask, targetFile: image, staticElements: elements });
-    });
+          tmpImgCanvas.renderAll();
+          const imgURL = tmpImgCanvas.toDataURL({format: "png", quality: 1, multiplier:1});
+
+          image = imgURL;
+
+          fixedImgCanvas.renderAll();
+          const fixedImages = fixedImgCanvas.toDataURL({format: "png", quality: 1, multiplier:1});
+
+          elements = fixedImages;
+
+      // Resolve with the required data
+      resolve({
+        targetMask: mask,
+        targetFile: image,
+        staticElements: elements,
+      });
+
+    } catch (error) {
+      console.error('Error loading canvas JSON or cloning objects:', error);
+      reject(error);
+    }
+
+
   });
 };
 
