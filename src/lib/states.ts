@@ -43,7 +43,12 @@ import {
   srcToFile,
   debugLog,
 } from "./utils";
-import inpaint, { renderImage, getGenInfo, postAdjustMask, runPlugin } from "./api";
+import inpaint, {
+  renderImage,
+  getGenInfo,
+  postAdjustMask,
+  runPlugin,
+} from "./api";
 import { toast } from "@/components/ui/use-toast";
 
 //
@@ -444,7 +449,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           settings,
           cropperState,
           extenderState,
-          userWindowWidth, 
+          userWindowWidth,
           userWindowHeight,
         } = get();
         if (isInpainting || file === null) {
@@ -506,7 +511,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           state.isInpainting = true;
         });
 
-        console.log("run inpainging")
+        console.log("run inpainging");
         // Generate mask and image separately
         const { targetMask, targetFile } = await generateFromCanvas(
           currCanvasGroups[currCanvasGroups.length - 1],
@@ -556,24 +561,15 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         });
       },
 
-      runImgRendering: async() => {
+      runImgRendering: async () => {
+        const { aspectRatio, userWindowWidth, userWindowHeight } = get();
 
-        const {
-          aspectRatio,
-          userWindowWidth, 
-          userWindowHeight,
-        } = get();
-
-        const {
-          prompt,
-          negativePrompt
-        } = get().settings;
+        const { prompt, negativePrompt } = get().settings;
 
         const {
           renders,
           currCanvasGroups, // added to support fabric js
         } = get().editorState;
-
 
         if (!prompt.trim()) {
           toast({
@@ -626,7 +622,6 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         //   state.isInpainting = false;
         //   state.editorState.temporaryMasks = [];
         // });
-
       },
 
       runRenderablePlugin: async (
@@ -730,7 +725,11 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         const stringData = JSON.stringify(jsonData);
         const id = Date.now() + "_" + Math.floor(Math.random() * 10000);
         const newElement = { id, data: stringData };
-        debugLog(LOG_LEVELS.DEBUG, "newElement data\n", JSON.parse(newElement.data));
+        debugLog(
+          LOG_LEVELS.DEBUG,
+          "newElement data\n",
+          JSON.parse(newElement.data),
+        );
         canvaGroup.push(newElement);
         set((state) => {
           state.editorState.currCanvasGroups = canvaGroup;

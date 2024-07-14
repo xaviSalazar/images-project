@@ -88,14 +88,10 @@ export const works: Artwork[] = [
 ];
 
 const LeftSidePanel = () => {
-  const [
-          runImgRendering,
-          windowSize
-        ] = useStore((state) => 
-        [
-          state.runImgRendering,
-          state.windowSize,
-        ]);
+  const [runImgRendering, windowSize] = useStore((state) => [
+    state.runImgRendering,
+    state.windowSize,
+  ]);
 
   const [open, toggleOpen] = useToggle(true);
 
@@ -189,9 +185,12 @@ const LeftSidePanel = () => {
             <WandSparkles /> MAGIC AI
           </MenubarTrigger>
           <MenubarContent>
-            <MenubarItem 
-              onClick={ () => { runImgRendering()} } >
-              Create image 
+            <MenubarItem
+              onClick={() => {
+                runImgRendering();
+              }}
+            >
+              Create image
             </MenubarItem>
           </MenubarContent>
         </MenubarMenu>

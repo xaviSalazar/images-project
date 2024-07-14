@@ -12,7 +12,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { useKeyPressEvent } from "react-use";
 import { IconButton } from "@/components/ui/button";
 
-
 import {
   Menubar,
   MenubarContent,
@@ -22,8 +21,7 @@ import {
   MenubarCheckboxItem,
   MenubarShortcut,
   MenubarTrigger,
-} from "@/components/ui/menubar-horizontal"
-
+} from "@/components/ui/menubar-horizontal";
 
 import {
   askWritePermission,
@@ -72,10 +70,9 @@ import {
   LOG_LEVELS,
 } from "@/lib/const";
 import { Toggle } from "@/components/ui/toggle";
-import * as fabric from 'fabric'; // v6
-import { FabricObject } from 'fabric'; // migration path
+import * as fabric from "fabric"; // v6
+import { FabricObject } from "fabric"; // migration path
 import { FabricImage } from "fabric";
-
 
 import {
   preload,
@@ -205,8 +202,12 @@ const Editor = React.forwardRef(() => {
 
   const roundToNearest64 = (value: number) => Math.floor(value / 64) * 64;
 
-  const [compatibleWidth, setCompatibleWidth] =  useState<number> (roundToNearest64(windowSize.width))
-  const [compatibleHeight, setCompatibleHeight] =  useState<number> (roundToNearest64(windowSize.height))
+  const [compatibleWidth, setCompatibleWidth] = useState<number>(
+    roundToNearest64(windowSize.width),
+  );
+  const [compatibleHeight, setCompatibleHeight] = useState<number>(
+    roundToNearest64(windowSize.height),
+  );
 
   const [isDraging, setIsDraging] = useState(false);
 
@@ -214,8 +215,7 @@ const Editor = React.forwardRef(() => {
   const [isChangingBrushSizeByWheel, setIsChangingBrushSizeByWheel] =
     useState<boolean>(false);
 
-  const prevAspectRatio = useRef('nothing');
-
+  const prevAspectRatio = useRef("nothing");
 
   // crop
   const lastActiveObject = useRef<fabric.Object | null>(null);
@@ -378,7 +378,6 @@ const Editor = React.forwardRef(() => {
     // Create a new fabric image from the cropped canvas
     const croppedDataUrl = offScreenCanvas.toDataURL();
     FabricImage.fromURL(croppedDataUrl).then((croppedImage) => {
-
       croppedImage.set({
         left: rectCrop.left,
         top: rectCrop.top,
@@ -394,7 +393,7 @@ const Editor = React.forwardRef(() => {
       canvas.add(croppedImage);
       canvas.setActiveObject(croppedImage);
       canvas.renderAll();
-    })
+    });
 
     // Reset the crop state
     isCropping.current = false;
@@ -405,8 +404,10 @@ const Editor = React.forwardRef(() => {
 
   useEffect(() => {
     const initMainCanvas = (): fabric.Canvas => {
-
-      updateAppState({ userWindowWidth: compatibleWidth, userWindowHeight: compatibleHeight});
+      updateAppState({
+        userWindowWidth: compatibleWidth,
+        userWindowHeight: compatibleHeight,
+      });
 
       return new fabric.Canvas(canvasRef.current, {
         width: compatibleWidth,
@@ -429,29 +430,39 @@ const Editor = React.forwardRef(() => {
 
     // Extend fabric.Object to include custom properties in serialization
     const originalToObject = fabric.FabricObject.prototype.toObject;
-    const myAdditional = ['img_view'];
-    fabric.FabricObject.prototype.toObject = function (additionalProperties = []) {
-      return originalToObject.call(this, [...myAdditional, ...additionalProperties]);
+    const myAdditional = ["img_view"];
+    fabric.FabricObject.prototype.toObject = function (
+      additionalProperties = [],
+    ) {
+      return originalToObject.call(this, [
+        ...myAdditional,
+        ...additionalProperties,
+      ]);
     };
 
-    fabric.Canvas.prototype.getAbsoluteCoords = function(object) {
+    fabric.Canvas.prototype.getAbsoluteCoords = function (object) {
       return {
         left: object.left,
-        top:  object.top
+        top: object.top,
       };
     };
-      
-      function positionBtn(obj) {
-        const btnContainer = document.getElementById('button-container');
-        if (!btnContainer) return;
-        const zoom = fabricRef.current.getZoom();
-        const viewportTransform = fabricRef.current.viewportTransform;
-        const absCoords = fabricRef.current.getAbsoluteCoords(obj);
-        const left = (absCoords.left + (obj.width * obj.scaleX) / 2) * zoom + viewportTransform[4] - 150
-        const top = (absCoords.top - (obj.height * obj.scaleY) / 2) * zoom + viewportTransform[5]
-        setButtonPosition({ left, top });
-        setButtonVisible(true);
-      }
+
+    function positionBtn(obj) {
+      const btnContainer = document.getElementById("button-container");
+      if (!btnContainer) return;
+      const zoom = fabricRef.current.getZoom();
+      const viewportTransform = fabricRef.current.viewportTransform;
+      const absCoords = fabricRef.current.getAbsoluteCoords(obj);
+      const left =
+        (absCoords.left + (obj.width * obj.scaleX) / 2) * zoom +
+        viewportTransform[4] -
+        150;
+      const top =
+        (absCoords.top - (obj.height * obj.scaleY) / 2) * zoom +
+        viewportTransform[5];
+      setButtonPosition({ left, top });
+      setButtonVisible(true);
+    }
 
     // Activate drawing mode for mask overlay
     if (fabricRef.current) {
@@ -483,20 +494,20 @@ const Editor = React.forwardRef(() => {
 
     fabricRef.current?.on("mouse:move", panCanvas);
 
-    fabricRef.current?.on('selection:updated', function(e) {
+    fabricRef.current?.on("selection:updated", function (e) {
       positionBtn(e.selected[0]);
     });
 
-    fabricRef.current?.on('selection:created', function(e) {
+    fabricRef.current?.on("selection:created", function (e) {
       positionBtn(e.selected[0]);
     });
 
-    fabricRef.current?.on('object:moving', function(e) {
-      setButtonVisible(false)
+    fabricRef.current?.on("object:moving", function (e) {
+      setButtonVisible(false);
     });
 
-    fabricRef.current?.on('selection:cleared', function() {
-      setButtonVisible(false)
+    fabricRef.current?.on("selection:cleared", function () {
+      setButtonVisible(false);
     });
 
     fabricRef.current?.on("path:created", () => {
@@ -505,7 +516,7 @@ const Editor = React.forwardRef(() => {
 
     fabricRef.current?.on("object:modified", () => {
       saveState();
-    })
+    });
 
     fabricRef.current?.on("mouse:wheel", function (opt) {
       const delta = opt.e.deltaY;
@@ -518,7 +529,7 @@ const Editor = React.forwardRef(() => {
         zoom,
       );
 
-      setButtonVisible(false)
+      setButtonVisible(false);
       opt.e.preventDefault();
       opt.e.stopPropagation();
     });
@@ -538,59 +549,73 @@ const Editor = React.forwardRef(() => {
         fabricRef.current.off("after:render", afterRenderCallback);
       }
     };
-
   }, [aspectRatio]);
 
-  const afterRenderCallback = useCallback((e) => {
-    const canvas_instance = fabricRef.current;
-    const { ctx } = e;
-    const fillStyle = "rgba(0, 0, 0, 0.7)";
-    const width = canvas_instance?.width ?? 0;
-    const height = canvas_instance?.height ?? 0;
+  const afterRenderCallback = useCallback(
+    (e) => {
+      const canvas_instance = fabricRef.current;
+      const { ctx } = e;
+      const fillStyle = "rgba(0, 0, 0, 0.7)";
+      const width = canvas_instance?.width ?? 0;
+      const height = canvas_instance?.height ?? 0;
 
-    if (ctx) {
-      ctx.save();
-      // Clear only the specific area where the dark overlay was applied
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.lineTo(width, 0);
-      ctx.lineTo(width, height);
-      ctx.lineTo(0, height);
-      ctx.lineTo(0, 0);
-      // Apply the viewport transformation
-      ctx.transform.apply(ctx, Array.from(canvas_instance.viewportTransform));
+      if (ctx) {
+        ctx.save();
+        // Clear only the specific area where the dark overlay was applied
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(width, 0);
+        ctx.lineTo(width, height);
+        ctx.lineTo(0, height);
+        ctx.lineTo(0, 0);
+        // Apply the viewport transformation
+        ctx.transform.apply(ctx, Array.from(canvas_instance.viewportTransform));
 
-      // Adjust clipping area based on the aspect ratio
-      let clipWidth, clipHeight
+        // Adjust clipping area based on the aspect ratio
+        let clipWidth, clipHeight;
 
-      const ratioObject = predefinedRatios.find(ratio => ratio.name === aspectRatio);
+        const ratioObject = predefinedRatios.find(
+          (ratio) => ratio.name === aspectRatio,
+        );
 
-      if (ratioObject) {
-        debugLog(LOG_LEVELS.DEBUG, "choosed Ratio\n", ratioObject )
-        const { width: ratioWidth, height: ratioHeight } = ratioObject;
-        clipWidth = ratioWidth;
-        clipHeight = ratioHeight;
+        if (ratioObject) {
+          debugLog(LOG_LEVELS.DEBUG, "choosed Ratio\n", ratioObject);
+          const { width: ratioWidth, height: ratioHeight } = ratioObject;
+          clipWidth = ratioWidth;
+          clipHeight = ratioHeight;
+        }
+
+        const clipX = Math.floor((width - clipWidth) / 2);
+        const clipY = Math.floor((height - clipHeight) / 2);
+
+        debugLog(LOG_LEVELS.DEBUG, " <<user canvas window>>  width, heigth ", [
+          canvas_instance.width,
+          canvas_instance.height,
+        ]);
+        debugLog(LOG_LEVELS.DEBUG, "<<user choosedWidth, choosedHeigth>> ", [
+          clipWidth,
+          clipHeight,
+        ]);
+        debugLog(
+          LOG_LEVELS.DEBUG,
+          "<<user transf canvas  matrix>>\n",
+          canvas_instance.viewportTransform,
+        );
+
+        updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
+
+        ctx.moveTo(clipX, clipY);
+        ctx.lineTo(clipX, clipY + clipHeight);
+        ctx.lineTo(clipX + clipWidth, clipY + clipHeight);
+        ctx.lineTo(clipX + clipWidth, clipY);
+        ctx.closePath();
+        ctx.fillStyle = fillStyle;
+        ctx.fill();
+        ctx.restore();
       }
-
-      const clipX = Math.floor((width - clipWidth) / 2);
-      const clipY = Math.floor((height - clipHeight) / 2);
-
-      debugLog(LOG_LEVELS.DEBUG, " <<user canvas window>>  width, heigth ", [canvas_instance.width,canvas_instance.height] )
-      debugLog(LOG_LEVELS.DEBUG, "<<user choosedWidth, choosedHeigth>> ", [clipWidth,clipHeight])
-      debugLog(LOG_LEVELS.DEBUG, "<<user transf canvas  matrix>>\n", canvas_instance.viewportTransform)
-
-      updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight});
-
-      ctx.moveTo(clipX, clipY);
-      ctx.lineTo(clipX, clipY + clipHeight);
-      ctx.lineTo(clipX + clipWidth, clipY + clipHeight);
-      ctx.lineTo(clipX + clipWidth, clipY);
-      ctx.closePath();
-      ctx.fillStyle = fillStyle;
-      ctx.fill();
-      ctx.restore();
-    }
-  }, [aspectRatio]);
+    },
+    [aspectRatio],
+  );
 
   const stopPanning = useCallback((opt: fabric.TEvent<MouseEvent>) => {
     if (isMidClick(opt)) {
@@ -623,20 +648,19 @@ const Editor = React.forwardRef(() => {
     [fabricRef.current],
   );
 
-// COMING RENDERS FROM BACKEND
+  // COMING RENDERS FROM BACKEND
   useEffect(() => {
-
     const render = renders[renders.length - 1];
 
     if (!fabricRef.current || !render) return;
 
-    debugLog(LOG_LEVELS.DEBUG,"renddeers", render)
+    debugLog(LOG_LEVELS.DEBUG, "renddeers", render);
 
     const scaledImage = new FabricImage(render, {
       scaleX: 1,
       scaleY: 1,
-      originX: 'center',
-      originY: 'center'
+      originX: "center",
+      originY: "center",
     });
 
     const canvasWidth = fabricRef.current.width ?? 0;
@@ -646,7 +670,7 @@ const Editor = React.forwardRef(() => {
     const centerY = canvasHeight / 2;
 
     scaledImage.set({
-      left: centerX ,
+      left: centerX,
       top: centerY,
     });
     // Clear the canvas
@@ -655,7 +679,6 @@ const Editor = React.forwardRef(() => {
     fabricRef.current.renderAll();
 
     handleSaveState(fabricRef.current);
-
   }, [renders]);
 
   // REDO / UNDO ACTION
@@ -1018,7 +1041,7 @@ const Editor = React.forwardRef(() => {
   //   }
   // };
 
-  const handleDownload = async (source : string) => {
+  const handleDownload = async (source: string) => {
     const predefinedRatio = predefinedRatios.find(
       (ratio) => ratio.name === aspectRatio,
     );
@@ -1050,8 +1073,7 @@ const Editor = React.forwardRef(() => {
         scaleX: clone.scaleX * scaleX,
         scaleY: clone.scaleY * scaleY,
       });
-      if(single_obj.type === source)
-        tempCanvas.add(clone);
+      if (single_obj.type === source) tempCanvas.add(clone);
     }
 
     tempCanvas.renderAll();
@@ -1068,7 +1090,6 @@ const Editor = React.forwardRef(() => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
   };
 
   useHotKey("meta+s,ctrl+s", handleDownload);
@@ -1081,48 +1102,44 @@ const Editor = React.forwardRef(() => {
   };
 
   const handleCopy = () => {
-    const canvas_instance = fabricRef.current
-    if(!canvas_instance) return;
+    const canvas_instance = fabricRef.current;
+    if (!canvas_instance) return;
     const target = canvas_instance.getActiveObject();
-    if (target)
-    {
-      target.clone().then( (cloned:FabricObject) => 
-        {
-          cloned.left += 100;
-          cloned.top += 100;
-          canvas_instance.add(cloned);
-        }
-      )
+    if (target) {
+      target.clone().then((cloned: FabricObject) => {
+        cloned.left += 100;
+        cloned.top += 100;
+        canvas_instance.add(cloned);
+      });
     }
   };
 
   const handleCut = () => {
-    const canvas_instance = fabricRef.current
-    if(!canvas_instance) return;
+    const canvas_instance = fabricRef.current;
+    if (!canvas_instance) return;
 
-      if (isCropping.current) {
-        isCropping.current = false;
-        console.log("crop img")
-        return cropImage();
-      }
-  
-      isCropping.current = true;
-      const target = canvas_instance.getActiveObject(); // object
-      if(target)
-      {
+    if (isCropping.current) {
+      isCropping.current = false;
+      console.log("crop img");
+      return cropImage();
+    }
+
+    isCropping.current = true;
+    const target = canvas_instance.getActiveObject(); // object
+    if (target) {
       const canvas = target.canvas;
-  
+
       const activeObject = canvas?.getActiveObject();
       if (!activeObject || !canvas) return;
-  
+
       // Calculate the maximum width and height for the crop rectangle
       const maxWidth = activeObject.width * activeObject.scaleX;
       const maxHeight = activeObject.height * activeObject.scaleY;
-  
+
       // Calculate initial dimensions of the crop rectangle
       let width = maxWidth * 0.5;
       let height = maxHeight * 0.5;
-  
+
       const rectangle = new fabric.Rect({
         fill: "rgba(0,0,0,0.3)",
         originX: "center",
@@ -1141,25 +1158,24 @@ const Editor = React.forwardRef(() => {
         lockMovementX: true,
         lockMovementY: true,
       });
-  
+
       // Save selected image and rectangle
       lastActiveObject.current = activeObject;
       rectangleCut.current = rectangle;
-  
+
       canvas.add(rectangle);
       canvas.setActiveObject(rectangle);
     }
   };
 
   const handleDelete = () => {
-      const canvas_instance = fabricRef.current
-      if(!canvas_instance) return;
-      const target = canvas_instance.getActiveObject();
-      if (target)
-      {
-        canvas_instance?.remove(target);
-        canvas_instance?.requestRenderAll();
-      }
+    const canvas_instance = fabricRef.current;
+    if (!canvas_instance) return;
+    const target = canvas_instance.getActiveObject();
+    if (target) {
+      canvas_instance?.remove(target);
+      canvas_instance?.requestRenderAll();
+    }
   };
 
   const [isFixed, setIsFixed] = useState(false);
@@ -1170,9 +1186,9 @@ const Editor = React.forwardRef(() => {
     if (!canvas_instance) return;
     const target = canvas_instance.getActiveObject();
     if (target) {
-      console.log(target.img_view)
-      setIsFixed(target.img_view === 'fixed');
-      setIsModify(target.img_view === 'modify');
+      console.log(target.img_view);
+      setIsFixed(target.img_view === "fixed");
+      setIsModify(target.img_view === "modify");
     }
   };
 
@@ -1181,7 +1197,7 @@ const Editor = React.forwardRef(() => {
     if (!canvas_instance) return;
     const target = canvas_instance.getActiveObject();
     if (target) {
-      target.img_view = 'modify';
+      target.img_view = "modify";
       setIsFixed(false);
       setIsModify(true);
       saveState();
@@ -1194,7 +1210,7 @@ const Editor = React.forwardRef(() => {
     if (!canvas_instance) return;
     const target = canvas_instance.getActiveObject();
     if (target) {
-      target.img_view = 'fixed';
+      target.img_view = "fixed";
       setIsFixed(true);
       setIsModify(false);
       saveState();
@@ -1233,55 +1249,80 @@ const Editor = React.forwardRef(() => {
       className="flex w-screen h-screen justify-center items-center"
       aria-hidden="true"
     >
-        <Menubar
-                 id="button-container"
-                 style={{
-                   position: 'absolute',
-                   left: buttonPosition.left,
-                   top: buttonPosition.top,
-                   display: buttonVisible ? 'flex' : 'none', // Toggle visibility
-                   zIndex: 9999,
-                 }}           
-        >
+      <Menubar
+        id="button-container"
+        style={{
+          position: "absolute",
+          left: buttonPosition.left,
+          top: buttonPosition.top,
+          display: buttonVisible ? "flex" : "none", // Toggle visibility
+          zIndex: 9999,
+        }}
+      >
         <MenubarMenu>
           <MenubarTrigger>Edit</MenubarTrigger>
           <MenubarContent>
             <MenubarItem onClick={handleCopy}>
-              Copy <MenubarShortcut><Copy /></MenubarShortcut>
-            </MenubarItem >
+              Copy{" "}
+              <MenubarShortcut>
+                <Copy />
+              </MenubarShortcut>
+            </MenubarItem>
             <MenubarItem onClick={handleCut}>
-              Cut <MenubarShortcut><Scissors/></MenubarShortcut>
+              Cut{" "}
+              <MenubarShortcut>
+                <Scissors />
+              </MenubarShortcut>
             </MenubarItem>
             <MenubarItem onClick={handleDelete}>
-              Delete <MenubarShortcut> <Trash2/> </MenubarShortcut>
+              Delete{" "}
+              <MenubarShortcut>
+                {" "}
+                <Trash2 />{" "}
+              </MenubarShortcut>
             </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
 
-        
         <MenubarMenu>
           <MenubarTrigger>Layer</MenubarTrigger>
           <MenubarContent>
             <MenubarItem onClick={() => handleLayoutControl("toFront")}>
-            toFront <MenubarShortcut><ArrowUpIcon className="h-4 w-4"/></MenubarShortcut>
-            </MenubarItem >
+              toFront{" "}
+              <MenubarShortcut>
+                <ArrowUpIcon className="h-4 w-4" />
+              </MenubarShortcut>
+            </MenubarItem>
             <MenubarItem onClick={() => handleLayoutControl("toBack")}>
-            toBack <MenubarShortcut><ArrowDownIcon className="h-4 w-4"/></MenubarShortcut>
+              toBack{" "}
+              <MenubarShortcut>
+                <ArrowDownIcon className="h-4 w-4" />
+              </MenubarShortcut>
             </MenubarItem>
             <MenubarItem onClick={() => handleLayoutControl("toForward")}>
-            toForward <MenubarShortcut> <DoubleArrowUpIcon className="h-4 w-4"/> </MenubarShortcut>
+              toForward{" "}
+              <MenubarShortcut>
+                {" "}
+                <DoubleArrowUpIcon className="h-4 w-4" />{" "}
+              </MenubarShortcut>
             </MenubarItem>
             <MenubarItem onClick={() => handleLayoutControl("toBackward")}>
-            toBackward <MenubarShortcut> <DoubleArrowDownIcon className="h-4 w-4"/> </MenubarShortcut>
+              toBackward{" "}
+              <MenubarShortcut>
+                {" "}
+                <DoubleArrowDownIcon className="h-4 w-4" />{" "}
+              </MenubarShortcut>
             </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
 
-        
         <MenubarMenu>
           <MenubarTrigger onClick={handleViewMenuOpen}>View</MenubarTrigger>
           <MenubarContent>
-            <MenubarCheckboxItem checked={isFixed} onClick={handleStayFixedClick}>
+            <MenubarCheckboxItem
+              checked={isFixed}
+              onClick={handleStayFixedClick}
+            >
               Stay fixed
             </MenubarCheckboxItem>
             <MenubarCheckboxItem checked={isModify} onClick={handleModifyClick}>
@@ -1359,7 +1400,9 @@ const Editor = React.forwardRef(() => {
             //   download("image");
             //   download("path")
             // }}
-            onClick={() => { handleDownload("image")} }
+            onClick={() => {
+              handleDownload("image");
+            }}
           >
             <Download />
           </IconButton>

@@ -20,7 +20,6 @@ const PromptInput = () => {
     state.hidePrevMask,
   ]);
 
-
   const prompt = useStore((state) => state.settings.prompt);
 
   const [showScroll, toggleShowScroll] = useToggle(false);

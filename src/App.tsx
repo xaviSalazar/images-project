@@ -128,36 +128,47 @@ function Home() {
       const canvasWidth = fabricRef.current.width ?? 0;
       const canvasHeight = fabricRef.current.height ?? 0;
       const imageWidth = image?.width ?? 1;
-      const imageHeight = image?.height ?? 1; 
+      const imageHeight = image?.height ?? 1;
 
-      const scaleX = (scaledWidth) / imageWidth;
-      const scaleY = (scaledHeight) / imageHeight;
-    // Calculate integer scale factor
-    const integerScale = Math.floor(Math.min(scaleX, scaleY) * 100) / 100;
+      const scaleX = scaledWidth / imageWidth;
+      const scaleY = scaledHeight / imageHeight;
+      // Calculate integer scale factor
+      const integerScale = Math.floor(Math.min(scaleX, scaleY) * 100) / 100;
 
-    // Scale the image with integer scale factor
-    const scaledImage = new FabricImage(image, {
-      scaleX: integerScale,
-      scaleY: integerScale,
-      originX: 'center',
-      originY: 'center'
-    });
-    // Position the scaled image at the center of the canvas
-    const centerX = canvasWidth / 2;
-    const centerY = canvasHeight / 2;
+      // Scale the image with integer scale factor
+      const scaledImage = new FabricImage(image, {
+        scaleX: integerScale,
+        scaleY: integerScale,
+        originX: "center",
+        originY: "center",
+      });
+      // Position the scaled image at the center of the canvas
+      const centerX = canvasWidth / 2;
+      const centerY = canvasHeight / 2;
 
-    scaledImage.set({
-      left: centerX ,
-      top: centerY,
-      img_view: "modify", // created custom property in object
-    });
+      scaledImage.set({
+        left: centerX,
+        top: centerY,
+        img_view: "modify", // created custom property in object
+      });
 
       // add image
       fabricRef.current.add(scaledImage);
-      debugLog(LOG_LEVELS.DEBUG, "imageWidth, imageHeigth", [imageWidth, imageHeight] )
-      debugLog(LOG_LEVELS.DEBUG, "img scale added", integerScale )
-      debugLog(LOG_LEVELS.DEBUG, "img canvas plane Matrix Transf\n",scaledImage.calcTransformMatrix() )
-      debugLog(LOG_LEVELS.DEBUG, "img Object plane Matrix Transf\n",scaledImage.calcOwnMatrix() )
+      debugLog(LOG_LEVELS.DEBUG, "imageWidth, imageHeigth", [
+        imageWidth,
+        imageHeight,
+      ]);
+      debugLog(LOG_LEVELS.DEBUG, "img scale added", integerScale);
+      debugLog(
+        LOG_LEVELS.DEBUG,
+        "img canvas plane Matrix Transf\n",
+        scaledImage.calcTransformMatrix(),
+      );
+      debugLog(
+        LOG_LEVELS.DEBUG,
+        "img Object plane Matrix Transf\n",
+        scaledImage.calcOwnMatrix(),
+      );
 
       // fabricRef.current.renderAll();
       handleSaveState(fabricRef.current);

@@ -20,7 +20,7 @@ export const KANDINSKY_2_2 =
 export const POWERPAINT = "Sanster/PowerPaint-V1-stable-diffusion-inpainting";
 export const ANYTEXT = "Sanster/AnyText";
 
-export const DEFAULT_POSITIVE_PROMPT = 
+export const DEFAULT_POSITIVE_PROMPT =
   "Lush, vibrant Amazon rainforest at golden hour, showcasing an elegant cosmetic product elegantly positioned on a natural rock amidst exotic flowers using cream colors. Ultra-high definition 4K resolution, capturing breathtaking details with a crystal-clear, cinematic quality. Focus on achieving a serene, tranquil atmosphere that highlights the product’s harmony with nature, ensuring a realistic, highly detailed background that complements the product beautifully without any digital distortion";
 export const DEFAULT_NEGATIVE_PROMPT =
   "Exclude pixelation, compression artifacts, noisy backgrounds, visual clutter, unrelated objects, figures, animals, dark or ominous elements, and unnatural colors. No watermarks, branding, or identifying marks not related to the product. Background should be free from distractions, focusing solely on the product, without any visual noise like glitches, jpeg artifacts, or chromatic aberration";
