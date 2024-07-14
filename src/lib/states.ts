@@ -26,6 +26,7 @@ import { paintByExampleConfig } from "./models";
 import {
   BRUSH_COLOR,
   DEFAULT_BRUSH_SIZE,
+  DEFAULT_POSITIVE_PROMPT,
   DEFAULT_NEGATIVE_PROMPT,
   MAX_BRUSH_SIZE,
   MODEL_TYPE_INPAINT,
@@ -42,7 +43,7 @@ import {
   srcToFile,
   debugLog,
 } from "./utils";
-import inpaint, { getGenInfo, postAdjustMask, runPlugin } from "./api";
+import inpaint, { renderImage, getGenInfo, postAdjustMask, runPlugin } from "./api";
 import { toast } from "@/components/ui/use-toast";
 
 //
@@ -350,7 +351,7 @@ const defaultValues: AppState = {
     zitsWireframe: true,
     cv2Radius: 5,
     cv2Flag: CV2Flag.INPAINT_NS,
-    prompt: "",
+    prompt: DEFAULT_POSITIVE_PROMPT,
     negativePrompt: DEFAULT_NEGATIVE_PROMPT,
     seed: 42,
     seedFixed: false,
@@ -564,54 +565,61 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         } = get();
 
         const {
+          prompt,
+          negativePrompt
+        } = get().settings;
+
+        const {
+          renders,
           currCanvasGroups, // added to support fabric js
         } = get().editorState;
 
-        const { targetMask, targetFile, staticElements } = await generateFromCanvas(
+
+        if (!prompt.trim()) {
+          toast({
+            variant: "destructive",
+            title: "Uh oh! Something went wrong.",
+            description: "Please write a prompt",
+          });
+          return;
+        }
+
+        const { targetFile, staticElements } = await generateFromCanvas(
           currCanvasGroups[currCanvasGroups.length - 1],
           aspectRatio,
           userWindowWidth,
           userWindowHeight,
         );
 
-        // retrieve mask, target whole image and elements
-        console.log(targetMask)
-        console.log(targetFile)
-        console.log(staticElements)
-
-        // try {
-        //   const res = await inpaint(
-        //     dataURItoBlob(targetFile),
-        //     settings,
-        //     cropperState,
-        //     extenderState,
-        //     dataURItoBlob(targetMask),
-        //     paintByExampleFile,
-        //     modelToCall,
-        //   );
-
-        //   const { blob, seed } = res;
-        //   if (seed) {
-        //     get().setSeed(parseInt(seed, 10));
-        //   }
-        //   const newRender = new Image();
-        //   await loadImage(newRender, blob);
-        //   const newRenders = [...renders, newRender];
-        //   get().setImageSize(newRender.width, newRender.height);
-        //   get().updateEditorState({
-        //     renders: newRenders,
-        //     lineGroups: newLineGroups,
-        //     lastLineGroup: maskLineGroup,
-        //     curLineGroup: [],
-        //     extraMasks: [],
-        //     prevExtraMasks: maskImages,
-        //   });
-        // } catch (e: any) {
-        //   toast({
-        //     variant: "destructive",
-        //     description: e.message ? e.message : e.toString(),
-        //   });
-        // }
+        try {
+          const res = await renderImage(
+            dataURItoBlob(targetFile),
+            dataURItoBlob(staticElements),
+            prompt,
+            negativePrompt,
+          );
+          const { blob, seed } = res;
+          if (seed) {
+            get().setSeed(parseInt(seed, 10));
+          }
+          const newRender = new Image();
+          await loadImage(newRender, blob);
+          const newRenders = [...renders, newRender];
+          get().setImageSize(newRender.width, newRender.height);
+          get().updateEditorState({
+            renders: newRenders,
+            // lineGroups: newLineGroups,
+            // lastLineGroup: maskLineGroup,
+            // curLineGroup: [],
+            // extraMasks: [],
+            // prevExtraMasks: maskImages,
+          });
+        } catch (e: any) {
+          toast({
+            variant: "destructive",
+            description: e.message ? e.message : e.toString(),
+          });
+        }
 
         // get().resetRedoState();
         // set((state) => {

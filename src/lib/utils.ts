@@ -6,8 +6,7 @@ import { BRUSH_COLOR } from "./const";
 import { LOG_LEVELS } from "./const";
 import { predefinedRatios } from "@/lib/const";
 import * as fabric from 'fabric'; // v6
-import { FabricObject } from 'fabric'; // migration path
-
+import { toast } from "@/components/ui/use-toast";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -282,112 +281,119 @@ export const generateFromCanvas = async (
   userWindowHeight: number,
 ): Promise<{ targetMask: string; targetFile: string; staticElements: string }> => {
   return new Promise(async (resolve, reject) => {
-    const predefinedRatio = predefinedRatios.find(
-      (ratio) => ratio.name === aspectRatio,
-    );
-    if (!predefinedRatio) {
-      console.error("Invalid aspect ratio");
-      reject(new Error("Invalid aspect ratio"));
-      return;
-    }
-
-    const { width: outputWidth, height: outputHeight } = predefinedRatio;
-
-    const canvas = new fabric.Canvas(null);
-    // to save any drawn path 
-    const tmpPathCanvas = new fabric.Canvas(null, {
-      width: outputWidth,
-      height: outputHeight,
-    });
-    // to store images only
-    const tmpImgCanvas = new fabric.Canvas(null, {
-      width: outputWidth,
-      height: outputHeight,
-    });
-
-    const fixedImgCanvas = new fabric.Canvas(null, {
-      width: outputWidth,
-      height: outputHeight,
-    });
-
-    const objCanvas = JSON.parse(canvasObject.data);
-    console.log(objCanvas)
-    // Retrieve original canvas dimensions from JSON
-
-    const clipX = (userWindowWidth - outputWidth) / 2;
-    const clipY = (userWindowHeight - outputHeight) / 2;
-    // Set canvas dimensions based on output width and height
-    canvas.setWidth(outputWidth);
-    canvas.setHeight(outputHeight);
-
-    let image: string;
-    let mask: string;
-    let elements: string;
-
     try {
 
-      await canvas.loadFromJSON(objCanvas);
-      const allObjects = canvas.getObjects();
-      let clone: fabric.Object;
-      let clone_fixed_elements: fabric.Object;
-
-      for (const single_obj of allObjects) {
-
-        clone = await single_obj.clone();
-        clone_fixed_elements = await single_obj.clone();
-        console.log(clone);
-
-        clone.set({
-          left: (clone.left - clipX),
-          top: (clone.top - clipY),
-          scaleX: clone.scaleX ,
-          scaleY: clone.scaleY ,
-        });
-
-        clone_fixed_elements.set({
-          left: (clone_fixed_elements.left - clipX),
-          top: (clone_fixed_elements.top - clipY),
-          scaleX: clone_fixed_elements.scaleX ,
-          scaleY: clone_fixed_elements.scaleY ,
-        });
-
-        if(single_obj.type === "path")
-        {
-          tmpPathCanvas.add(clone);
-        }
-
-        if(single_obj.type === "image")
-        {
-          tmpImgCanvas.add(clone);
-            // add object: keeps fixed image to not being modified
-            if(single_obj.img_view === "fixed")
-            {
-              fixedImgCanvas.add(clone_fixed_elements);
-            }
-        }
+      const predefinedRatio = predefinedRatios.find(
+        (ratio) => ratio.name === aspectRatio,
+      );
+      if (!predefinedRatio) {
+        console.error("Invalid aspect ratio");
+        reject(new Error("Invalid aspect ratio"));
+        return;
       }
-          tmpPathCanvas.renderAll();
-          const pathURL = tmpPathCanvas.toDataURL({format: "png", quality: 1, multiplier:1});
-          mask = pathURL;
 
-          tmpImgCanvas.renderAll();
-          const imgURL = tmpImgCanvas.toDataURL({format: "png", quality: 1, multiplier:1});
+      const { width: outputWidth, height: outputHeight } = predefinedRatio;
 
-          image = imgURL;
-
-          fixedImgCanvas.renderAll();
-          const fixedImages = fixedImgCanvas.toDataURL({format: "png", quality: 1, multiplier:1});
-
-          elements = fixedImages;
-
-      // Resolve with the required data
-      resolve({
-        targetMask: mask,
-        targetFile: image,
-        staticElements: elements,
+      const canvas = new fabric.Canvas(null);
+      // to save any drawn path 
+      const tmpPathCanvas = new fabric.Canvas(null, {
+        width: outputWidth,
+        height: outputHeight,
+      });
+      // to store images only
+      const tmpImgCanvas = new fabric.Canvas(null, {
+        width: outputWidth,
+        height: outputHeight,
       });
 
+      const fixedImgCanvas = new fabric.Canvas(null, {
+        width: outputWidth,
+        height: outputHeight,
+      });
+
+      const objCanvas = JSON.parse(canvasObject.data);
+      console.log(objCanvas)
+      // Retrieve original canvas dimensions from JSON
+
+      const clipX = (userWindowWidth - outputWidth) / 2;
+      const clipY = (userWindowHeight - outputHeight) / 2;
+      // Set canvas dimensions based on output width and height
+      canvas.setWidth(outputWidth);
+      canvas.setHeight(outputHeight);
+
+      let image: string;
+      let mask: string;
+      let elements: string;
+
+
+
+        await canvas.loadFromJSON(objCanvas);
+        const allObjects = canvas.getObjects();
+        let clone: fabric.Object;
+        let clone_fixed_elements: fabric.Object;
+
+        for (const single_obj of allObjects) {
+
+          clone = await single_obj.clone();
+          clone_fixed_elements = await single_obj.clone();
+          console.log(clone);
+
+          clone.set({
+            left: (clone.left - clipX),
+            top: (clone.top - clipY),
+            scaleX: clone.scaleX ,
+            scaleY: clone.scaleY ,
+          });
+
+          clone_fixed_elements.set({
+            left: (clone_fixed_elements.left - clipX),
+            top: (clone_fixed_elements.top - clipY),
+            scaleX: clone_fixed_elements.scaleX ,
+            scaleY: clone_fixed_elements.scaleY ,
+          });
+
+          if(single_obj.type === "path")
+          {
+            tmpPathCanvas.add(clone);
+          }
+
+          if(single_obj.type === "image")
+          {
+            tmpImgCanvas.add(clone);
+              // add object: keeps fixed image to not being modified
+              if(single_obj.img_view === "fixed")
+              {
+                fixedImgCanvas.add(clone_fixed_elements);
+              }
+          }
+        }
+            tmpPathCanvas.renderAll();
+            const pathURL = tmpPathCanvas.toDataURL({format: "png", quality: 1, multiplier:1});
+            mask = pathURL;
+
+            tmpImgCanvas.renderAll();
+            const imgURL = tmpImgCanvas.toDataURL({format: "png", quality: 1, multiplier:1});
+
+            image = imgURL;
+
+            fixedImgCanvas.renderAll();
+            const fixedImages = fixedImgCanvas.toDataURL({format: "png", quality: 1, multiplier:1});
+
+            elements = fixedImages;
+
+        // Resolve with the required data
+        resolve({
+          targetMask: mask,
+          targetFile: image,
+          staticElements: elements,
+        });
+
     } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: `Check your drawing canvas`,
+      });
       console.error('Error loading canvas JSON or cloning objects:', error);
       reject(error);
     }

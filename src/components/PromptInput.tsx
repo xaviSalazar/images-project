@@ -8,19 +8,20 @@ import { cn } from "@/lib/utils";
 const PromptInput = () => {
   const [
     isProcessing,
-    prompt,
     updateSettings,
     runInpainting,
     showPrevMask,
     hidePrevMask,
   ] = useStore((state) => [
     state.getIsProcessing(),
-    state.settings.prompt,
     state.updateSettings,
     state.runInpainting,
     state.showPrevMask,
     state.hidePrevMask,
   ]);
+
+
+  const prompt = useStore((state) => state.settings.prompt);
 
   const [showScroll, toggleShowScroll] = useToggle(false);
 

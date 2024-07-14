@@ -16,11 +16,55 @@ import {
 import axios from "axios";
 
 export const API_ENDPOINT = import.meta.env.VITE_BACKEND;
+export const API_ENDPOINT_RENDER_IMAGE =  import.meta.env.VITE_BACKEND_RENDER_IMAGE
 export const TOKEN = import.meta.env.VITE_RUNPOD;
 
 const api = axios.create({
   baseURL: API_ENDPOINT,
 });
+
+export async function renderImage(
+  imageFile: File | Blob,
+  imageObjects: File | Blob,
+  prompt_positive: string,
+  prompt_negative: string,
+) {
+  const imageBase64 = await convertToBase64(imageFile);
+  const objectsBase64 = await convertToBase64(imageObjects);
+
+  const res = await fetch (`${API_ENDPOINT_RENDER_IMAGE}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${TOKEN}`,
+    },
+    body: JSON.stringify(
+      {
+        id: randomNumberInRange(1, 65536),
+        input: {
+          image: imageBase64,
+          image_objects: objectsBase64,
+          prompt_positive: prompt_positive,
+          prompt_negative: prompt_negative
+        }
+      }) 
+  });
+
+  if (res.ok) {
+    const responseData = await res.json(); // Parse JSON response
+    const { output } = responseData;
+    console.log(output)
+    // Convert base64 image data to a Blob object
+    const blob = base64ToBlob(output.result[0]);
+
+    return {
+      blob: URL.createObjectURL(blob),
+      seed: "42", // Return the id from the response
+    };
+  }
+  const errors = await res.json();
+  throw new Error(`Something went wrong: ${errors.errors}`);
+}
 
 export default async function inpaint(
   imageFile: File | Blob,
