@@ -562,7 +562,11 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
       },
 
       runImgRendering: async () => {
-        const { aspectRatio, userWindowWidth, userWindowHeight } = get();
+        const { isInpainting, aspectRatio, userWindowWidth, userWindowHeight } = get();
+
+        if (isInpainting) {
+          return;
+        }
 
         const { prompt, negativePrompt } = get().settings;
 
@@ -579,6 +583,10 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           });
           return;
         }
+
+        set((state) => {
+          state.isInpainting = true;
+        });
 
         const { targetFile, staticElements } = await generateFromCanvas(
           currCanvasGroups[currCanvasGroups.length - 1],
@@ -604,11 +612,10 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           get().setImageSize(newRender.width, newRender.height);
           get().updateEditorState({
             renders: newRenders,
-            // lineGroups: newLineGroups,
-            // lastLineGroup: maskLineGroup,
-            // curLineGroup: [],
-            // extraMasks: [],
-            // prevExtraMasks: maskImages,
+          });
+
+          toast({
+            description: `LOADED NEW IMAGE SUCCESS`,
           });
         } catch (e: any) {
           toast({
@@ -618,10 +625,10 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         }
 
         // get().resetRedoState();
-        // set((state) => {
-        //   state.isInpainting = false;
-        //   state.editorState.temporaryMasks = [];
-        // });
+        set((state) => {
+          state.isInpainting = false;
+          state.editorState.temporaryMasks = [];
+        });
       },
 
       runRenderablePlugin: async (

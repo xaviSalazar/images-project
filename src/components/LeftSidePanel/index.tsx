@@ -88,7 +88,8 @@ export const works: Artwork[] = [
 ];
 
 const LeftSidePanel = () => {
-  const [runImgRendering, windowSize] = useStore((state) => [
+  const [isInpainting, runImgRendering, windowSize] = useStore((state) => [
+    state.isInpainting,
     state.runImgRendering,
     state.windowSize,
   ]);
@@ -186,6 +187,7 @@ const LeftSidePanel = () => {
           </MenubarTrigger>
           <MenubarContent>
             <MenubarItem
+              disabled={isInpainting}
               onClick={() => {
                 runImgRendering();
               }}

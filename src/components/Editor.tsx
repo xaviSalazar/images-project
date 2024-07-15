@@ -603,6 +603,7 @@ const Editor = React.forwardRef(() => {
         );
 
         updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
+        setImageSize(clipWidth, clipHeight)
 
         ctx.moveTo(clipX, clipY);
         ctx.lineTo(clipX, clipY + clipHeight);
@@ -1432,23 +1433,6 @@ const Editor = React.forwardRef(() => {
           >
             <Paintbrush />
           </Toggle>
-
-          {/* {settings.enableManualInpainting &&
-          settings.model.model_type === "inpaint" ? (
-            <IconButton
-              tooltip="Run Inpainting"
-              disabled={
-                isProcessing || (!hadDrawSomething() && extraMasks.length === 0)
-              }
-              onClick={() => {
-                runInpainting();
-              }}
-            >
-              <Eraser />
-            </IconButton>
-          ) : (
-            <></>
-          )} */}
         </div>
       </div>
     </div>
