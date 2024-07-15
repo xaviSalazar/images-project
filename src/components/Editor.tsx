@@ -413,10 +413,11 @@ const Editor = React.forwardRef(() => {
         width: compatibleWidth,
         height: compatibleHeight,
         backgroundColor: "#f0f0f0",
+        imageSmoothingEnabled: false,
         fireMiddleClick: true,
         stopContextMenu: true, // 禁止默认右键菜单
-        enableRetinaScaling: true,
-        controlsAboveOverlay: true,
+        enableRetinaScaling: false,
+        controlsAboveOverlay: false,
         preserveObjectStacking: true,
       });
     };

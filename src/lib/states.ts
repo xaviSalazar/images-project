@@ -595,6 +595,9 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           userWindowHeight,
         );
 
+        console.log(targetFile)
+        console.log(staticElements)
+
         try {
           const res = await renderImage(
             dataURItoBlob(targetFile),
