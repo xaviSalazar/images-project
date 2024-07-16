@@ -6,9 +6,12 @@ import { useStore } from "./lib/states";
 import { useWindowSize } from "react-use";
 import { useRefContext } from "@/components/RefCanvas";
 import { useImage } from "@/hooks/useImage";
-import { FabricImage } from "fabric";
+import { FabricImage,  } from "fabric";
+import * as fabric from "fabric";
+
 import { LOG_LEVELS } from "./lib/const";
 import { debugLog } from "./lib/utils";
+
 const SUPPORTED_FILE_TYPE = [
   "image/jpeg",
   "image/png",
@@ -137,12 +140,37 @@ function Home() {
 
       // Scale the image with integer scale factor
       const scaledImage = new FabricImage(image, {
-        scaleX: integerScale,
-        scaleY: integerScale,
         originX: "center",
         originY: "center",
       });
-      // Position the scaled image at the center of the canvas
+
+    
+
+      scaledImage.resizeFilter = new fabric.filters.Resize({
+        resizeType: 'lanczos', // typo fixed
+        lanczosLobes: 3 // typo fixed
+    })
+
+    // const filter = new fabric.filters.Convolute({
+    //   matrix: [ -1, -1,  -1,
+    //            -1,  9, -1,
+    //            -1, -1,  -1 ]
+    // });
+
+
+    // scaledImage.filters.push(filter)
+    // scaledImage.applyFilters();
+
+      // ADDED FILTER EXAMPLE
+      // const blurFilter = new fabric.filters.Blur({
+      //   blur: 0.9,
+      // });
+      //  new fabric.filters.Resize({hermite: 'lanczos', scaleX: integerScale,
+      //   scaleY: integerScale,})
+      // scaledImage.applyFilters();
+      // scaledImage.filters.push(blurFilter);
+
+
       const centerX = canvasWidth / 2;
       const centerY = canvasHeight / 2;
 

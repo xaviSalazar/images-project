@@ -189,7 +189,7 @@ const Editor = React.forwardRef(() => {
   // Local State
   const [showOriginal, setShowOriginal] = useState(false);
   const [original, isOriginalLoaded] = useImage(null);
-  const [zoomLevel, setZoomLevel] = useState<number>(0.7); // Initial zoom level
+  const [zoomLevel, setZoomLevel] = useState<number>(0.8); // Initial zoom level
 
   const [{ x, y }, setCoords] = useState({ x: -1, y: -1 });
   const [showBrush, setShowBrush] = useState(false);
@@ -556,7 +556,7 @@ const Editor = React.forwardRef(() => {
     (e) => {
       const canvas_instance = fabricRef.current;
       const { ctx } = e;
-      const fillStyle = "rgba(0, 0, 0, 0.7)";
+      const fillStyle = "rgba(0, 0, 0, 0.3)";
       const width = canvas_instance?.width ?? 0;
       const height = canvas_instance?.height ?? 0;
 
@@ -966,7 +966,7 @@ const Editor = React.forwardRef(() => {
 
   const renderCanvas = () => {
     return (
-      <div className="relative top-[60px] bg-stone-600">
+      <div className="relative top-[60px]">
         <canvas
           className={cn(
             isProcessing
