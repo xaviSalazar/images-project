@@ -144,31 +144,29 @@ function Home() {
         originY: "center",
       });
 
-    
-
       scaledImage.resizeFilter = new fabric.filters.Resize({
         resizeType: 'lanczos', // typo fixed
         lanczosLobes: 3 // typo fixed
     })
+
+    scaledImage.scaleX  = integerScale
+    scaledImage.scaleY = integerScale
 
     // const filter = new fabric.filters.Convolute({
     //   matrix: [ -1, -1,  -1,
     //            -1,  9, -1,
     //            -1, -1,  -1 ]
     // });
-
-
     // scaledImage.filters.push(filter)
     // scaledImage.applyFilters();
-
-      // ADDED FILTER EXAMPLE
-      // const blurFilter = new fabric.filters.Blur({
-      //   blur: 0.9,
-      // });
-      //  new fabric.filters.Resize({hermite: 'lanczos', scaleX: integerScale,
-      //   scaleY: integerScale,})
-      // scaledImage.applyFilters();
-      // scaledImage.filters.push(blurFilter);
+    // ADDED FILTER EXAMPLE
+    // const blurFilter = new fabric.filters.Blur({
+    //   blur: 0.9,
+    // });
+    //  new fabric.filters.Resize({hermite: 'lanczos', scaleX: integerScale,
+    //   scaleY: integerScale,})
+    // scaledImage.applyFilters();
+    // scaledImage.filters.push(blurFilter);
 
 
       const centerX = canvasWidth / 2;

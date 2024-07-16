@@ -474,29 +474,9 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           currCanvasGroups, // added to support fabric js
         } = get().editorState;
 
-        // const useLastLineGroup =
-        //   curLineGroup.length === 0 &&
-        //   extraMasks.length === 0 &&
-        //   !settings.showExtender;
-
-        // useLastLineGroup 的影响
-        // 1. 使用上一次的 mask
-        // 2. 结果替换当前 render
         let maskImages: HTMLImageElement[] = [];
         let maskLineGroup: LineGroup = [];
-        // if (useLastLineGroup === true) {
-        //   maskLineGroup = lastLineGroup;
-        //   maskImages = prevExtraMasks;
-        // } else {
-        //   maskLineGroup = curLineGroup;
-        //   maskImages = extraMasks;
-        // }
 
-        // if (
-        //   maskLineGroup.length === 0 &&
-        //   maskImages === null &&
-        //   !settings.showExtender
-        // ) {
         if (currCanvasGroups.length === 0) {
           toast({
             variant: "destructive",

@@ -54,6 +54,8 @@ import {
   DoubleArrowUpIcon,
   ArrowDownIcon,
   ArrowUpIcon,
+  CookieIcon,
+  PersonIcon
 } from "@radix-ui/react-icons";
 import { useImage } from "@/hooks/useImage";
 import { Slider } from "./ui/slider";
@@ -254,72 +256,6 @@ const Editor = React.forwardRef(() => {
     });
   }
 
-  // FUNCTION TO CALL WHEN REMOVE BACKGROUND OF SPECIFIC IMAGE
-  const rmBg = (
-    eventData: fabric.TEvent<MouseEvent>,
-    transform: { target: fabric.Object },
-  ): void => {
-    const single_instance: fabric.Canvas | null =
-      transform.target.canvas ?? null;
-    console.log(single_instance);
-    const current_active: fabric.Object | null =
-      single_instance?._activeObject ?? null;
-
-    console.log(current_active);
-
-    if (!current_active) return;
-
-    animateImageOpacity(current_active, 1000); // Start the continuous animation
-    const objectWidth =
-      (current_active.width ?? 0) * (current_active.scaleX ?? 0);
-    const objectHeight =
-      (current_active.height ?? 0) * (current_active.scaleY ?? 0);
-    const objectCenterTop = current_active.top ?? 0;
-    const objectCenterLeft = current_active.left ?? 0;
-
-    let CvRef: HTMLCanvasElement | null = null;
-    // Create a temporary canvas
-    var tempCanvas = new fabric.Canvas(CvRef, {
-      width: objectWidth,
-      height: objectHeight,
-    });
-    // Clone the active object to the temporary canvas
-    current_active.clone((clonedObject: fabric.Object) => {
-      clonedObject.set({
-        left: objectWidth / 2,
-        top: objectHeight / 2,
-        scaleX: current_active.scaleX,
-        scaleY: current_active.scaleY,
-        originX: "center",
-        originY: "center",
-      });
-
-      tempCanvas.add(clonedObject);
-      tempCanvas.renderAll();
-
-      // Get the data URL of the cloned object
-      const objectDataUrl = tempCanvas.toDataURL({ format: "png" });
-
-      removeBackground(objectDataUrl, config).then((blob: Blob) => {
-        // The result is a blob encoded as PNG. It can be converted to an URL to be used as HTMLImage.src
-        const url = URL.createObjectURL(blob);
-        const newRender = new Image();
-        loadImage(newRender, url).then(() => {
-          console.log(newRender);
-          single_instance?.remove(transform.target);
-          const img_without_background = new FabricImage(newRender, {
-            left: objectCenterLeft,
-            top: objectCenterTop,
-            originX: "center",
-            originY: "center",
-          });
-          single_instance?.add(img_without_background);
-          single_instance?.requestRenderAll();
-        });
-      });
-    });
-  };
-
   const cropImage = () => {
     if (
       !fabricRef.current ||
@@ -419,6 +355,7 @@ const Editor = React.forwardRef(() => {
         enableRetinaScaling: false,
         controlsAboveOverlay: false,
         preserveObjectStacking: true,
+        selection: false,
       });
     };
 
@@ -1246,6 +1183,74 @@ const Editor = React.forwardRef(() => {
     }
   };
 
+  const handleRemoveBg = async () => {
+    const fabricInstance = fabricRef.current;
+    
+    const current_active = fabricInstance?.getActiveObject();
+    console.log(current_active)
+
+    if (!current_active) return;
+
+    animateImageOpacity(current_active, 1000); // Start the continuous animation
+    const objectWidth =
+      (current_active.width ?? 0) * (current_active.scaleX ?? 0);
+    const objectHeight =
+      (current_active.height ?? 0) * (current_active.scaleY ?? 0);
+    const objectCenterTop = current_active.top ?? 0;
+    const objectCenterLeft = current_active.left ?? 0;
+
+    // Create a temporary canvas
+    let CvRef: HTMLCanvasElement | null = null;
+
+    var tempCanvas = new fabric.Canvas(CvRef, {
+      width: objectWidth,
+      height: objectHeight,
+    });
+    // Clone the active object to the temporary canvas
+    const cloned_object = await current_active.clone();
+
+    cloned_object.set({
+      left: objectWidth / 2,
+      top: objectHeight / 2,
+      scaleX: current_active.scaleX,
+      scaleY: current_active.scaleY,
+      originX: "center",
+      originY: "center",
+    });
+
+      tempCanvas.add(cloned_object);
+      tempCanvas.renderAll();
+
+      // Get the data URL of the cloned object
+      const objectDataUrl = tempCanvas.toDataURL({format: "png",quality: 1,multiplier: 1});
+
+      // const link = document.createElement("a");
+      // link.href = objectDataUrl;
+      // link.download = `objectDataUrl.png`;
+      // document.body.appendChild(link);
+      // link.click();
+      // document.body.removeChild(link);
+
+      removeBackground(objectDataUrl, config).then((blob: Blob) => {
+        // The result is a blob encoded as PNG. It can be converted to an URL to be used as HTMLImage.src
+        const url = URL.createObjectURL(blob);
+        const newRender = new Image();
+        loadImage(newRender, url).then(() => {
+          console.log(newRender);
+          fabricInstance?.remove(current_active);
+          const img_without_background = new FabricImage(newRender, {
+            left: objectCenterLeft,
+            top: objectCenterTop,
+            originX: "center",
+            originY: "center",
+          });
+          fabricInstance?.add(img_without_background);
+          fabricInstance?.requestRenderAll();
+        });
+      });
+
+    // });
+  }
   return (
     <div
       className="flex w-screen h-screen justify-center items-center"
@@ -1332,6 +1337,25 @@ const Editor = React.forwardRef(() => {
             </MenubarCheckboxItem>
           </MenubarContent>
         </MenubarMenu>
+
+        <MenubarMenu>
+          <MenubarTrigger>RemoveBG</MenubarTrigger>
+          <MenubarContent>
+            <MenubarItem onClick={() => handleRemoveBg()}>
+              Producto
+              <MenubarShortcut>
+                <CookieIcon className="h-4 w-4" />
+              </MenubarShortcut>
+            </MenubarItem>
+            <MenubarItem onClick={() => handleRemoveBg()}>
+              Persona
+              <MenubarShortcut>
+                <PersonIcon className="h-4 w-4" />
+              </MenubarShortcut>
+            </MenubarItem>
+          </MenubarContent>
+        </MenubarMenu>
+
       </Menubar>
 
       {renderCanvas()}
