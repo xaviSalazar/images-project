@@ -519,27 +519,55 @@ const Editor = React.forwardRef(() => {
     updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
     setImageSize(clipWidth, clipHeight)
 
-    
-    const rectangle = new Rect({
-      left: width / 2,
-      top: height / 2,
-      width: clipWidth + 10,
-      height: clipHeight + 10,
-      fill: 'transparent',
+    const centerX = width / 2;
+    const centerY = height / 2;
+    // Calculate corner points of the rectangle
+    const topLeft = {
+      x: centerX - clipWidth / 2,
+      y: centerY - clipHeight / 2,
+    };
+    const topRight = {
+      x: centerX + clipWidth / 2,
+      y: centerY - clipHeight / 2,
+    };
+    const bottomRight = {
+      x: centerX + clipWidth / 2,
+      y: centerY + clipHeight / 2,
+    };
+    const bottomLeft = {
+      x: centerX - clipWidth / 2,
+      y: centerY + clipHeight / 2,
+    };
+
+        // Create lines for the rectangle outline
+    const topLine = new fabric.Line([topLeft.x, topLeft.y, topRight.x, topRight.y], {
       stroke: '#58C3AD',
       strokeWidth: 10,
-      lockMovementX: true,
-      lockMovementY: true,
-      lockRotation: true,
-      lockScalingX: true,
-      lockScalingY: true,
       selectable: false,
-    })
+    });
+    const rightLine = new fabric.Line([topRight.x, topRight.y, bottomRight.x, bottomRight.y], {
+      stroke: '#58C3AD',
+      strokeWidth: 10,
+      selectable: false,
+    });
+    const bottomLine = new fabric.Line([bottomRight.x, bottomRight.y, bottomLeft.x, bottomLeft.y], {
+      stroke: '#58C3AD',
+      strokeWidth: 10,
+      selectable: false,
+    });
+    const leftLine = new fabric.Line([bottomLeft.x, bottomLeft.y, topLeft.x, topLeft.y], {
+      stroke: '#58C3AD',
+      strokeWidth: 10,
+      selectable: false,
+    });
 
+    // Group the lines into a single fabric.Group
+    const rectangleGroup = new fabric.Group([topLine, rightLine, bottomLine, leftLine], {
+      selectable: false,
+    });
 
-    rectRef.current = rectangle;
-
-    fabricRef.current.add(rectangle)
+    fabricRef.current.add(rectangleGroup)
+    fabricRef.current.moveObjectTo (rectangleGroup, fabricRef.current.getObjects().length - 1);
 
   }, [aspectRatio]);
 
