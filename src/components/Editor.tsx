@@ -73,8 +73,7 @@ import {
 } from "@/lib/const";
 import { Toggle } from "@/components/ui/toggle";
 import * as fabric from "fabric"; // v6
-import { FabricObject } from "fabric"; // migration path
-import { FabricImage } from "fabric";
+import { FabricObject, FabricImage, Rect } from "fabric"; // migration path
 
 import {
   preload,
@@ -201,6 +200,7 @@ const Editor = React.forwardRef(() => {
   const lastPosX = useRef(0);
   const lastPosY = useRef(0);
   const windowSize = useWindowSize();
+  const rectRef = useRef(null);
 
   const roundToNearest64 = (value: number) => Math.floor(value / 64) * 64;
 
@@ -338,17 +338,35 @@ const Editor = React.forwardRef(() => {
   const [buttonPosition, setButtonPosition] = useState({ left: 0, top: 0 });
   const [buttonVisible, setButtonVisible] = useState(false);
 
+  function positionBtn(obj) {
+    const btnContainer = document.getElementById("button-container");
+    if (!btnContainer) return;
+    const zoom = fabricRef.current.getZoom();
+    const viewportTransform = fabricRef.current.viewportTransform;
+    const absCoords = fabricRef.current.getAbsoluteCoords(obj);
+    const left =
+      (absCoords.left + (obj.width * obj.scaleX) / 2) * zoom +
+      viewportTransform[4] -
+      150;
+    const top =
+      (absCoords.top - (obj.height * obj.scaleY) / 2) * zoom +
+      viewportTransform[5];
+    setButtonPosition({ left, top });
+    setButtonVisible(true);
+  }
+
   useEffect(() => {
     const initMainCanvas = (): fabric.Canvas => {
+
       updateAppState({
         userWindowWidth: compatibleWidth,
         userWindowHeight: compatibleHeight,
       });
 
       return new fabric.Canvas(canvasRef.current, {
-        width: compatibleWidth,
-        height: compatibleHeight,
-        backgroundColor: "#f0f0f0",
+        width: windowSize.width,
+        height: windowSize.height,
+        backgroundColor: "#636363",
         imageSmoothingEnabled: false,
         fireMiddleClick: true,
         stopContextMenu: true, // 禁止默认右键菜单
@@ -385,22 +403,6 @@ const Editor = React.forwardRef(() => {
       };
     };
 
-    function positionBtn(obj) {
-      const btnContainer = document.getElementById("button-container");
-      if (!btnContainer) return;
-      const zoom = fabricRef.current.getZoom();
-      const viewportTransform = fabricRef.current.viewportTransform;
-      const absCoords = fabricRef.current.getAbsoluteCoords(obj);
-      const left =
-        (absCoords.left + (obj.width * obj.scaleX) / 2) * zoom +
-        viewportTransform[4] -
-        150;
-      const top =
-        (absCoords.top - (obj.height * obj.scaleY) / 2) * zoom +
-        viewportTransform[5];
-      setButtonPosition({ left, top });
-      setButtonVisible(true);
-    }
 
     // Activate drawing mode for mask overlay
     if (fabricRef.current) {
@@ -472,6 +474,8 @@ const Editor = React.forwardRef(() => {
       opt.e.stopPropagation();
     });
 
+       // Bring the rectangle to front whenever objects are added or modifie
+
     // #### DISPOSE
     return () => {
       fabricRef.current?.dispose();
@@ -479,91 +483,141 @@ const Editor = React.forwardRef(() => {
   }, []);
 
   useEffect(() => {
-    // Attach the event listener
-    fabricRef.current.on("after:render", afterRenderCallback);
 
-    return () => {
-      if (fabricRef.current) {
-        fabricRef.current.off("after:render", afterRenderCallback);
-      }
-    };
+    const canvas_instance = fabricRef.current;
+    if(!canvas_instance) return;
+    const width = canvas_instance?.width ?? 0;
+    const height = canvas_instance?.height ?? 0;
+
+    let clipWidth, clipHeight;
+
+    const ratioObject = predefinedRatios.find(
+      (ratio) => ratio.name === aspectRatio,
+    );
+
+    if (ratioObject) {
+      debugLog(LOG_LEVELS.DEBUG, "choosed Ratio\n", ratioObject);
+      const { width: ratioWidth, height: ratioHeight } = ratioObject;
+      clipWidth = ratioWidth;
+      clipHeight = ratioHeight;
+    }
+
+    debugLog(LOG_LEVELS.DEBUG, " <<user canvas window>>  width, heigth ", [
+      canvas_instance.width,
+      canvas_instance.height,
+    ]);
+    debugLog(LOG_LEVELS.DEBUG, "<<user choosedWidth, choosedHeigth>> ", [
+      clipWidth,
+      clipHeight,
+    ]);
+    debugLog(
+      LOG_LEVELS.DEBUG,
+      "<<user transf canvas  matrix>>\n",
+      canvas_instance.viewportTransform,
+    );
+
+    updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
+    setImageSize(clipWidth, clipHeight)
+
+    
+    const rectangle = new Rect({
+      left: width / 2,
+      top: height / 2,
+      width: clipWidth + 10,
+      height: clipHeight + 10,
+      fill: 'transparent',
+      stroke: '#58C3AD',
+      strokeWidth: 10,
+      lockMovementX: true,
+      lockMovementY: true,
+      lockRotation: true,
+      lockScalingX: true,
+      lockScalingY: true,
+      selectable: false,
+    })
+
+
+    rectRef.current = rectangle;
+
+    fabricRef.current.add(rectangle)
+
   }, [aspectRatio]);
 
-  const afterRenderCallback = useCallback(
-    (e) => {
-      const canvas_instance = fabricRef.current;
-      const { ctx } = e;
-      const fillStyle = "rgba(0, 0, 0, 0.3)";
-      const width = canvas_instance?.width ?? 0;
-      const height = canvas_instance?.height ?? 0;
+  // const afterRenderCallback = useCallback(
+  //   (e) => {
+  //     const canvas_instance = fabricRef.current;
+  //     const { ctx } = e;
+  //     const fillStyle = "rgba(0, 0, 0, 0.3)";
+  //     const width = canvas_instance?.width ?? 0;
+  //     const height = canvas_instance?.height ?? 0;
 
-      if (ctx) {
-        ctx.save();
-        // Clear only the specific area where the dark overlay was applied
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(width, 0);
-        ctx.lineTo(width, height);
-        ctx.lineTo(0, height);
-        ctx.lineTo(0, 0);
-        // Apply the viewport transformation
-        ctx.transform.apply(ctx, Array.from(canvas_instance.viewportTransform));
+  //     if (ctx) {
+  //       ctx.save();
+  //       // Clear only the specific area where the dark overlay was applied
+  //       ctx.beginPath();
+  //       ctx.moveTo(0, 0);
+  //       ctx.lineTo(width, 0);
+  //       ctx.lineTo(width, height);
+  //       ctx.lineTo(0, height);
+  //       ctx.lineTo(0, 0);
+  //       // Apply the viewport transformation
+  //       ctx.transform.apply(ctx, Array.from(canvas_instance.viewportTransform));
 
-        // Adjust clipping area based on the aspect ratio
-        let clipWidth, clipHeight;
+  //       // Adjust clipping area based on the aspect ratio
+  //       let clipWidth, clipHeight;
 
-        const ratioObject = predefinedRatios.find(
-          (ratio) => ratio.name === aspectRatio,
-        );
+  //       const ratioObject = predefinedRatios.find(
+  //         (ratio) => ratio.name === aspectRatio,
+  //       );
 
-        if (ratioObject) {
-          debugLog(LOG_LEVELS.DEBUG, "choosed Ratio\n", ratioObject);
-          const { width: ratioWidth, height: ratioHeight } = ratioObject;
-          clipWidth = ratioWidth;
-          clipHeight = ratioHeight;
-        }
+  //       if (ratioObject) {
+  //         debugLog(LOG_LEVELS.DEBUG, "choosed Ratio\n", ratioObject);
+  //         const { width: ratioWidth, height: ratioHeight } = ratioObject;
+  //         clipWidth = ratioWidth;
+  //         clipHeight = ratioHeight;
+  //       }
 
-        const clipX = Math.floor((width - clipWidth) / 2);
-        const clipY = Math.floor((height - clipHeight) / 2);
+  //       const clipX = Math.floor((width - clipWidth) / 2);
+  //       const clipY = Math.floor((height - clipHeight) / 2);
 
-        debugLog(LOG_LEVELS.DEBUG, " <<user canvas window>>  width, heigth ", [
-          canvas_instance.width,
-          canvas_instance.height,
-        ]);
-        debugLog(LOG_LEVELS.DEBUG, "<<user choosedWidth, choosedHeigth>> ", [
-          clipWidth,
-          clipHeight,
-        ]);
-        debugLog(
-          LOG_LEVELS.DEBUG,
-          "<<user transf canvas  matrix>>\n",
-          canvas_instance.viewportTransform,
-        );
+  //       debugLog(LOG_LEVELS.DEBUG, " <<user canvas window>>  width, heigth ", [
+  //         canvas_instance.width,
+  //         canvas_instance.height,
+  //       ]);
+  //       debugLog(LOG_LEVELS.DEBUG, "<<user choosedWidth, choosedHeigth>> ", [
+  //         clipWidth,
+  //         clipHeight,
+  //       ]);
+  //       debugLog(
+  //         LOG_LEVELS.DEBUG,
+  //         "<<user transf canvas  matrix>>\n",
+  //         canvas_instance.viewportTransform,
+  //       );
 
-        updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
-        setImageSize(clipWidth, clipHeight)
+  //       updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
+  //       setImageSize(clipWidth, clipHeight)
 
-        ctx.moveTo(clipX, clipY);
-        ctx.lineTo(clipX, clipY + clipHeight);
-        ctx.lineTo(clipX + clipWidth, clipY + clipHeight);
-        ctx.lineTo(clipX + clipWidth, clipY);
-        ctx.closePath();
-        ctx.fillStyle = fillStyle;
-        ctx.fill();
-        ctx.restore();
-      }
-    },
-    [aspectRatio],
-  );
+  //       ctx.moveTo(clipX, clipY);
+  //       ctx.lineTo(clipX, clipY + clipHeight);
+  //       ctx.lineTo(clipX + clipWidth, clipY + clipHeight);
+  //       ctx.lineTo(clipX + clipWidth, clipY);
+  //       ctx.closePath();
+  //       ctx.fillStyle = fillStyle;
+  //       ctx.fill();
+  //       ctx.restore();
+  //     }
+  //   },
+  //   [aspectRatio],
+  // );
 
   const stopPanning = useCallback((opt: fabric.TEvent<MouseEvent>) => {
-    if (isMidClick(opt)) {
+    if (isLeftClick(opt)) {
       isDragging.current = false;
     }
   }, []);
 
   const startPanning = useCallback((opt: fabric.TEvent<MouseEvent>) => {
-    if (isMidClick(opt)) {
+    if (isLeftClick(opt) && !fabricRef.current.getActiveObject() ) {
       const evt = opt.e;
       isDragging.current = true;
       lastPosX.current = evt.clientX;
@@ -904,17 +958,18 @@ const Editor = React.forwardRef(() => {
   const renderCanvas = () => {
     return (
       <div className="relative top-[60px]">
-        <canvas
-          className={cn(
-            isProcessing
-              ? "pointer-events-none animate-pulse duration-600"
-              : "",
-          )}
+         <canvas
+          // className = "bg-[radial-gradient(circle_at_1px_1px,_#8e8e8e8e_1px,_transparent_0)] [background-size:20px_20px] bg-repeat"
+          // className={cn(
+          //   isProcessing
+          //     ? "pointer-events-none animate-pulse duration-600"
+          //     : "",
+          // )}
           ref={canvasRef}
-          style={{
-            clipPath: `inset(0 ${sliderPos}% 0 0)`,
-            transition: `clip-path ${COMPARE_SLIDER_DURATION_MS}ms`,
-          }}
+          // style={{
+          //   clipPath: `inset(0 ${sliderPos}% 0 0)`,
+          //   transition: `clip-path ${COMPARE_SLIDER_DURATION_MS}ms`,
+          // }}
         />
         <div
           className="pointer-events-none absolute top-0"
