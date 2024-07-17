@@ -42,6 +42,7 @@ export async function renderImage(
     body: JSON.stringify({
       id: randomNumberInRange(1, 65536),
       input: {
+        action: "RenderImage",
         image: imageBase64,
         image_objects: objectsBase64,
         prompt_positive: prompt_positive,

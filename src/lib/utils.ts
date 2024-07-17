@@ -312,6 +312,7 @@ export const generateFromCanvas = async (
       const fixedImgCanvas = new fabric.Canvas(null, {
         width: outputWidth,
         height: outputHeight,
+        backgroundColor : "#000",
       });
 
       const objCanvas = JSON.parse(canvasObject.data);

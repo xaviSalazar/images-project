@@ -101,7 +101,7 @@ const config = {
   // model: 'isnet_fp16',
   // model: 'isnet_quint8',
   output: {
-    quality: 0.8,
+    quality: 1,
     format: "image/png",
     // format: 'image/jpeg'
     // format: 'image/webp'
