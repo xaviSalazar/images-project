@@ -11,6 +11,7 @@ import { CursorArrowRaysIcon } from "@heroicons/react/24/outline";
 import { useToast } from "@/components/ui/use-toast";
 import { useKeyPressEvent } from "react-use";
 import { IconButton } from "@/components/ui/button";
+import {removeBackgroundApi} from "@/lib/api"
 
 import {
   Menubar,
@@ -35,6 +36,7 @@ import {
   isLeftClick,
   mouseXY,
   srcToFile,
+  dataURItoBlob,
   debugLog,
 } from "@/lib/utils";
 import {
@@ -73,7 +75,7 @@ import {
 } from "@/lib/const";
 import { Toggle } from "@/components/ui/toggle";
 import * as fabric from "fabric"; // v6
-import { FabricObject, FabricImage, Rect } from "fabric"; // migration path
+import { FabricObject, FabricImage, FabricText } from "fabric"; // migration path
 
 import {
   preload,
@@ -195,20 +197,22 @@ const Editor = React.forwardRef(() => {
   const [{ x, y }, setCoords] = useState({ x: -1, y: -1 });
   const [showBrush, setShowBrush] = useState(false);
   const [showRefBrush, setShowRefBrush] = useState(false);
+
   const [isPanning, setIsPanning] = useState<boolean>(false);
   const isDragging = useRef(false);
   const lastPosX = useRef(0);
   const lastPosY = useRef(0);
   const windowSize = useWindowSize();
-  const rectRef = useRef(null);
+  
+  const isBrushActivated = useRef<boolean>(settings.showDrawing)
 
   const roundToNearest64 = (value: number) => Math.floor(value / 64) * 64;
 
   const [compatibleWidth, setCompatibleWidth] = useState<number>(
-    roundToNearest64(windowSize.width),
+  windowSize.width,
   );
   const [compatibleHeight, setCompatibleHeight] = useState<number>(
-    roundToNearest64(windowSize.height),
+  windowSize.height,
   );
 
   const [isDraging, setIsDraging] = useState(false);
@@ -338,35 +342,17 @@ const Editor = React.forwardRef(() => {
   const [buttonPosition, setButtonPosition] = useState({ left: 0, top: 0 });
   const [buttonVisible, setButtonVisible] = useState(false);
 
-  function positionBtn(obj) {
-    const btnContainer = document.getElementById("button-container");
-    if (!btnContainer) return;
-    const zoom = fabricRef.current.getZoom();
-    const viewportTransform = fabricRef.current.viewportTransform;
-    const absCoords = fabricRef.current.getAbsoluteCoords(obj);
-    const left =
-      (absCoords.left + (obj.width * obj.scaleX) / 2) * zoom +
-      viewportTransform[4] -
-      150;
-    const top =
-      (absCoords.top - (obj.height * obj.scaleY) / 2) * zoom +
-      viewportTransform[5];
-    setButtonPosition({ left, top });
-    setButtonVisible(true);
-  }
-
   useEffect(() => {
     const initMainCanvas = (): fabric.Canvas => {
-
       updateAppState({
         userWindowWidth: compatibleWidth,
         userWindowHeight: compatibleHeight,
       });
 
       return new fabric.Canvas(canvasRef.current, {
-        width: windowSize.width,
-        height: windowSize.height,
-        backgroundColor: "#636363",
+        width: compatibleWidth,
+        height: compatibleHeight,
+        backgroundColor: "#8F8F8F",
         imageSmoothingEnabled: false,
         fireMiddleClick: true,
         stopContextMenu: true, // 禁止默认右键菜单
@@ -403,6 +389,22 @@ const Editor = React.forwardRef(() => {
       };
     };
 
+    function positionBtn(obj) {
+      const btnContainer = document.getElementById("button-container");
+      if (!btnContainer) return;
+      const zoom = fabricRef.current.getZoom();
+      const viewportTransform = fabricRef.current.viewportTransform;
+      const absCoords = fabricRef.current.getAbsoluteCoords(obj);
+      const left =
+        (absCoords.left + (obj.width * obj.scaleX) / 2) * zoom +
+        viewportTransform[4] -
+        150;
+      const top =
+        (absCoords.top - (obj.height * obj.scaleY) / 2) * zoom +
+        viewportTransform[5];
+      setButtonPosition({ left, top });
+      setButtonVisible(true);
+    }
 
     // Activate drawing mode for mask overlay
     if (fabricRef.current) {
@@ -474,8 +476,6 @@ const Editor = React.forwardRef(() => {
       opt.e.stopPropagation();
     });
 
-       // Bring the rectangle to front whenever objects are added or modifie
-
     // #### DISPOSE
     return () => {
       fabricRef.current?.dispose();
@@ -486,88 +486,99 @@ const Editor = React.forwardRef(() => {
 
     const canvas_instance = fabricRef.current;
     if(!canvas_instance) return;
-    const width = canvas_instance?.width ?? 0;
-    const height = canvas_instance?.height ?? 0;
 
-    let clipWidth, clipHeight;
+      const width = canvas_instance?.width ?? 0;
+      const height = canvas_instance?.height ?? 0;
 
-    const ratioObject = predefinedRatios.find(
-      (ratio) => ratio.name === aspectRatio,
-    );
+      // Adjust clipping area based on the aspect ratio
+      let clipWidth, clipHeight;
 
-    if (ratioObject) {
-      debugLog(LOG_LEVELS.DEBUG, "choosed Ratio\n", ratioObject);
-      const { width: ratioWidth, height: ratioHeight } = ratioObject;
-      clipWidth = ratioWidth;
-      clipHeight = ratioHeight;
-    }
+      const ratioObject = predefinedRatios.find(
+        (ratio) => ratio.name === aspectRatio,
+      );
 
-    debugLog(LOG_LEVELS.DEBUG, " <<user canvas window>>  width, heigth ", [
-      canvas_instance.width,
-      canvas_instance.height,
-    ]);
-    debugLog(LOG_LEVELS.DEBUG, "<<user choosedWidth, choosedHeigth>> ", [
-      clipWidth,
-      clipHeight,
-    ]);
-    debugLog(
-      LOG_LEVELS.DEBUG,
-      "<<user transf canvas  matrix>>\n",
-      canvas_instance.viewportTransform,
-    );
+      if (ratioObject) {
+        debugLog(LOG_LEVELS.DEBUG, "choosed Ratio\n", ratioObject);
+        const { width: ratioWidth, height: ratioHeight } = ratioObject;
+        clipWidth = ratioWidth;
+        clipHeight = ratioHeight;
+      }
 
-    updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
-    setImageSize(clipWidth, clipHeight)
+      debugLog(LOG_LEVELS.DEBUG, " <<user canvas window>>  width, heigth ", [
+        canvas_instance.width,
+        canvas_instance.height,
+      ]);
+      debugLog(LOG_LEVELS.DEBUG, "<<user choosedWidth, choosedHeigth>> ", [
+        clipWidth,
+        clipHeight,
+      ]);
+      debugLog(
+        LOG_LEVELS.DEBUG,
+        "<<user transf canvas  matrix>>\n",
+        canvas_instance.viewportTransform,
+      );
 
-    const centerX = width / 2;
-    const centerY = height / 2;
-    // Calculate corner points of the rectangle
-    const topLeft = {
-      x: centerX - clipWidth / 2,
-      y: centerY - clipHeight / 2,
-    };
-    const topRight = {
-      x: centerX + clipWidth / 2,
-      y: centerY - clipHeight / 2,
-    };
-    const bottomRight = {
-      x: centerX + clipWidth / 2,
-      y: centerY + clipHeight / 2,
-    };
-    const bottomLeft = {
-      x: centerX - clipWidth / 2,
-      y: centerY + clipHeight / 2,
-    };
+      updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
+      setImageSize(clipWidth, clipHeight)
 
-        // Create lines for the rectangle outline
-    const topLine = new fabric.Line([topLeft.x, topLeft.y, topRight.x, topRight.y], {
-      stroke: '#58C3AD',
-      strokeWidth: 10,
-      selectable: false,
+      const centerX = width / 2;
+      const centerY = height / 2;
+      // Calculate corner points of the rectangle
+      const topLeft = {
+        x: centerX - clipWidth / 2,
+        y: centerY - clipHeight / 2,
+      };
+      const topRight = {
+        x: centerX + clipWidth / 2,
+        y: centerY - clipHeight / 2,
+      };
+      const bottomRight = {
+        x: centerX + clipWidth / 2,
+        y: centerY + clipHeight / 2,
+      };
+      const bottomLeft = {
+        x: centerX - clipWidth / 2,
+        y: centerY + clipHeight / 2,
+      };
+  
+      // Create lines for the rectangle outline
+      const topLine = new fabric.Line([topLeft.x, topLeft.y, topRight.x, topRight.y], {
+        stroke: 'black',
+        strokeWidth: 5,
+        strokeLineCap: 'round',
+        selectable: false,
+      });
+      const rightLine = new fabric.Line([topRight.x, topRight.y, bottomRight.x, bottomRight.y], {
+        stroke: 'black',
+        strokeWidth: 5,
+        strokeLineCap: 'round',
+        selectable: false,
+      });
+      const bottomLine = new fabric.Line([bottomRight.x, bottomRight.y, bottomLeft.x, bottomLeft.y], {
+        stroke: 'black',
+        strokeWidth: 5,
+        strokeLineCap: 'round',
+        selectable: false,
+      });
+      const leftLine = new fabric.Line([bottomLeft.x, bottomLeft.y, topLeft.x, topLeft.y], {
+        stroke: 'black',
+        strokeWidth: 5,
+        strokeLineCap: 'round',
+        selectable: false,
+      });
+  
+      const instruction = new FabricText('Drag and drop image here', {
+        left:centerX - clipWidth / 2 + 200,
+        top: centerY - clipHeight / 2 - 30,
+        fill: 'blue',
+        selectable: false,
     });
-    const rightLine = new fabric.Line([topRight.x, topRight.y, bottomRight.x, bottomRight.y], {
-      stroke: '#58C3AD',
-      strokeWidth: 10,
-      selectable: false,
-    });
-    const bottomLine = new fabric.Line([bottomRight.x, bottomRight.y, bottomLeft.x, bottomLeft.y], {
-      stroke: '#58C3AD',
-      strokeWidth: 10,
-      selectable: false,
-    });
-    const leftLine = new fabric.Line([bottomLeft.x, bottomLeft.y, topLeft.x, topLeft.y], {
-      stroke: '#58C3AD',
-      strokeWidth: 10,
-      selectable: false,
-    });
+      // Group the lines into a single fabric.Group
+      const rectangleGroup = new fabric.Group([topLine, rightLine, bottomLine, leftLine, instruction], {
+        selectable: false,
+      });
 
-    // Group the lines into a single fabric.Group
-    const rectangleGroup = new fabric.Group([topLine, rightLine, bottomLine, leftLine], {
-      selectable: false,
-    });
-
-    fabricRef.current.add(rectangleGroup)
-    fabricRef.current.moveObjectTo (rectangleGroup, fabricRef.current.getObjects().length - 1);
+      canvas_instance.overlayImage = rectangleGroup
 
   }, [aspectRatio]);
 
@@ -580,16 +591,6 @@ const Editor = React.forwardRef(() => {
   //     const height = canvas_instance?.height ?? 0;
 
   //     if (ctx) {
-  //       ctx.save();
-  //       // Clear only the specific area where the dark overlay was applied
-  //       ctx.beginPath();
-  //       ctx.moveTo(0, 0);
-  //       ctx.lineTo(width, 0);
-  //       ctx.lineTo(width, height);
-  //       ctx.lineTo(0, height);
-  //       ctx.lineTo(0, 0);
-  //       // Apply the viewport transformation
-  //       ctx.transform.apply(ctx, Array.from(canvas_instance.viewportTransform));
 
   //       // Adjust clipping area based on the aspect ratio
   //       let clipWidth, clipHeight;
@@ -605,8 +606,7 @@ const Editor = React.forwardRef(() => {
   //         clipHeight = ratioHeight;
   //       }
 
-  //       const clipX = Math.floor((width - clipWidth) / 2);
-  //       const clipY = Math.floor((height - clipHeight) / 2);
+ 
 
   //       debugLog(LOG_LEVELS.DEBUG, " <<user canvas window>>  width, heigth ", [
   //         canvas_instance.width,
@@ -625,14 +625,6 @@ const Editor = React.forwardRef(() => {
   //       updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
   //       setImageSize(clipWidth, clipHeight)
 
-  //       ctx.moveTo(clipX, clipY);
-  //       ctx.lineTo(clipX, clipY + clipHeight);
-  //       ctx.lineTo(clipX + clipWidth, clipY + clipHeight);
-  //       ctx.lineTo(clipX + clipWidth, clipY);
-  //       ctx.closePath();
-  //       ctx.fillStyle = fillStyle;
-  //       ctx.fill();
-  //       ctx.restore();
   //     }
   //   },
   //   [aspectRatio],
@@ -645,7 +637,7 @@ const Editor = React.forwardRef(() => {
   }, []);
 
   const startPanning = useCallback((opt: fabric.TEvent<MouseEvent>) => {
-    if (isLeftClick(opt) && !fabricRef.current.getActiveObject() ) {
+    if (isLeftClick(opt) && !fabricRef.current.getActiveObject() && !isBrushActivated.current) {
       const evt = opt.e;
       isDragging.current = true;
       lastPosX.current = evt.clientX;
@@ -986,18 +978,17 @@ const Editor = React.forwardRef(() => {
   const renderCanvas = () => {
     return (
       <div className="relative top-[60px]">
-         <canvas
-          // className = "bg-[radial-gradient(circle_at_1px_1px,_#8e8e8e8e_1px,_transparent_0)] [background-size:20px_20px] bg-repeat"
-          // className={cn(
-          //   isProcessing
-          //     ? "pointer-events-none animate-pulse duration-600"
-          //     : "",
-          // )}
+        <canvas
+          className={cn(
+            isProcessing
+              ? "pointer-events-none animate-pulse duration-600"
+              : "",
+          )}
           ref={canvasRef}
-          // style={{
-          //   clipPath: `inset(0 ${sliderPos}% 0 0)`,
-          //   transition: `clip-path ${COMPARE_SLIDER_DURATION_MS}ms`,
-          // }}
+          style={{
+            clipPath: `inset(0 ${sliderPos}% 0 0)`,
+            transition: `clip-path ${COMPARE_SLIDER_DURATION_MS}ms`,
+          }}
         />
         <div
           className="pointer-events-none absolute top-0"
@@ -1266,7 +1257,7 @@ const Editor = React.forwardRef(() => {
     }
   };
 
-  const handleRemoveBg = async () => {
+  const handleRemoveBg = async (model: string) => {
     const fabricInstance = fabricRef.current;
     
     const current_active = fabricInstance?.getActiveObject();
@@ -1306,7 +1297,9 @@ const Editor = React.forwardRef(() => {
 
       // Get the data URL of the cloned object
       const objectDataUrl = tempCanvas.toDataURL({format: "png",quality: 1,multiplier: 1});
+      console.log(objectDataUrl)
 
+      // // preview download
       // const link = document.createElement("a");
       // link.href = objectDataUrl;
       // link.download = `objectDataUrl.png`;
@@ -1314,25 +1307,52 @@ const Editor = React.forwardRef(() => {
       // link.click();
       // document.body.removeChild(link);
 
-      removeBackground(objectDataUrl, config).then((blob: Blob) => {
-        // The result is a blob encoded as PNG. It can be converted to an URL to be used as HTMLImage.src
-        const url = URL.createObjectURL(blob);
-        const newRender = new Image();
-        loadImage(newRender, url).then(() => {
-          console.log(newRender);
-          fabricInstance?.remove(current_active);
-          const img_without_background = new FabricImage(newRender, {
-            left: objectCenterLeft,
-            top: objectCenterTop,
-            originX: "center",
-            originY: "center",
-          });
-          fabricInstance?.add(img_without_background);
-          fabricInstance?.requestRenderAll();
+    try {
+      const res = await removeBackgroundApi(
+        dataURItoBlob(objectDataUrl),
+        model,
+      );
+      const { blob, seed } = res;
+      const newRender = new Image();
+      loadImage(newRender, blob).then(() => {
+        console.log(newRender);
+        fabricInstance?.remove(current_active);
+        const img_without_background = new FabricImage(newRender, {
+          left: objectCenterLeft,
+          top: objectCenterTop,
+          originX: "center",
+          originY: "center",
         });
+        fabricInstance?.add(img_without_background);
+        fabricInstance?.requestRenderAll();
       });
+    } catch (e: any) {
+      toast({
+        variant: "destructive",
+        description: e.message ? e.message : e.toString(),
+      });
+    }
 
-    // });
+    // // remove background free version 
+      // removeBackground(objectDataUrl, config).then((blob: Blob) => {
+      //   // The result is a blob encoded as PNG. It can be converted to an URL to be used as HTMLImage.src
+      //   const url = URL.createObjectURL(blob);
+      //   const newRender = new Image();
+      //   loadImage(newRender, url).then(() => {
+      //     console.log(newRender);
+      //     fabricInstance?.remove(current_active);
+      //     const img_without_background = new FabricImage(newRender, {
+      //       left: objectCenterLeft,
+      //       top: objectCenterTop,
+      //       originX: "center",
+      //       originY: "center",
+      //     });
+      //     fabricInstance?.add(img_without_background);
+      //     fabricInstance?.requestRenderAll();
+      //   });
+      // });
+
+
   }
   return (
     <div
@@ -1424,13 +1444,13 @@ const Editor = React.forwardRef(() => {
         <MenubarMenu>
           <MenubarTrigger>RemoveBG</MenubarTrigger>
           <MenubarContent>
-            <MenubarItem onClick={() => handleRemoveBg()}>
+            <MenubarItem onClick={() => handleRemoveBg("u2netp")}>
               Producto
               <MenubarShortcut>
                 <CookieIcon className="h-4 w-4" />
               </MenubarShortcut>
             </MenubarItem>
-            <MenubarItem onClick={() => handleRemoveBg()}>
+            <MenubarItem onClick={() => handleRemoveBg("u2net_human_seg")}>
               Persona
               <MenubarShortcut>
                 <PersonIcon className="h-4 w-4" />
@@ -1534,6 +1554,7 @@ const Editor = React.forwardRef(() => {
             onPressedChange={(value: boolean) => {
               updateSettings({ showDrawing: value });
               handleDrawingMode(value);
+              isBrushActivated.current = value 
               if (value) {
                 updateSettings({ showSelectable: false });
               }

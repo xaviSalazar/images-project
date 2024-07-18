@@ -7,17 +7,21 @@ import { cn } from "@/lib/utils";
 
 const PromptInput = () => {
   const [
+    runImgRendering,
     isProcessing,
     updateSettings,
     runInpainting,
     showPrevMask,
     hidePrevMask,
+    isInpainting,
   ] = useStore((state) => [
+    state.runImgRendering,
     state.getIsProcessing(),
     state.updateSettings,
     state.runInpainting,
     state.showPrevMask,
     state.hidePrevMask,
+    state.isInpainting,
   ]);
 
   const prompt = useStore((state) => state.settings.prompt);
@@ -40,7 +44,8 @@ const PromptInput = () => {
   };
 
   const handleRepaintClick = () => {
-    if (!isProcessing) {
+    if (!isInpainting) {
+      runImgRendering()
       // replace with model to call actually
       // runInpainting()
     }
@@ -81,7 +86,7 @@ const PromptInput = () => {
         <Button
           size="sm"
           onClick={handleRepaintClick}
-          disabled={isProcessing}
+          disabled={isInpainting}
           onMouseEnter={onMouseEnter}
           onMouseLeave={onMouseLeave}
         >

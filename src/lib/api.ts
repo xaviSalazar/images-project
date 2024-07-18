@@ -67,6 +67,43 @@ export async function renderImage(
   throw new Error(`Something went wrong: ${errors.errors}`);
 }
 
+export async function removeBackgroundApi(
+  imageFile: File | Blob,
+  model: string,
+) {
+  const imageBase64 = await convertToBase64(imageFile);
+
+  const res = await fetch(`${API_ENDPOINT_RENDER_IMAGE}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${TOKEN}`,
+    },
+    body: JSON.stringify({
+      id: randomNumberInRange(1, 65536),
+      input: {
+        action: "RemoveBackground",
+        image: imageBase64,
+        model: model,
+      },
+    }),
+  });
+
+  if (res.ok) {
+    const responseData = await res.json(); // Parse JSON response
+    const { output } = responseData;
+    // Convert base64 image data to a Blob object
+    const blob = base64ToBlob(output.result[0]);
+    return {
+      blob: URL.createObjectURL(blob),
+      seed: "42", // Return the id from the response
+    };
+  }
+  const errors = await res.json();
+  throw new Error(`Something went wrong: ${errors.errors}`);
+}
+
+
 export default async function inpaint(
   imageFile: File | Blob,
   settings: Settings,
