@@ -8,6 +8,7 @@ import { useRefContext } from "@/components/RefCanvas";
 import { useImage } from "@/hooks/useImage";
 import { FabricImage,  } from "fabric";
 import * as fabric from "fabric";
+import { useToast } from "./components/ui/use-toast";
 
 import { LOG_LEVELS } from "./lib/const";
 import { debugLog } from "./lib/utils";
@@ -32,6 +33,8 @@ function Home() {
 
   const { fabricRef } = useRefContext();
   const [image, isLoaded] = useImage(file);
+  const { toast } = useToast();
+
 
   const windowSize = useWindowSize();
 
@@ -71,12 +74,10 @@ function Home() {
       if (SUPPORTED_FILE_TYPE.includes(fileType)) {
         setFile(dragFile);
       } else {
-        // setToastState({
-        //   open: true,
-        //   desc: "Please drag and drop an image file",
-        //   state: "error",
-        //   duration: 3000,
-        // })
+        toast({
+          variant: "destructive",
+          description:  "Please drag and drop an image file",
+        });
       }
     } else {
       const url = data?.getData("text/plain");
@@ -108,7 +109,10 @@ function Home() {
     event.preventDefault();
     event.stopPropagation();
 
-    // TODO: add confirm dialog
+    toast({
+      title: "NUEVA IMAGEN",
+      description: "Haz pegado una imagen",
+    });
 
     const item = items[0];
     // Get the blob of image
@@ -152,6 +156,7 @@ function Home() {
     // });
     // scaledImage.filters.push(filter)
     // scaledImage.applyFilters();
+
       const centerX = canvasWidth / 2;
       const centerY = canvasHeight / 2;
 
@@ -179,6 +184,10 @@ function Home() {
 
       // add image
       fabricRef.current.add(scaledImage);
+      toast({
+        title: "NUEVA IMAGEN",
+        description: "Nueva imagen agregada",
+      });
       handleSaveState(fabricRef.current);
     }
   }, [image, isLoaded]);

@@ -52,6 +52,7 @@ import {
   Expand,
   Download,
   Paintbrush,
+  GrabIcon,
 } from "lucide-react";
 import {
   DoubleArrowDownIcon,
@@ -209,6 +210,8 @@ const Editor = React.forwardRef(() => {
   const windowSize = useWindowSize();
   
   const isBrushActivated = useRef<boolean>(settings.showDrawing)
+  const isPanningActivated = useRef<boolean>(false)
+
 
   const roundToNearest64 = (value: number) => Math.floor(value / 64) * 64;
 
@@ -586,54 +589,6 @@ const Editor = React.forwardRef(() => {
 
   }, [aspectRatio]);
 
-  // const afterRenderCallback = useCallback(
-  //   (e) => {
-  //     const canvas_instance = fabricRef.current;
-  //     const { ctx } = e;
-  //     const fillStyle = "rgba(0, 0, 0, 0.3)";
-  //     const width = canvas_instance?.width ?? 0;
-  //     const height = canvas_instance?.height ?? 0;
-
-  //     if (ctx) {
-
-  //       // Adjust clipping area based on the aspect ratio
-  //       let clipWidth, clipHeight;
-
-  //       const ratioObject = predefinedRatios.find(
-  //         (ratio) => ratio.name === aspectRatio,
-  //       );
-
-  //       if (ratioObject) {
-  //         debugLog(LOG_LEVELS.DEBUG, "choosed Ratio\n", ratioObject);
-  //         const { width: ratioWidth, height: ratioHeight } = ratioObject;
-  //         clipWidth = ratioWidth;
-  //         clipHeight = ratioHeight;
-  //       }
-
- 
-
-  //       debugLog(LOG_LEVELS.DEBUG, " <<user canvas window>>  width, heigth ", [
-  //         canvas_instance.width,
-  //         canvas_instance.height,
-  //       ]);
-  //       debugLog(LOG_LEVELS.DEBUG, "<<user choosedWidth, choosedHeigth>> ", [
-  //         clipWidth,
-  //         clipHeight,
-  //       ]);
-  //       debugLog(
-  //         LOG_LEVELS.DEBUG,
-  //         "<<user transf canvas  matrix>>\n",
-  //         canvas_instance.viewportTransform,
-  //       );
-
-  //       updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
-  //       setImageSize(clipWidth, clipHeight)
-
-  //     }
-  //   },
-  //   [aspectRatio],
-  // );
-
   const stopPanning = useCallback((opt: fabric.TEvent<MouseEvent>) => {
     if (isLeftClick(opt)) {
       isDragging.current = false;
@@ -641,7 +596,7 @@ const Editor = React.forwardRef(() => {
   }, []);
 
   const startPanning = useCallback((opt: fabric.TEvent<MouseEvent>) => {
-    if (isLeftClick(opt) && !fabricRef.current.getActiveObject() && !isBrushActivated.current) {
+    if (isLeftClick(opt) && !fabricRef.current.getActiveObject() && !isBrushActivated.current && isPanningActivated.current) {
       const evt = opt.e;
       isDragging.current = true;
       lastPosX.current = evt.clientX;
@@ -686,12 +641,14 @@ const Editor = React.forwardRef(() => {
     const centerX = canvasWidth / 2;
     const centerY = canvasHeight / 2;
 
+    const percentageOffset = 0.53; // For example, 20% of the canvas width
+    const offset = canvasWidth * percentageOffset;
+
     scaledImage.set({
-      left: centerX,
+      left: centerX + offset,
       top: centerY,
     });
-    // Clear the canvas
-    // fabricRef.current.clear();
+
     fabricRef.current.add(scaledImage);
     fabricRef.current.renderAll();
 
@@ -801,31 +758,31 @@ const Editor = React.forwardRef(() => {
     // drawOnCurrentRender,
   ]);
 
-  const onMouseMove = (ev: SyntheticEvent) => {
-    const mouseEvent = ev.nativeEvent as MouseEvent;
-    setCoords({ x: mouseEvent.pageX, y: mouseEvent.pageY });
-  };
+  // const onMouseMove = (ev: SyntheticEvent) => {
+  //   const mouseEvent = ev.nativeEvent as MouseEvent;
+  //   setCoords({ x: mouseEvent.pageX, y: mouseEvent.pageY });
+  // };
 
-  const onMouseDrag = (ev: SyntheticEvent) => {
-    if (isProcessing) {
-      return;
-    }
+  // const onMouseDrag = (ev: SyntheticEvent) => {
+  //   if (isProcessing) {
+  //     return;
+  //   }
 
-    if (interactiveSegState.isInteractiveSeg) {
-      return;
-    }
-    if (isPanning) {
-      return;
-    }
-    if (!isDraging) {
-      return;
-    }
-    if (curLineGroup.length === 0) {
-      return;
-    }
+  //   if (interactiveSegState.isInteractiveSeg) {
+  //     return;
+  //   }
+  //   if (isPanning) {
+  //     return;
+  //   }
+  //   if (!isDraging) {
+  //     return;
+  //   }
+  //   if (curLineGroup.length === 0) {
+  //     return;
+  //   }
 
-    handleCanvasMouseMove(mouseXY(ev));
-  };
+  //   handleCanvasMouseMove(mouseXY(ev));
+  // };
 
   const handleUndo = () => {
     undo();
@@ -964,20 +921,20 @@ const Editor = React.forwardRef(() => {
     }
   };
 
-  const renderInteractiveSegCursor = () => {
-    return (
-      <div
-        className="absolute h-[20px] w-[20px] pointer-events-none rounded-[50%] bg-[rgba(21,_215,_121,_0.936)] [box-shadow:0_0_0_0_rgba(21,_215,_121,_0.936)] animate-pulse"
-        style={{
-          left: `${x}px`,
-          top: `${y}px`,
-          transform: "translate(-50%, -50%)",
-        }}
-      >
-        <CursorArrowRaysIcon />
-      </div>
-    );
-  };
+  // const renderInteractiveSegCursor = () => {
+  //   return (
+  //     <div
+  //       className="absolute h-[20px] w-[20px] pointer-events-none rounded-[50%] bg-[rgba(21,_215,_121,_0.936)] [box-shadow:0_0_0_0_rgba(21,_215,_121,_0.936)] animate-pulse"
+  //       style={{
+  //         left: `${x}px`,
+  //         top: `${y}px`,
+  //         transform: "translate(-50%, -50%)",
+  //       }}
+  //     >
+  //       <CursorArrowRaysIcon />
+  //     </div>
+  //   );
+  // };
 
   const renderCanvas = () => {
     return (
@@ -1487,6 +1444,7 @@ const Editor = React.forwardRef(() => {
           >
             <Expand />
           </IconButton>
+
           <IconButton
             tooltip="Undo"
             onClick={handleUndo}
@@ -1494,6 +1452,7 @@ const Editor = React.forwardRef(() => {
           >
             <Undo />
           </IconButton>
+
           <IconButton
             tooltip="Redo"
             onClick={handleRedo}
@@ -1501,7 +1460,23 @@ const Editor = React.forwardRef(() => {
           >
             <Redo />
           </IconButton>
-          <IconButton
+
+          <Toggle
+            aria-label="Toggle italic"
+            defaultPressed={isPanningActivated.current}
+            onPressedChange={(value: boolean) => {
+              isPanningActivated.current = value 
+              if (value) {
+              }
+            }}
+          >
+            <div className="icon-button-icon-wrapper">
+            <GrabIcon />
+            </div>
+          </Toggle>
+
+
+          {/* <IconButton
             tooltip="Show original image"
             onPointerDown={(ev) => {
               ev.preventDefault();
@@ -1525,7 +1500,7 @@ const Editor = React.forwardRef(() => {
             disabled={renders.length === 0}
           >
             <Eye />
-          </IconButton>
+          </IconButton> */}
 
           <IconButton
             tooltip="Save Image"
@@ -1565,8 +1540,11 @@ const Editor = React.forwardRef(() => {
               }
             }}
           >
+          <div className="icon-button-icon-wrapper">
             <Paintbrush />
+          </div>
           </Toggle>
+
         </div>
       </div>
     </div>

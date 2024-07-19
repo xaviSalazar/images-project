@@ -35,7 +35,6 @@ export function LanguageSwitcher() {
   useEffect(() => {
     // Detect browser language
     const browserLanguage = navigator.language.slice(0, 2); // Get first two characters of the language code
-    console.log(browserLanguage)
     const supportedLanguage = languages.find((lang) => lang.value === browserLanguage);
     
     if (supportedLanguage) {
