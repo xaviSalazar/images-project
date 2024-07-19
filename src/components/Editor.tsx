@@ -12,6 +12,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { useKeyPressEvent } from "react-use";
 import { IconButton } from "@/components/ui/button";
 import {removeBackgroundApi} from "@/lib/api"
+import { useTranslation } from "react-i18next";
+
 
 import {
   Menubar,
@@ -188,6 +190,8 @@ const Editor = React.forwardRef(() => {
   const currCanvasGroups = useStore(
     (state) => state.editorState.currCanvasGroups,
   );
+  const { t } = useTranslation();
+
 
   // Local State
   const [showOriginal, setShowOriginal] = useState(false);
@@ -1370,22 +1374,25 @@ const Editor = React.forwardRef(() => {
         }}
       >
         <MenubarMenu>
-          <MenubarTrigger>Edit</MenubarTrigger>
+          <MenubarTrigger>{t("Edit")}</MenubarTrigger>
           <MenubarContent>
             <MenubarItem onClick={handleCopy}>
-              Copy{" "}
+              {t("Copy")}
               <MenubarShortcut>
                 <Copy />
               </MenubarShortcut>
             </MenubarItem>
             <MenubarItem onClick={handleCut}>
-              Cut{" "}
+              {t("Cut")}
               <MenubarShortcut>
                 <Scissors />
               </MenubarShortcut>
             </MenubarItem>
-            <MenubarItem onClick={handleDelete}>
-              Delete{" "}
+            <MenubarItem 
+              onClick={handleDelete}      
+              className="bg-red-500 text-white hover:bg-red-600"
+            >
+              {t("Delete")}
               <MenubarShortcut>
                 {" "}
                 <Trash2 />{" "}
@@ -1442,7 +1449,7 @@ const Editor = React.forwardRef(() => {
         </MenubarMenu>
 
         <MenubarMenu>
-          <MenubarTrigger>RemoveBG</MenubarTrigger>
+          <MenubarTrigger>{t("RemoveBG")}</MenubarTrigger>
           <MenubarContent>
             <MenubarItem onClick={() => handleRemoveBg("u2netp")}>
               Producto

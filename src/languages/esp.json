@@ -22,7 +22,13 @@
     "Shrink": "Disminuir",
     "Reverse": "Reversar",
     "Clear": "Borrar",
+    "Edit": "Opciones",
+    "Copy": "copiar",
+    "Cut": "cortar",
+    "Delete": "suprimir",
 
+
+    "RemoveBG": "quitar fondo",
     "Upload Picture": "SUBIR IMAGEN",
     "See gallery": "VER GALERIA"
 

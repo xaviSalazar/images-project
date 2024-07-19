@@ -23,7 +23,12 @@
     "Shrink": "Shrink",
     "Reverse": "Reverse",
     "Clear": "Clear",
+    "Edit": "Options",
+    "Copy": "copy",
+    "Cut": "cut",
+    "Delete": "delete",
 
+    "RemoveBG": "remove background",
     "Upload Picture": "UPLOAD PICTURE",
     "See gallery": "SEE GALLERY"
 
