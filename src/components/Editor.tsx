@@ -1128,6 +1128,7 @@ const Editor = React.forwardRef(() => {
         cloned.top += 100;
         canvas_instance.add(cloned);
       });
+    saveState();
     }
   };
 
@@ -1192,6 +1193,7 @@ const Editor = React.forwardRef(() => {
     if (target) {
       canvas_instance?.remove(target);
       canvas_instance?.requestRenderAll();
+      saveState();
     }
   };
 
@@ -1262,14 +1264,12 @@ const Editor = React.forwardRef(() => {
   };
 
   const handleRemoveBg = async (model: string) => {
-    const fabricInstance = fabricRef.current;
     
+    const fabricInstance = fabricRef.current;    
     const current_active = fabricInstance?.getActiveObject();
-    console.log(current_active)
 
     if (!current_active) return;
 
-    animateImageOpacity(current_active, 1000); // Start the continuous animation
     const objectWidth =
       (current_active.width ?? 0) * (current_active.scaleX ?? 0);
     const objectHeight =
@@ -1301,8 +1301,6 @@ const Editor = React.forwardRef(() => {
 
       // Get the data URL of the cloned object
       const objectDataUrl = tempCanvas.toDataURL({format: "png",quality: 1,multiplier: 1});
-      console.log(objectDataUrl)
-
       // // preview download
       // const link = document.createElement("a");
       // link.href = objectDataUrl;
@@ -1312,6 +1310,7 @@ const Editor = React.forwardRef(() => {
       // document.body.removeChild(link);
 
     try {
+      animateImageOpacity(current_active, 1000); // Start the continuous animation
       const res = await removeBackgroundApi(
         dataURItoBlob(objectDataUrl),
         model,
@@ -1337,7 +1336,7 @@ const Editor = React.forwardRef(() => {
       });
     }
 
-    // // remove background free version 
+      // remove background free version 
       // removeBackground(objectDataUrl, config).then((blob: Blob) => {
       //   // The result is a blob encoded as PNG. It can be converted to an URL to be used as HTMLImage.src
       //   const url = URL.createObjectURL(blob);
@@ -1355,9 +1354,8 @@ const Editor = React.forwardRef(() => {
       //     fabricInstance?.requestRenderAll();
       //   });
       // });
-
-
   }
+
   return (
     <div
       className="flex w-screen h-screen justify-center items-center"
@@ -1402,7 +1400,7 @@ const Editor = React.forwardRef(() => {
         </MenubarMenu>
 
         <MenubarMenu>
-          <MenubarTrigger>Layer</MenubarTrigger>
+          <MenubarTrigger>{t("Layer")}</MenubarTrigger>
           <MenubarContent>
             <MenubarItem onClick={() => handleLayoutControl("toFront")}>
               toFront{" "}

@@ -152,16 +152,6 @@ function Home() {
     // });
     // scaledImage.filters.push(filter)
     // scaledImage.applyFilters();
-    // ADDED FILTER EXAMPLE
-    // const blurFilter = new fabric.filters.Blur({
-    //   blur: 0.9,
-    // });
-    //  new fabric.filters.Resize({hermite: 'lanczos', scaleX: integerScale,
-    //   scaleY: integerScale,})
-    // scaledImage.applyFilters();
-    // scaledImage.filters.push(blurFilter);
-
-
       const centerX = canvasWidth / 2;
       const centerY = canvasHeight / 2;
 
@@ -171,8 +161,6 @@ function Home() {
         img_view: "modify", // created custom property in object
       });
 
-      // add image
-      fabricRef.current.add(scaledImage);
       debugLog(LOG_LEVELS.DEBUG, "imageWidth, imageHeigth", [
         imageWidth,
         imageHeight,
@@ -189,7 +177,8 @@ function Home() {
         scaledImage.calcOwnMatrix(),
       );
 
-      // fabricRef.current.renderAll();
+      // add image
+      fabricRef.current.add(scaledImage);
       handleSaveState(fabricRef.current);
     }
   }, [image, isLoaded]);

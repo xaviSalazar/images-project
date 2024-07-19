@@ -27,6 +27,7 @@
     "Copy": "copy",
     "Cut": "cut",
     "Delete": "delete",
+    "Layer": "Position",
 
     "RemoveBG": "remove background",
     "Upload Picture": "UPLOAD PICTURE",
