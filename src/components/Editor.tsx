@@ -235,6 +235,8 @@ const Editor = React.forwardRef(() => {
   const rectangleCut = useRef<fabric.Object | null>(null);
   const isCropping = useRef<boolean>(false);
 
+  const oldWindowSize = useRef<{width:number, height:number}>({width: 0, height:0})
+
   const hadDrawSomething = useCallback(() => {
     return currCanvasGroups.length !== 0;
   }, [currCanvasGroups]);
@@ -351,14 +353,16 @@ const Editor = React.forwardRef(() => {
 
   useEffect(() => {
     const initMainCanvas = (): fabric.Canvas => {
+      oldWindowSize.current = {width: window.innerWidth, height: window.innerHeight}
+
       updateAppState({
-        userWindowWidth: compatibleWidth,
-        userWindowHeight: compatibleHeight,
+        userWindowWidth: window.innerWidth,
+        userWindowHeight: window.innerHeight,
       });
 
       return new fabric.Canvas(canvasRef.current, {
-        width: compatibleWidth,
-        height: compatibleHeight,
+        width: window.innerWidth,
+        height: window.innerHeight,
         backgroundColor: "#8F8F8F",
         imageSmoothingEnabled: false,
         fireMiddleClick: true,
@@ -489,6 +493,9 @@ const Editor = React.forwardRef(() => {
     };
   }, []);
 
+  const rectangleGroupRef = useRef<fabric.Group> ();
+  const groupCoordinatesRef = useRef<{offsetX: number, offsetY:number}> ();
+
   useEffect(() => {
 
     const canvas_instance = fabricRef.current;
@@ -585,7 +592,9 @@ const Editor = React.forwardRef(() => {
         selectable: false,
       });
 
-      canvas_instance.overlayImage = rectangleGroup
+      rectangleGroupRef.current = rectangleGroup
+      groupCoordinatesRef.current = {offsetX: rectangleGroup.left, offsetY: rectangleGroup.top}
+      canvas_instance.overlayImage = rectangleGroupRef.current
 
   }, [aspectRatio]);
 
@@ -727,16 +736,35 @@ const Editor = React.forwardRef(() => {
     }
   }, []);
 
-  // useEffect(() => {
-  //   window.addEventListener("resize", () => {
-  //     resetZoom();
-  //   });
-  //   return () => {
-  //     window.removeEventListener("resize", () => {
-  //       resetZoom();
-  //     });
-  //   };
-  // }, [windowSize, resetZoom]);
+     // Function to move the group by an offset
+     const moveGroupByOffset = (group:fabric.Group, offsetX:number, offsetY:number) => {
+      group.set({
+        left: groupCoordinatesRef.current?.offsetX - offsetX/2,
+        top: groupCoordinatesRef.current?.offsetY - offsetY/2,
+      });
+      group.setCoords(); // Update the coordinates
+      fabricRef.current.renderAll(); // Re-render the canvas
+    };
+
+    useEffect(() => {
+    window.addEventListener("resize", () => {
+    const offsetX = oldWindowSize.current.width - window.innerWidth;
+    const offsetY = oldWindowSize.current.height - window.innerHeight;
+    setCompatibleWidth(window.innerWidth)
+    setCompatibleHeight(window.innerHeight)
+    updateAppState({
+      userWindowWidth: window.innerWidth,
+      userWindowHeight: window.innerHeight,
+    });
+    fabricRef.current.setWidth(window.innerWidth)
+    fabricRef.current.setHeight(window.innerHeight)
+    moveGroupByOffset(rectangleGroupRef.current, offsetX, offsetY);
+    });
+    return () => {
+      window.removeEventListener("resize", () => {
+      });
+    };
+  }, []);
 
   const handleEscPressed = () => {
     if (isProcessing) {
