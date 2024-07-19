@@ -22,6 +22,10 @@
     "Expand": "Expand",
     "Shrink": "Shrink",
     "Reverse": "Reverse",
-    "Clear": "Clear"
+    "Clear": "Clear",
+
+    "Upload Picture": "UPLOAD PICTURE",
+    "See gallery": "SEE GALLERY"
+
   }
 }

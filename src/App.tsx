@@ -11,14 +11,7 @@ import * as fabric from "fabric";
 
 import { LOG_LEVELS } from "./lib/const";
 import { debugLog } from "./lib/utils";
-
-const SUPPORTED_FILE_TYPE = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/bmp",
-  "image/tiff",
-];
+import { SUPPORTED_FILE_TYPE } from "@/lib/const"
 
 function Home() {
   const [

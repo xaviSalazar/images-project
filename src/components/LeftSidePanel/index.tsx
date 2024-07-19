@@ -10,12 +10,14 @@ import { RowContainer, LabelTitle } from "./LabelTitle";
 import CanvasOptions from "./CanvasOptions";
 import RatioOptions from "./RatioOptions";
 import { useTranslation } from "react-i18next";
-import React, { MutableRefObject } from "react";
+import React, { MutableRefObject, useRef} from "react";
 import { Settings } from "lucide-react";
 import { Images } from "lucide-react";
 import { Paperclip } from "lucide-react";
 import { WandSparkles } from "lucide-react";
 import { Layers } from "lucide-react";
+import { SUPPORTED_FILE_TYPE } from "@/lib/const"
+
 
 import {
   Menubar,
@@ -88,11 +90,16 @@ export const works: Artwork[] = [
 ];
 
 const LeftSidePanel = () => {
-  const [isInpainting, runImgRendering, windowSize] = useStore((state) => [
+  const [isInpainting, runImgRendering, windowSize, setFile] = useStore((state) => [
     state.isInpainting,
     state.runImgRendering,
     state.windowSize,
+    state.setFile,
   ]);
+
+  const fileInputRef = useRef(null);
+  const { t } = useTranslation();
+
 
   const [open, toggleOpen] = useToggle(true);
 
@@ -107,13 +114,42 @@ const LeftSidePanel = () => {
     event.dataTransfer.setData("text/plain", artwork.art);
   };
 
+  const onFileSelected = async (file: File) => {
+    if (!file) {
+      return;
+    }
+    // Skip non-image files
+    const isImage = file.type.match("image.*");
+    if (!isImage) {
+      return;
+    }
+    try {
+      // Check if file is larger than 20mb
+      if (file.size > 20 * 1024 * 1024) {
+        throw new Error("file too large");
+      }
+
+      setFile(file);
+    } catch (e) {
+      // eslint-disable-next-line
+      alert(`error: ${(e as any).message}`);
+    }
+  };
+  
+  const handleUploadClick = () => {
+    console.log("handle upload")
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  }
+
   function MenubarDemo() {
     return (
       <Menubar className="z-10 outline-none absolute top-[120px] left-6 rounded-lg border bg-background flex flex-col">
         <MenubarMenu>
           <MenubarTrigger>
             {" "}
-            <Images /> IMAGENES{" "}
+            <Images /> {t("See gallery")}
           </MenubarTrigger>
           <MenubarContent>
             <ScrollArea
@@ -151,39 +187,28 @@ const LeftSidePanel = () => {
         <Separator />
 
         <MenubarMenu>
-          <MenubarTrigger>
-            <Paperclip /> UPLOADS
-          </MenubarTrigger>
-          <MenubarContent>
-            <MenubarItem>
-              Undo <MenubarShortcut>⌘Z</MenubarShortcut>
-            </MenubarItem>
-            <MenubarItem>
-              Redo <MenubarShortcut>⇧⌘Z</MenubarShortcut>
-            </MenubarItem>
-            <MenubarSeparator />
-            <MenubarSub>
-              <MenubarSubTrigger>Find</MenubarSubTrigger>
-              <MenubarSubContent>
-                <MenubarItem>Search the web</MenubarItem>
-                <MenubarSeparator />
-                <MenubarItem>Find...</MenubarItem>
-                <MenubarItem>Find Next</MenubarItem>
-                <MenubarItem>Find Previous</MenubarItem>
-              </MenubarSubContent>
-            </MenubarSub>
-            <MenubarSeparator />
-            <MenubarItem>Cut</MenubarItem>
-            <MenubarItem>Copy</MenubarItem>
-            <MenubarItem>Paste</MenubarItem>
-          </MenubarContent>
+          <MenubarTrigger onClick={handleUploadClick}>
+          <input
+            ref={fileInputRef}
+            className="hidden"
+            type="file"
+            onChange={(ev) => {
+              const file = ev.currentTarget.files?.[0]
+              if (file) {
+                onFileSelected(file)
+              }
+            }}
+            accept={SUPPORTED_FILE_TYPE.join(', ')}
+          />
+            <Paperclip /> {t("Upload Picture")}
+        </MenubarTrigger>
         </MenubarMenu>
 
         <Separator />
 
         <MenubarMenu>
           <MenubarTrigger>
-            <WandSparkles /> MAGIC AI
+            <WandSparkles /> Magic AI
           </MenubarTrigger>
           <MenubarContent>
             <MenubarItem
@@ -199,7 +224,7 @@ const LeftSidePanel = () => {
 
         <Separator />
 
-        <MenubarMenu>
+        {/* <MenubarMenu>
           <MenubarTrigger>
             {" "}
             <Layers /> AJUSTA IMAGEN
@@ -207,7 +232,7 @@ const LeftSidePanel = () => {
           <MenubarContent>
             <CanvasOptions />
           </MenubarContent>
-        </MenubarMenu>
+        </MenubarMenu> */}
 
         <MenubarMenu>
           <MenubarTrigger>

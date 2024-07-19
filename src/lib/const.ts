@@ -40,3 +40,12 @@ export const LOG_LEVELS = {
   INFO: "info",
   ERROR: "error",
 };
+
+
+export const SUPPORTED_FILE_TYPE = [
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/bmp",
+  "image/tiff",
+];
