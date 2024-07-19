@@ -641,8 +641,7 @@ const Editor = React.forwardRef(() => {
     const centerX = canvasWidth / 2;
     const centerY = canvasHeight / 2;
 
-    const percentageOffset = 0.53; // For example, 20% of the canvas width
-    const offset = canvasWidth * percentageOffset;
+    const offset = canvasWidth/2 + 40;
 
     scaledImage.set({
       left: centerX + offset,
