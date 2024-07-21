@@ -650,7 +650,7 @@ const Editor = React.forwardRef(() => {
     const centerX = canvasWidth / 2;
     const centerY = canvasHeight / 2;
 
-    const offset = canvasWidth/2 + 40;
+    const offset = scaledWidth + 20;
 
     scaledImage.set({
       left: centerX + offset,
