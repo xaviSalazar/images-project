@@ -138,6 +138,7 @@ type EditorState = {
   baseBrushSize: number;
   brushSizeScale: number;
   renders: HTMLImageElement[];
+  triggerRedoUndo: boolean;
   lineGroups: LineGroup[];
   lastLineGroup: LineGroup;
   curLineGroup: LineGroup;
@@ -246,10 +247,12 @@ type AppAction = {
   handleCanvasMouseMove: (point: Point) => void;
   cleanCurLineGroup: () => void;
   resetRedoState: () => void;
+  setTriggerUndoRedo : (newValue: boolean) => void;
   undo: () => void;
   redo: () => void;
   undoDisabled: () => boolean;
   redoDisabled: () => boolean;
+
 
   adjustMask: (operate: AdjustMaskOperate) => Promise<void>;
   clearMask: () => void;
@@ -282,6 +285,7 @@ const defaultValues: AppState = {
     brushSizeScale: 1,
     renders: [],
     extraMasks: [],
+    triggerRedoUndo: false,
     prevExtraMasks: [],
     temporaryMasks: [],
     lineGroups: [],
@@ -753,6 +757,11 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         return get().settings.model.model_type !== MODEL_TYPE_INPAINT;
       },
 
+      setTriggerUndoRedo: (newValue: boolean) => 
+        set((state) => {
+          state.editorState.triggerRedoUndo = newValue;
+      }),
+
       // undo/redo
 
       undoDisabled: (): boolean => {
@@ -770,6 +779,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         }
         return false;
       },
+
 
       undo: () => {
         if (
@@ -793,25 +803,9 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
               JSON.parse(lastLine.data),
             );
             editorState.redoCurCanvas.push(lastLine);
+            editorState.triggerRedoUndo = true;
           });
-        } else {
-          set((state) => {
-            const editorState = state.editorState;
-            if (
-              editorState.renders.length === 0 ||
-              editorState.lineGroups.length === 0
-            ) {
-              return;
-            }
-            const lastLineGroup = editorState.lineGroups.pop()!;
-            editorState.redoLineGroups.push(lastLineGroup);
-            editorState.redoCurLines = [];
-            editorState.curLineGroup = [];
-
-            const lastRender = editorState.renders.pop()!;
-            editorState.redoRenders.push(lastRender);
-          });
-        }
+        } 
       },
 
       redoDisabled: (): boolean => {
@@ -834,7 +828,6 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         if (
           get().runMannually() &&
           get().editorState.redoCurCanvas.length !== 0
-          // get().editorState.redoCurLines.length !== 0
         ) {
           set((state) => {
             const editorState = state.editorState;
@@ -845,25 +838,9 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
             // const line = editorState.redoCurLines.pop()!;
             const draw = editorState.redoCurCanvas.pop()!;
             editorState.currCanvasGroups.push(draw);
-            //editorState.curLineGroup.push(line);
+            editorState.triggerRedoUndo = true;
           });
-        } else {
-          set((state) => {
-            const editorState = state.editorState;
-            if (
-              editorState.redoRenders.length === 0 ||
-              editorState.redoLineGroups.length === 0
-            ) {
-              return;
-            }
-            const lastLineGroup = editorState.redoLineGroups.pop()!;
-            editorState.lineGroups.push(lastLineGroup);
-            editorState.curLineGroup = [];
-
-            const lastRender = editorState.redoRenders.pop()!;
-            editorState.renders.push(lastRender);
-          });
-        }
+        } 
       },
 
       resetRedoState: () => {

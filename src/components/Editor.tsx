@@ -149,6 +149,7 @@ const Editor = React.forwardRef(() => {
     isCropperExtenderResizing,
     decreaseBaseBrushSize,
     increaseBaseBrushSize,
+    setTriggerUndoRedo, 
   ] = useStore((state) => [
     state.disableShortCuts,
     state.isInpainting,
@@ -180,8 +181,10 @@ const Editor = React.forwardRef(() => {
     state.isCropperExtenderResizing,
     state.decreaseBaseBrushSize,
     state.increaseBaseBrushSize,
+    state.setTriggerUndoRedo,
   ]);
   const baseBrushSize = useStore((state) => state.editorState.baseBrushSize);
+  const triggerRedoUndo = useStore((state) => state.editorState.triggerRedoUndo)
   const brushSize = useStore((state) => state.getBrushSize());
   const renders = useStore((state) => state.editorState.renders);
   const extraMasks = useStore((state) => state.editorState.extraMasks);
@@ -663,17 +666,21 @@ const Editor = React.forwardRef(() => {
     handleSaveState(fabricRef.current);
   }, [renders]);
 
-  // REDO / UNDO ACTION
-  // useEffect(() => {
-  //   if (!fabricRef.current) return;
-  //   if (currCanvasGroups.length === 0) return;
-  //   const lastElement = currCanvasGroups[currCanvasGroups.length - 1];
-  //   const state = JSON.parse(lastElement.data);
-  //   fabricRef.current.loadFromJSON(
-  //     state,
-  //     fabricRef.current.renderAll.bind(fabricRef.current),
-  //   );
-  // }, [currCanvasGroups]);
+ // REDO / UNDO ACTION
+  useEffect(() => {
+
+    if (!fabricRef.current) return;
+    if (currCanvasGroups.length === 0) return;
+    
+    const lastElement = currCanvasGroups[currCanvasGroups.length - 1];
+    const state = JSON.parse(lastElement.data);
+
+    fabricRef.current.loadFromJSON(state).then(() => {
+      fabricRef.current.renderAll();
+          })
+    // Reset Trigger
+    setTriggerUndoRedo(false)
+  }, [triggerRedoUndo]);
 
   // CHANGE BRUSH SIZE
   useEffect(() => {
