@@ -546,7 +546,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
       },
 
       runImgRendering: async () => {
-        const { isInpainting, aspectRatio, userWindowWidth, userWindowHeight } = get();
+        const { isInpainting, aspectRatio, userWindowWidth, userWindowHeight, scaledWidth, scaledHeight } = get();
 
         if (isInpainting) {
           return;
@@ -581,6 +581,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
 
         console.log(targetFile)
         console.log(staticElements)
+        console.log(scaledWidth,scaledHeight)
 
         try {
           const res = await renderImage(
@@ -588,6 +589,8 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
             dataURItoBlob(staticElements),
             prompt,
             negativePrompt,
+            scaledWidth,
+            scaledHeight
           );
           const { blob, seed } = res;
           if (seed) {

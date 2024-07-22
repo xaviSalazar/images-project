@@ -29,6 +29,8 @@ export async function renderImage(
   imageObjects: File | Blob,
   prompt_positive: string,
   prompt_negative: string,
+  width: number,
+  height: number
 ) {
   const imageBase64 = await convertToBase64(imageFile);
   const objectsBase64 = await convertToBase64(imageObjects);
@@ -47,6 +49,8 @@ export async function renderImage(
         image_objects: objectsBase64,
         prompt_positive: prompt_positive,
         prompt_negative: prompt_negative,
+        width: width,
+        height: height
       },
     }),
   });
