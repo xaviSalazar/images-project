@@ -251,25 +251,40 @@ const Editor = React.forwardRef(() => {
     }
   }, [fabricRef.current]);
 
-  function animateImageOpacity(
-    object: fabric.Object | null,
-    duration: number = 1000,
-    toOpacity: number = 0,
-  ) {
+  function animateImageOpacity(object, duration, toOpacity, animationIdRef) {
     if (!object) return;
-    fabric.util.animate({
-      startValue: object.get("opacity") as number,
-      endValue: toOpacity,
-      duration: duration,
-      onChange: (value: number) => {
-        object.set("opacity", value);
-        object.canvas?.renderAll();
-      },
-      onComplete: () => {
+  
+    const startOpacity = object.get("opacity");
+    const startTime = performance.now();
+  
+    function step(timestamp) {
+      if (!animationIdRef.current) return; // If animationIdRef.current is null, stop the animation
+  
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const newOpacity = startOpacity + (toOpacity - startOpacity) * progress;
+  
+      object.set("opacity", newOpacity);
+      object.canvas?.renderAll();
+  
+      if (progress < 1) {
+        animationIdRef.current = requestAnimationFrame(step);
+      } else {
         const nextOpacity = toOpacity === 1 ? 0 : 1;
-        animateImageOpacity(object, duration, nextOpacity); // Recursively call to continue animation
-      },
-    });
+        animateImageOpacity(object, duration, nextOpacity, animationIdRef);
+      }
+    }
+  
+    animationIdRef.current = requestAnimationFrame(step);
+  }
+
+  function stopAnimation(object, animationIdRef) {
+    if (animationIdRef.current !== null) {
+      cancelAnimationFrame(animationIdRef.current);
+      animationIdRef.current = null;
+      object.set("opacity", 1);
+      object.canvas?.renderAll();
+    }
   }
 
   const cropImage = () => {
@@ -1299,9 +1314,10 @@ const Editor = React.forwardRef(() => {
       // document.body.appendChild(link);
       // link.click();
       // document.body.removeChild(link);
+      const animationIdRef = { current: null };
 
     try {
-      animateImageOpacity(current_active, 1000); // Start the continuous animation
+      animateImageOpacity(current_active, 1000, 0, animationIdRef); // Start the continuous animation  
       const res = await removeBackgroundApi(
         dataURItoBlob(objectDataUrl),
         model,
@@ -1321,12 +1337,12 @@ const Editor = React.forwardRef(() => {
         fabricInstance?.requestRenderAll();
       });
     } catch (e: any) {
+      stopAnimation(current_active, animationIdRef);
       toast({
         variant: "destructive",
         description: e.message ? e.message : e.toString(),
       });
     }
-
       // remove background free version 
       // removeBackground(objectDataUrl, config).then((blob: Blob) => {
       //   // The result is a blob encoded as PNG. It can be converted to an URL to be used as HTMLImage.src
