@@ -13,7 +13,7 @@ import { useKeyPressEvent } from "react-use";
 import { IconButton } from "@/components/ui/button";
 import {removeBackgroundApi} from "@/lib/api"
 import { useTranslation } from "react-i18next";
-
+import {resizeImageWithPica} from "@/lib/utils"
 
 import {
   Menubar,
@@ -653,7 +653,7 @@ const Editor = React.forwardRef(() => {
 
     if (!fabricRef.current || !render) return;
 
-    debugLog(LOG_LEVELS.DEBUG, "renddeers", render);
+    debugLog(LOG_LEVELS.DEBUG, "renders", render);
 
     const scaledImage = new FabricImage(render, {
       scaleX: 1,
@@ -1065,9 +1065,11 @@ const Editor = React.forwardRef(() => {
   // };
 
   const handleDownload = async (source: string) => {
+
     const predefinedRatio = predefinedRatios.find(
       (ratio) => ratio.name === aspectRatio,
     );
+
     if (!predefinedRatio) {
       console.error("Invalid aspect ratio");
       return;
@@ -1136,6 +1138,51 @@ const Editor = React.forwardRef(() => {
       });
     saveState();
     }
+  };
+
+  const handleDownloadObject = async () => {
+    const canvas_instance = fabricRef.current;
+    if (!canvas_instance) return;
+    const current_active = canvas_instance.getActiveObject();
+
+    const objectWidth =
+    (current_active.width ?? 0) * (current_active.scaleX ?? 0);
+  const objectHeight =
+    (current_active.height ?? 0) * (current_active.scaleY ?? 0);
+    let CvRef: HTMLCanvasElement | null = null;
+  var tempCanvas = new fabric.Canvas(CvRef, {
+    width: objectWidth,
+    height: objectHeight,
+  });
+  // Clone the active object to the temporary canvas
+  const cloned_object = await current_active.clone();
+
+  cloned_object.set({
+    left: objectWidth / 2,
+    top: objectHeight / 2,
+    scaleX: current_active.scaleX,
+    scaleY: current_active.scaleY,
+    originX: "center",
+    originY: "center",
+  });
+
+    tempCanvas.add(cloned_object);
+    tempCanvas.renderAll();
+
+    const dataURL = tempCanvas.toDataURL({
+      format: "png",
+      quality: 1,
+      multiplier: 1,
+    });
+
+    const link = document.createElement("a");
+    link.href = dataURL;
+    link.download = `generated_image.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    
   };
 
   const handleCut = () => {
@@ -1273,6 +1320,7 @@ const Editor = React.forwardRef(() => {
     
     const fabricInstance = fabricRef.current;    
     const current_active = fabricInstance?.getActiveObject();
+    console.log(current_active)
 
     if (!current_active) return;
 
@@ -1283,43 +1331,50 @@ const Editor = React.forwardRef(() => {
     const objectCenterTop = current_active.top ?? 0;
     const objectCenterLeft = current_active.left ?? 0;
 
+    const originalSource = current_active._originalElement.currentSrc;
+
+    const resizedImageSrc = await resizeImageWithPica(originalSource, objectWidth, objectHeight);
+
     // Create a temporary canvas
-    let CvRef: HTMLCanvasElement | null = null;
+    // let CvRef: HTMLCanvasElement | null = null;
 
-    var tempCanvas = new fabric.Canvas(CvRef, {
-      width: objectWidth,
-      height: objectHeight,
-    });
-    // Clone the active object to the temporary canvas
-    const cloned_object = await current_active.clone();
+    // var tempCanvas = new fabric.Canvas(CvRef, {
+    //   width: objectWidth,
+    //   height: objectHeight,
+    // });
+    // // Clone the active object to the temporary canvas
+    // const cloned_object = await current_active.clone();
 
-    cloned_object.set({
-      left: objectWidth / 2,
-      top: objectHeight / 2,
-      scaleX: current_active.scaleX,
-      scaleY: current_active.scaleY,
-      originX: "center",
-      originY: "center",
-    });
+    // cloned_object.set({
+    //   left: objectWidth / 2,
+    //   top: objectHeight / 2,
+    //   scaleX: current_active.scaleX,
+    //   scaleY: current_active.scaleY,
+    //   originX: "center",
+    //   originY: "center",
+    // });
 
-      tempCanvas.add(cloned_object);
-      tempCanvas.renderAll();
+    //   tempCanvas.add(cloned_object);
+    //   tempCanvas.renderAll();
 
       // Get the data URL of the cloned object
-      const objectDataUrl = tempCanvas.toDataURL({format: "png",quality: 1,multiplier: 1});
+      
+      //const objectDataUrl = tempCanvas.toDataURL({format: "png",quality: 1,multiplier: 1});
+
       // // preview download
       // const link = document.createElement("a");
-      // link.href = objectDataUrl;
+      // link.href = resizedImageSrc;
       // link.download = `objectDataUrl.png`;
       // document.body.appendChild(link);
       // link.click();
       // document.body.removeChild(link);
+      
       const animationIdRef = { current: null };
 
     try {
       animateImageOpacity(current_active, 1000, 0, animationIdRef); // Start the continuous animation  
       const res = await removeBackgroundApi(
-        dataURItoBlob(objectDataUrl),
+        dataURItoBlob(resizedImageSrc),
         model,
       );
       const { blob, seed } = res;
@@ -1343,6 +1398,8 @@ const Editor = React.forwardRef(() => {
         description: e.message ? e.message : e.toString(),
       });
     }
+
+
       // remove background free version 
       // removeBackground(objectDataUrl, config).then((blob: Blob) => {
       //   // The result is a blob encoded as PNG. It can be converted to an URL to be used as HTMLImage.src
@@ -1381,6 +1438,14 @@ const Editor = React.forwardRef(() => {
         <MenubarMenu>
           <MenubarTrigger>{t("Edit")}</MenubarTrigger>
           <MenubarContent>
+
+          <MenubarItem onClick={handleDownloadObject}>
+              {t("Descargar")}
+              <MenubarShortcut>
+                <Download />
+              </MenubarShortcut>
+            </MenubarItem>
+
             <MenubarItem onClick={handleCopy}>
               {t("Copy")}
               <MenubarShortcut>

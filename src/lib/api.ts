@@ -58,12 +58,11 @@ export async function renderImage(
   if (res.ok) {
     const responseData = await res.json(); // Parse JSON response
     const { output } = responseData;
-    console.log(output);
     // Convert base64 image data to a Blob object
-    const blob = base64ToBlob(output.result[0]);
-
+    // const blob = base64ToBlob(output.result[0]);
     return {
-      blob: URL.createObjectURL(blob),
+      //blob: URL.createObjectURL(blob),
+      img_list : output.result,
       seed: "42", // Return the id from the response
     };
   }

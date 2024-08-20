@@ -141,14 +141,15 @@ function Home() {
         originY: "center",
       });
 
-      scaledImage.resizeFilter = new fabric.filters.Resize({
-        resizeType: 'lanczos', // typo fixed
-        lanczosLobes: 3 // typo fixed
-    })
+    //   scaledImage.resizeFilter = new fabric.filters.Resize({
+    //     resizeType: 'lanczos', // typo fixed
+    //     lanczosLobes: 3 // typo fixed
+    // })
 
     scaledImage.scaleX  = integerScale
     scaledImage.scaleY = integerScale
 
+    //********* How to apply filters */
     // const filter = new fabric.filters.Convolute({
     //   matrix: [ -1, -1,  -1,
     //            -1,  9, -1,

@@ -7,6 +7,10 @@ import { LOG_LEVELS } from "./const";
 import { predefinedRatios } from "@/lib/const";
 import * as fabric from "fabric"; // v6
 import { toast } from "@/components/ui/use-toast";
+import Pica from 'pica';
+import { FabricImage } from "fabric";
+
+
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -274,6 +278,39 @@ export const generateMask = (
   return maskCanvas;
 };
 
+export const resizeImageWithPica = async (imageSrc, width, height) => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = imageSrc;
+
+    img.onload = async () => {
+      const pica = new Pica();
+      const sourceCanvas = document.createElement('canvas');
+      const destCanvas = document.createElement('canvas');
+      
+      sourceCanvas.width = img.width;
+      sourceCanvas.height = img.height;
+      destCanvas.width = width;
+      destCanvas.height = height;
+
+      const ctx = sourceCanvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+
+      try {
+        await pica.resize(sourceCanvas, destCanvas);
+        resolve(destCanvas.toDataURL('image/png', 1));
+      } catch (error) {
+        reject(error);
+      }
+    };
+
+    img.onerror = (error) => {
+      reject(error);
+    };
+  });
+};
+
+
 export const generateFromCanvas = async (
   canvasObject: object,
   aspectRatio: string,
@@ -312,7 +349,7 @@ export const generateFromCanvas = async (
       const fixedImgCanvas = new fabric.Canvas(null, {
         width: outputWidth,
         height: outputHeight,
-        backgroundColor : "#000",
+        backgroundColor : "#fff",
       });
 
       const objCanvas = JSON.parse(canvasObject.data);
@@ -359,9 +396,30 @@ export const generateFromCanvas = async (
 
         if (single_obj.type === "image") {
           tmpImgCanvas.add(clone);
-          // add object: keeps fixed image to not being modified
+
+          // STILL THINKING HOW TO APPLY THIS
+          // Step 1: Retrieve the original image source
+          // const originalSource = single_obj._originalElement.currentSrc;
+          // const width_ = single_obj.width * single_obj.scaleX
+          // const heigth_ = single_obj.height * single_obj.scaleY
+          // console.log(originalSource)
+          // // Step 2: Resize the image using Pica
+          // const resizedImageSrc = await resizeImageWithPica(originalSource, width_, heigth_);
+          // console.log(resizedImageSrc)
+          // // Step 3: Create a new fabric.Image object with the resized image
+          // const resizedImage = new FabricImage(resizedImageSrc, {
+          //   left: clone.left,
+          //   top: clone.top,
+          // });
+      
+          // tmpImgCanvas.add(resizedImage);
+      
+          // // Add object to fixed image canvas if it's marked as "fixed"
           if (single_obj.img_view === "fixed") {
             fixedImgCanvas.add(clone_fixed_elements);
+
+            // STILL THINKING HOW TO APLY THIS
+            // fixedImgCanvas.add(resizedImage.clone());
           }
         }
       }

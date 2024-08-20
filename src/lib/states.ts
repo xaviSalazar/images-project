@@ -42,6 +42,7 @@ import {
   loadImage,
   srcToFile,
   debugLog,
+  base64ToBlob,
 } from "./utils";
 import inpaint, {
   renderImage,
@@ -592,18 +593,23 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
             scaledWidth,
             scaledHeight
           );
-          const { blob, seed } = res;
-          if (seed) {
-            get().setSeed(parseInt(seed, 10));
+          
+          //const { blob, seed } = res;
+          const { img_list, seed } = res;
+          console.log(img_list)
+          for (const base64Image of img_list) {
+            const blob = base64ToBlob(base64Image);
+            const newRender = new Image();
+            await loadImage(newRender, URL.createObjectURL(blob));
+            const newRenders = [...renders, newRender];
+            get().updateEditorState({
+              renders: newRenders,
+            });
           }
-          const newRender = new Image();
-          await loadImage(newRender, blob);
-          const newRenders = [...renders, newRender];
-          get().setImageSize(newRender.width, newRender.height);
-          get().updateEditorState({
-            renders: newRenders,
-          });
-
+          // if (seed) {
+          //   get().setSeed(parseInt(seed, 10));
+          // }
+          //get().setImageSize(newRender.width, newRender.height);
           toast({
             description: `LOADED NEW IMAGE SUCCESS`,
           });
