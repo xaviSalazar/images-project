@@ -498,14 +498,16 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
 
         console.log("run inpainging");
         // Generate mask and image separately
-        const { targetMask, targetFile } = await generateFromCanvas(
-          currCanvasGroups[currCanvasGroups.length - 1],
-          aspectRatio,
-          userWindowWidth,
-          userWindowHeight,
-        );
+
 
         try {
+          const { targetMask, targetFile } = await generateFromCanvas(
+            currCanvasGroups[currCanvasGroups.length - 1],
+            aspectRatio,
+            userWindowWidth,
+            userWindowHeight,
+          );
+
           const res = await inpaint(
             dataURItoBlob(targetFile),
             settings,
@@ -569,22 +571,23 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           return;
         }
 
-        set((state) => {
-          state.isInpainting = true;
-        });
-
-        const { targetFile, staticElements } = await generateFromCanvas(
-          currCanvasGroups[currCanvasGroups.length - 1],
-          aspectRatio,
-          userWindowWidth,
-          userWindowHeight,
-        );
-
-        console.log(targetFile)
-        console.log(staticElements)
-        console.log(scaledWidth,scaledHeight)
-
         try {
+
+          const { targetFile, staticElements } = await generateFromCanvas(
+            currCanvasGroups[currCanvasGroups.length - 1],
+            aspectRatio,
+            userWindowWidth,
+            userWindowHeight,
+          );
+
+          set((state) => {
+            state.isInpainting = true;
+          });
+  
+          console.log(targetFile)
+          console.log(staticElements)
+          console.log(scaledWidth,scaledHeight)
+
           const res = await renderImage(
             dataURItoBlob(targetFile),
             dataURItoBlob(staticElements),
@@ -593,10 +596,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
             scaledWidth,
             scaledHeight
           );
-          
-          //const { blob, seed } = res;
           const { img_list, seed } = res;
-          console.log(img_list)
           for (const base64Image of img_list) {
             const blob = base64ToBlob(base64Image);
             const newRender = new Image();
@@ -616,10 +616,10 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         } catch (e: any) {
           toast({
             variant: "destructive",
+            title: "Uh oh! Something went wrong.",
             description: e.message ? e.message : e.toString(),
           });
         }
-
         // get().resetRedoState();
         set((state) => {
           state.isInpainting = false;

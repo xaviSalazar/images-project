@@ -353,7 +353,6 @@ export const generateFromCanvas = async (
       });
 
       const objCanvas = JSON.parse(canvasObject.data);
-      console.log(objCanvas);
       // Retrieve original canvas dimensions from JSON
 
       const clipX = (userWindowWidth - outputWidth) / 2;
@@ -374,7 +373,6 @@ export const generateFromCanvas = async (
       for (const single_obj of allObjects) {
         clone = await single_obj.clone();
         clone_fixed_elements = await single_obj.clone();
-        console.log(clone);
 
         clone.set({
           left: clone.left - clipX,
@@ -455,14 +453,9 @@ export const generateFromCanvas = async (
         targetFile: image,
         staticElements: elements,
       });
+
     } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: `Check your drawing canvas`,
-      });
-      console.error("Error loading canvas JSON or cloning objects:", error);
-      reject(error);
+      reject(`Add a background image to canvas`);
     }
   });
 };
