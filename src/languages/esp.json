@@ -22,16 +22,19 @@
     "Shrink": "Disminuir",
     "Reverse": "Reversar",
     "Clear": "Borrar",
-    "Edit": "Opciones",
+    "Edit": "Herramientas",
     "Copy": "copiar",
     "Cut": "cortar",
     "Delete": "suprimir",
     "Layer": "Disposicion",
 
+    "Variation" : "Variacion",
+    "Fixed image": "Imagen original (sin cambios)",
+    "Modify image": "Nueva variacion IA",
+
     "RemoveBG": "quitar fondo",
-    "Upload Picture": "SUBIR IMAGEN",
-    "See gallery": "VER GALERIA"
-
-
+    "Upload Picture": "Subir Archivo",
+    "See gallery": "GALERIA",
+    "Format": "Formato de pantalla"
   }
 }

@@ -427,7 +427,7 @@ const Editor = React.forwardRef(() => {
       const left =
         (absCoords.left + (obj.width * obj.scaleX) / 2) * zoom +
         viewportTransform[4] -
-        150;
+        350;
       const top =
         (absCoords.top - (obj.height * obj.scaleY) / 2) * zoom +
         viewportTransform[5];
@@ -1504,16 +1504,16 @@ const Editor = React.forwardRef(() => {
         </MenubarMenu>
 
         <MenubarMenu>
-          <MenubarTrigger onClick={handleViewMenuOpen}>View</MenubarTrigger>
+          <MenubarTrigger onClick={handleViewMenuOpen}>{t("Variation")}</MenubarTrigger>
           <MenubarContent>
             <MenubarCheckboxItem
               checked={isFixed}
               onClick={handleStayFixedClick}
             >
-              Stay fixed
+              {t("Fixed image")}
             </MenubarCheckboxItem>
             <MenubarCheckboxItem checked={isModify} onClick={handleModifyClick}>
-              Modify
+            {t("Modify image")}
             </MenubarCheckboxItem>
           </MenubarContent>
         </MenubarMenu>

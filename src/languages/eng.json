@@ -23,15 +23,19 @@
     "Shrink": "Shrink",
     "Reverse": "Reverse",
     "Clear": "Clear",
-    "Edit": "Options",
+    "Edit": "Tools",
     "Copy": "copy",
     "Cut": "cut",
     "Delete": "delete",
     "Layer": "Position",
+    "Variation" : "Variation",
+    "Fixed image": "Imagen fija (no variar)",
+    "Modify image": "New Ai image variation",
 
     "RemoveBG": "remove background",
-    "Upload Picture": "UPLOAD PICTURE",
-    "See gallery": "SEE GALLERY"
+    "Upload Picture": "UPLOAD FILE",
+    "See gallery": "GALLERY",
+    "Format": "Screen format"
 
   }
 }

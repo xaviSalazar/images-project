@@ -15,7 +15,7 @@ import { Settings } from "lucide-react";
 import { Images } from "lucide-react";
 import { Paperclip } from "lucide-react";
 import { WandSparkles } from "lucide-react";
-import { Layers } from "lucide-react";
+import { Ratio } from "lucide-react";
 import { SUPPORTED_FILE_TYPE } from "@/lib/const"
 
 
@@ -125,9 +125,9 @@ const LeftSidePanel = () => {
     }
     try {
       // Check if file is larger than 20mb
-      if (file.size > 20 * 1024 * 1024) {
-        throw new Error("file too large");
-      }
+      // if (file.size > 20 * 1024 * 1024) {
+      //   throw new Error("file too large");
+      // }
 
       setFile(file);
     } catch (e) {
@@ -237,7 +237,7 @@ const LeftSidePanel = () => {
         <MenubarMenu>
           <MenubarTrigger>
             {" "}
-            <Layers /> DEVICE RATIO
+            <Ratio /> {t("Format")}
           </MenubarTrigger>
           <MenubarContent>
             <RatioOptions />
