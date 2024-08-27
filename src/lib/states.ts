@@ -470,12 +470,12 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         }
 
         const {
-          lastLineGroup,
-          curLineGroup,
+          // lastLineGroup,
+          // curLineGroup,
           lineGroups,
           renders,
-          prevExtraMasks,
-          extraMasks,
+          // prevExtraMasks,
+          // extraMasks,
           currCanvasGroups, // added to support fabric js
         } = get().editorState;
 
@@ -606,6 +606,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
               renders: newRenders,
             });
           }
+
           // if (seed) {
           //   get().setSeed(parseInt(seed, 10));
           // }

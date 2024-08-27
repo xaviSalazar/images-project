@@ -7,7 +7,6 @@ import React, {
   MutableRefObject,
 } from "react";
 import { predefinedRatios } from "@/lib/const";
-import { CursorArrowRaysIcon } from "@heroicons/react/24/outline";
 import { useToast } from "@/components/ui/use-toast";
 import { useKeyPressEvent } from "react-use";
 import { IconButton } from "@/components/ui/button";
@@ -27,23 +26,13 @@ import {
 } from "@/components/ui/menubar-horizontal";
 
 import {
-  askWritePermission,
   cn,
-  copyCanvasImage,
-  downloadImage,
-  drawLines,
-  generateMask,
-  isMidClick,
-  isRightClick,
   isLeftClick,
-  mouseXY,
-  srcToFile,
   dataURItoBlob,
   debugLog,
 } from "@/lib/utils";
 import {
   Eraser,
-  Eye,
   Redo,
   Undo,
   Copy,
@@ -80,14 +69,14 @@ import { Toggle } from "@/components/ui/toggle";
 import * as fabric from "fabric"; // v6
 import { FabricObject, FabricImage, FabricText } from "fabric"; // migration path
 
-import {
-  preload,
-  removeBackground,
-  removeForeground,
-  segmentForeground,
-  alphamask,
-  applySegmentationMask,
-} from "@imgly/background-removal";
+// import {
+//   preload,
+//   removeBackground,
+//   removeForeground,
+//   segmentForeground,
+//   alphamask,
+//   applySegmentationMask,
+// } from "@imgly/background-removal";
 import { useWindowSize } from "react-use";
 
 import { loadImage } from "@/lib/utils";
@@ -1080,7 +1069,7 @@ const Editor = React.forwardRef(() => {
     const clipX = (compatibleWidth - scaledWidth) / 2;
     const clipY = (compatibleHeight - scaledHeight) / 2;
 
-    const tempCanvas = new fabric.Canvas(null, {
+    const tempCanvas = new fabric.Canvas(undefined, {
       width: outputWidth,
       height: outputHeight,
     });
@@ -1149,7 +1138,7 @@ const Editor = React.forwardRef(() => {
     (current_active.width ?? 0) * (current_active.scaleX ?? 0);
   const objectHeight =
     (current_active.height ?? 0) * (current_active.scaleY ?? 0);
-    let CvRef: HTMLCanvasElement | null = null;
+    let CvRef: HTMLCanvasElement | undefined = undefined;
   var tempCanvas = new fabric.Canvas(CvRef, {
     width: objectWidth,
     height: objectHeight,

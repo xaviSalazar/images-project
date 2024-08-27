@@ -1,42 +1,38 @@
 import { type ClassValue, clsx } from "clsx";
 import { SyntheticEvent } from "react";
 import { twMerge } from "tailwind-merge";
-import { LineGroup, Size } from "./types";
+import { LineGroup } from "./types";
 import { BRUSH_COLOR } from "./const";
 import { LOG_LEVELS } from "./const";
 import { predefinedRatios } from "@/lib/const";
 import * as fabric from "fabric"; // v6
-import { toast } from "@/components/ui/use-toast";
 import Pica from 'pica';
-import { FabricImage } from "fabric";
-
-
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function keepGUIAlive() {
-  async function getRequest(url = "") {
-    const response = await fetch(url, {
-      method: "GET",
-      cache: "no-cache",
-    });
-    return response.json();
-  }
+// export function keepGUIAlive() {
+//   async function getRequest(url = "") {
+//     const response = await fetch(url, {
+//       method: "GET",
+//       cache: "no-cache",
+//     });
+//     return response.json();
+//   }
 
-  const keepAliveServer = () => {
-    const url = document.location;
-    const route = "/flaskwebgui-keep-server-alive";
-    getRequest(url + route).then((data) => {
-      return data;
-    });
-  };
+//   const keepAliveServer = () => {
+//     const url = document.location;
+//     const route = "/flaskwebgui-keep-server-alive";
+//     getRequest(url + route).then((data) => {
+//       return data;
+//     });
+//   };
 
-  const intervalRequest = 3 * 1000;
-  keepAliveServer();
-  setInterval(keepAliveServer, intervalRequest);
-}
+//   const intervalRequest = 3 * 1000;
+//   keepAliveServer();
+//   setInterval(keepAliveServer, intervalRequest);
+// }
 
 export function dataURItoBlob(dataURI: string) {
   const mime = dataURI.split(",")[0].split(":")[1].split(";")[0];
@@ -183,15 +179,15 @@ const setToClipboard = async (blob: any) => {
   await navigator.clipboard.write(data);
 };
 
-export function isRightClick(mouseEvent: fabric.IEvent<MouseEvent>) {
+export function isRightClick(mouseEvent: fabric.TEvent<MouseEvent>) {
   return mouseEvent.e.button === 2;
 }
 
-export function isLeftClick(mouseEvent: fabric.IEvent<MouseEvent>) {
+export function isLeftClick(mouseEvent: fabric.TEvent<MouseEvent>) {
   return mouseEvent.e.button === 0;
 }
 
-export function isMidClick(mouseEvent: fabric.IEvent<MouseEvent>) {
+export function isMidClick(mouseEvent: fabric.TEvent<MouseEvent>) {
   // const mouseEvent = ev.nativeEvent as MouseEvent;
   return mouseEvent.e.button === 1;
 }
@@ -334,19 +330,19 @@ export const generateFromCanvas = async (
 
       const { width: outputWidth, height: outputHeight } = predefinedRatio;
 
-      const canvas = new fabric.Canvas(null);
+      const canvas = new fabric.Canvas(undefined);
       // to save any drawn path
-      const tmpPathCanvas = new fabric.Canvas(null, {
+      const tmpPathCanvas = new fabric.Canvas(undefined, {
         width: outputWidth,
         height: outputHeight,
       });
       // to store images only
-      const tmpImgCanvas = new fabric.Canvas(null, {
+      const tmpImgCanvas = new fabric.Canvas(undefined, {
         width: outputWidth,
         height: outputHeight,
       });
 
-      const fixedImgCanvas = new fabric.Canvas(null, {
+      const fixedImgCanvas = new fabric.Canvas(undefined, {
         width: outputWidth,
         height: outputHeight,
         backgroundColor : "#00b140",

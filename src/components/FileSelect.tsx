@@ -26,9 +26,9 @@ export default function FileSelect(props: FileSelectProps) {
     }
     try {
       // Check if file is larger than 20mb
-      if (file.size > 20 * 1024 * 1024) {
-        throw new Error("file too large");
-      }
+      // if (file.size > 20 * 1024 * 1024) {
+      //   throw new Error("file too large");
+      // }
       onSelection(file);
     } catch (e) {
       // eslint-disable-next-line
