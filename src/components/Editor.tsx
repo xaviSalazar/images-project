@@ -204,9 +204,6 @@ const Editor = React.forwardRef(() => {
   const isBrushActivated = useRef<boolean>(settings.showDrawing)
   const isPanningActivated = useRef<boolean>(false)
 
-
-  const roundToNearest64 = (value: number) => Math.floor(value / 64) * 64;
-
   const [compatibleWidth, setCompatibleWidth] = useState<number>(
   windowSize.width,
   );
@@ -219,8 +216,6 @@ const Editor = React.forwardRef(() => {
   const [sliderPos, setSliderPos] = useState<number>(0);
   const [isChangingBrushSizeByWheel, setIsChangingBrushSizeByWheel] =
     useState<boolean>(false);
-
-  const prevAspectRatio = useRef("nothing");
 
   // crop
   const lastActiveObject = useRef<fabric.Object | null>(null);
@@ -1133,6 +1128,7 @@ const Editor = React.forwardRef(() => {
     const canvas_instance = fabricRef.current;
     if (!canvas_instance) return;
     const current_active = canvas_instance.getActiveObject();
+    if(!current_active) return;
 
     const objectWidth =
     (current_active.width ?? 0) * (current_active.scaleX ?? 0);
@@ -1434,19 +1430,21 @@ const Editor = React.forwardRef(() => {
                 <Download />
               </MenubarShortcut>
             </MenubarItem>
-
+            <MenubarSeparator />
             <MenubarItem onClick={handleCopy}>
               {t("Copy")}
               <MenubarShortcut>
                 <Copy />
               </MenubarShortcut>
             </MenubarItem>
+            <MenubarSeparator />
             <MenubarItem onClick={handleCut}>
               {t("Cut")}
               <MenubarShortcut>
                 <Scissors />
               </MenubarShortcut>
             </MenubarItem>
+            <MenubarSeparator />
             <MenubarItem 
               onClick={handleDelete}      
               className="bg-red-500 text-white hover:bg-red-600"
@@ -1469,12 +1467,14 @@ const Editor = React.forwardRef(() => {
                 <ArrowUpIcon className="h-4 w-4" />
               </MenubarShortcut>
             </MenubarItem>
+            <MenubarSeparator />
             <MenubarItem onClick={() => handleLayoutControl("toBack")}>
               toBack{" "}
               <MenubarShortcut>
                 <ArrowDownIcon className="h-4 w-4" />
               </MenubarShortcut>
             </MenubarItem>
+            <MenubarSeparator />
             <MenubarItem onClick={() => handleLayoutControl("toForward")}>
               toForward{" "}
               <MenubarShortcut>
@@ -1482,6 +1482,7 @@ const Editor = React.forwardRef(() => {
                 <DoubleArrowUpIcon className="h-4 w-4" />{" "}
               </MenubarShortcut>
             </MenubarItem>
+            <MenubarSeparator />
             <MenubarItem onClick={() => handleLayoutControl("toBackward")}>
               toBackward{" "}
               <MenubarShortcut>
@@ -1501,6 +1502,7 @@ const Editor = React.forwardRef(() => {
             >
               {t("Fixed image")}
             </MenubarCheckboxItem>
+            <MenubarSeparator />
             <MenubarCheckboxItem checked={isModify} onClick={handleModifyClick}>
             {t("Modify image")}
             </MenubarCheckboxItem>
@@ -1516,6 +1518,7 @@ const Editor = React.forwardRef(() => {
                 <CookieIcon className="h-4 w-4" />
               </MenubarShortcut>
             </MenubarItem>
+            <MenubarSeparator />
             <MenubarItem onClick={() => handleRemoveBg("u2net_human_seg")}>
               Persona
               <MenubarShortcut>
@@ -1524,7 +1527,6 @@ const Editor = React.forwardRef(() => {
             </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
-
       </Menubar>
 
       {renderCanvas()}
