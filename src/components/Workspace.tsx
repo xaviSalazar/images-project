@@ -1,10 +1,7 @@
-import React from "react";
 import { useEffect } from "react";
 import Editor from "./Editor";
-import { currentModel } from "@/lib/api";
 import { useStore } from "@/lib/states";
 import ImageSize from "./ImageSize";
-import Plugins from "./Plugins";
 // import { InteractiveSeg } from "./InteractiveSeg"
 import RightSidePanel from "./RightSidePanel";
 // import DiffusionProgress from "./DiffusionProgress"

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useRef } from "react";
+import * as fabric from "fabric"; // v6
 
 interface RefContextProps {
   fabricRef: React.RefObject<fabric.Canvas | null>;
