@@ -189,7 +189,8 @@ const Editor = React.forwardRef(() => {
   // Local State
   const [showOriginal, setShowOriginal] = useState(false);
   const [original, isOriginalLoaded] = useImage(null);
-  const [zoomLevel, setZoomLevel] = useState<number>(0.8); // Initial zoom level
+
+  const [zoomLevel, setZoomLevel] = useState<number>(1); // Initial zoom level
 
   const [{ x, y }, setCoords] = useState({ x: -1, y: -1 });
   const [showBrush, setShowBrush] = useState(false);
@@ -426,11 +427,11 @@ const Editor = React.forwardRef(() => {
       brush.width = DEFAULT_BRUSH_SIZE;
       fabricRef.current.isDrawingMode = settings.showDrawing;
       fabricRef.current.freeDrawingBrush = brush;
-      fabricRef.current?.zoomToPoint(
-        { x: fabricRef.current?.width / 2, y: fabricRef.current?.height / 2 },
-        zoomLevel,
-      );
-      setZoomLevel(fabricRef.current.getZoom());
+      // fabricRef.current?.zoomToPoint(
+      //   { x: fabricRef.current?.width / 2, y: fabricRef.current?.height / 2 },
+      //   zoomLevel,
+      // );
+      //setZoomLevel(fabricRef.current.getZoom());
     }
 
     // modify around image contour
@@ -533,6 +534,22 @@ const Editor = React.forwardRef(() => {
         "<<user transf canvas  matrix>>\n",
         canvas_instance.viewportTransform,
       );
+
+      const zoomX = width / clipWidth;
+      const zoomY = height / clipHeight;
+
+      debugLog(LOG_LEVELS.DEBUG, " <<zoom initial>>  zoomX, zoomY ", [
+        zoomX,
+        zoomY,
+      ]);
+      const calculated_zoom = Math.min(zoomX, zoomY) - 0.25 ;
+
+      fabricRef.current?.zoomToPoint(
+        { x: fabricRef.current?.width / 2, y: fabricRef.current?.height / 2 },
+        calculated_zoom,
+      );
+      setZoomLevel(fabricRef.current.getZoom());
+
 
       updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
       setImageSize(clipWidth, clipHeight)

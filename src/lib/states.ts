@@ -271,7 +271,7 @@ const defaultValues: AppState = {
   userWindowWidth: 0,
   userWindowHeight: 0,
   scaledHeight: 0,
-  aspectRatio: "16:9",
+  aspectRatio: "1:1",
   isInpainting: false,
   isPluginRunning: false,
   isAdjustingMask: false,
