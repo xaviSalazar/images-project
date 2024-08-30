@@ -285,8 +285,8 @@ const Editor = React.forwardRef(() => {
     const rectCrop = rectangleCut.current;
 
     // Calculate the bounding box of the object and the crop rectangle
-    const objectBoundingBox = objectToCrop.getBoundingRect(true, true);
-    const cropBoundingBox = rectCrop.getBoundingRect(true, true);
+    const objectBoundingBox = objectToCrop.getBoundingRect();
+    const cropBoundingBox = rectCrop.getBoundingRect();
 
     // Calculate the crop area's position relative to the object's bounding box
     const scaleX = objectToCrop.scaleX || 1;
@@ -406,6 +406,7 @@ const Editor = React.forwardRef(() => {
     function positionBtn(obj) {
       const btnContainer = document.getElementById("button-container");
       if (!btnContainer) return;
+      if (!fabricRef.current) return;
       const zoom = fabricRef.current.getZoom();
       const viewportTransform = fabricRef.current.viewportTransform;
       const absCoords = fabricRef.current.getAbsoluteCoords(obj);
@@ -491,7 +492,7 @@ const Editor = React.forwardRef(() => {
     };
   }, []);
 
-  const rectangleGroupRef = useRef<fabric.Group> ();
+  const rectangleGroupRef = useRef<fabric.Group | undefined> (undefined);
   const groupCoordinatesRef = useRef<{offsetX: number, offsetY:number}> ();
 
   useEffect(() => {
@@ -1066,6 +1067,7 @@ const Editor = React.forwardRef(() => {
 
   const handleDownload = async (source: string) => {
 
+    if(!fabricRef.current) return;
     const predefinedRatio = predefinedRatios.find(
       (ratio) => ratio.name === aspectRatio,
     );
