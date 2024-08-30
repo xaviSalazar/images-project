@@ -427,11 +427,6 @@ const Editor = React.forwardRef(() => {
       brush.width = DEFAULT_BRUSH_SIZE;
       fabricRef.current.isDrawingMode = settings.showDrawing;
       fabricRef.current.freeDrawingBrush = brush;
-      // fabricRef.current?.zoomToPoint(
-      //   { x: fabricRef.current?.width / 2, y: fabricRef.current?.height / 2 },
-      //   zoomLevel,
-      // );
-      //setZoomLevel(fabricRef.current.getZoom());
     }
 
     // modify around image contour
@@ -542,14 +537,15 @@ const Editor = React.forwardRef(() => {
         zoomX,
         zoomY,
       ]);
-      const calculated_zoom = Math.min(zoomX, zoomY) - 0.25 ;
+
+      const calculated_zoom = Math.min(zoomX, zoomY) - 0.25;
+
+      debugLog(LOG_LEVELS.DEBUG, " <<calculated zoom>> ", calculated_zoom);
 
       fabricRef.current?.zoomToPoint(
         { x: fabricRef.current?.width / 2, y: fabricRef.current?.height / 2 },
         calculated_zoom,
       );
-      setZoomLevel(fabricRef.current.getZoom());
-
 
       updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
       setImageSize(clipWidth, clipHeight)
@@ -750,14 +746,17 @@ const Editor = React.forwardRef(() => {
   // Zoom reset
   const resetZoom = useCallback(() => {
     if (fabricRef.current) {
-      fabricRef.current.zoomToPoint(
-        { x: fabricRef.current.width / 2, y: fabricRef.current.height / 2 },
-        zoomLevel,
-      );
+
+      const zoomX = fabricRef.current?.width  / scaledWidth;
+      const zoomY = fabricRef.current?.height  / scaledHeight;
+      const calculated_zoom = Math.min(zoomX, zoomY) - 0.25;
       fabricRef.current.setViewportTransform([1, 0, 0, 1, 0, 0]); // Reset panning
-      fabricRef.current.requestRenderAll();
+      fabricRef.current?.zoomToPoint(
+        { x: fabricRef.current?.width / 2, y: fabricRef.current?.height / 2 },
+        calculated_zoom,
+      );
     }
-  }, []);
+  }, [scaledWidth, scaledHeight]);
 
      // Function to move the group by an offset
      const moveGroupByOffset = (group:fabric.Group, offsetX:number, offsetY:number) => {
