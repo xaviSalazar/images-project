@@ -539,9 +539,11 @@ const Editor = React.forwardRef(() => {
         zoomY,
       ]);
 
-      const calculated_zoom = Math.min(zoomX, zoomY) - 0.25;
+      const calculated_zoom = Math.min(zoomX, zoomY) - 0.35;
 
       debugLog(LOG_LEVELS.DEBUG, " <<calculated zoom>> ", calculated_zoom);
+
+      fabricRef.current.setViewportTransform([1, 0, 0, 1, -250, 0]); // Reset panning
 
       fabricRef.current?.zoomToPoint(
         { x: fabricRef.current?.width / 2, y: fabricRef.current?.height / 2 },
@@ -574,25 +576,25 @@ const Editor = React.forwardRef(() => {
       // Create lines for the rectangle outline
       const topLine = new fabric.Line([topLeft.x, topLeft.y, topRight.x, topRight.y], {
         stroke: '#98FB98',
-        strokeWidth: 1,
+        strokeWidth: 2,
         strokeLineCap: 'round',
         selectable: false,
       });
       const rightLine = new fabric.Line([topRight.x, topRight.y, bottomRight.x, bottomRight.y], {
         stroke: '#98FB98',
-        strokeWidth: 1,
+        strokeWidth: 2,
         strokeLineCap: 'round',
         selectable: false,
       });
       const bottomLine = new fabric.Line([bottomRight.x, bottomRight.y, bottomLeft.x, bottomLeft.y], {
         stroke: '#98FB98',
-        strokeWidth: 1,
+        strokeWidth: 2,
         strokeLineCap: 'round',
         selectable: false,
       });
       const leftLine = new fabric.Line([bottomLeft.x, bottomLeft.y, topLeft.x, topLeft.y], {
         stroke: '#98FB98',
-        strokeWidth: 1,
+        strokeWidth: 2,
         strokeLineCap: 'round',
         selectable: false,
       });
@@ -767,11 +769,10 @@ const Editor = React.forwardRef(() => {
   // Zoom reset
   const resetZoom = useCallback(() => {
     if (fabricRef.current) {
-
       const zoomX = fabricRef.current?.width  / scaledWidth;
       const zoomY = fabricRef.current?.height  / scaledHeight;
-      const calculated_zoom = Math.min(zoomX, zoomY) - 0.25;
-      fabricRef.current.setViewportTransform([1, 0, 0, 1, 0, 0]); // Reset panning
+      const calculated_zoom = Math.min(zoomX, zoomY) - 0.35;
+      fabricRef.current.setViewportTransform([1, 0, 0, 1, -250, 0]); // Reset panning
       fabricRef.current?.zoomToPoint(
         { x: fabricRef.current?.width / 2, y: fabricRef.current?.height / 2 },
         calculated_zoom,
