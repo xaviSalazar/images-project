@@ -711,7 +711,7 @@ const Editor = React.forwardRef(() => {
     const state = JSON.parse(lastElement.data);
 
     fabricRef.current.loadFromJSON(state).then(() => {
-      fabricRef.current.renderAll();
+      fabricRef.current?.renderAll();
           })
     // Reset Trigger
     setTriggerUndoRedo(false)
@@ -787,7 +787,7 @@ const Editor = React.forwardRef(() => {
         top: groupCoordinatesRef.current?.offsetY - offsetY/2,
       });
       group.setCoords(); // Update the coordinates
-      fabricRef.current.renderAll(); // Re-render the canvas
+      fabricRef.current?.renderAll(); // Re-render the canvas
     };
 
     useEffect(() => {
