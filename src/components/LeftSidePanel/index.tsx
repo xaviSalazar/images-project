@@ -18,6 +18,7 @@ import { WandSparkles } from "lucide-react";
 import { Ratio } from "lucide-react";
 import { SUPPORTED_FILE_TYPE } from "@/lib/const"
 import { LazyLoadImage } from 'react-lazy-load-image-component';
+import 'react-lazy-load-image-component/src/effects/blur.css';
 
 
 
@@ -153,6 +154,7 @@ const LeftSidePanel = () => {
                       alt={`Photo by ${artwork.artist}`}
                       height={250}
                       width={250}
+                      effect="blur"
                       src={artwork.art} // use normal <img> attributes as props
                       />
                     </div>
