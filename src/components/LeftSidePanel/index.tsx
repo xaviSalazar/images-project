@@ -17,6 +17,8 @@ import { Paperclip } from "lucide-react";
 import { WandSparkles } from "lucide-react";
 import { Ratio } from "lucide-react";
 import { SUPPORTED_FILE_TYPE } from "@/lib/const"
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+
 
 
 import {
@@ -48,45 +50,26 @@ const domain_dist = "https://d1d5i0xjsb5dtw.cloudfront.net/";
 
 export const works: Artwork[] = [
   {
-    artist: "Stable Diffusion 1",
-    art: `${domain_dist}photo-ai/TEST1_0.png`,
+    artist: "Adobe photos 1",
+    art: `${domain_dist}photo-ai/Example_beach1.png`,
   },
   {
-    artist: "Stable Diffusion2",
-    art: `${domain_dist}photo-ai/TEST1_1.png`,
+    artist: "Adobe photos 2",
+    art: `${domain_dist}photo-ai/Example_minimalistic.png`,
   },
   {
-    artist: "Stable Diffusion3",
-    art: `${domain_dist}photo-ai/TEST1_2.png`,
+    artist: "Adobe photos 3",
+    art: `${domain_dist}photo-ai/Example_wooden.png`,
   },
-  {
-    artist: "Stable Diffusion4",
-    art: `${domain_dist}photo-ai/TEST1_3.png`,
-  },
-  {
-    artist: "Stable Diffusion5",
-    art: `${domain_dist}photo-ai/TEST2_0.png`,
-  },
-  {
-    artist: "Stable Diffusion6",
-    art: `${domain_dist}photo-ai/TEST2_1.png`,
-  },
-  {
-    artist: "Stable Diffusion7",
-    art: `${domain_dist}photo-ai/TEST2_2.png`,
-  },
-  {
-    artist: "Stable Diffusion8",
-    art: `${domain_dist}photo-ai/TEST2_3.png`,
-  },
-  {
-    artist: "Stable Diffusion9",
-    art: `${domain_dist}photo-ai/picture_3.png`,
-  },
-  {
-    artist: "Stable Diffusion10",
-    art: `${domain_dist}photo-ai/picture_2.png`,
-  },
+  // {
+  //   artist: "Stable Diffusion4",
+  //   art: `${domain_dist}photo-ai/TEST1_3.png`,
+  // },
+  // {
+  //   artist: "Stable Diffusion5",
+  //   art: `${domain_dist}photo-ai/TEST2_0.png`,
+  // },
+
 ];
 
 const LeftSidePanel = () => {
@@ -164,19 +147,23 @@ const LeftSidePanel = () => {
                     draggable
                     onDragStart={(event) => handleDragStart(event, artwork)}
                   >
+
                     <div className="overflow-hidden rounded-md">
-                      <img
-                        src={artwork.art}
-                        alt={`Photo by ${artwork.artist}`}
-                        className="h-[400px] w-[600px] object-cover"
+                      <LazyLoadImage
+                      alt={`Photo by ${artwork.artist}`}
+                      height={250}
+                      width={250}
+                      src={artwork.art} // use normal <img> attributes as props
                       />
                     </div>
+
                     <figcaption className="pt-2 text-xs text-muted-foreground">
                       Photo by{" "}
                       <span className="font-semibold text-foreground">
                         {artwork.artist}
                       </span>
                     </figcaption>
+
                   </figure>
                 ))}
               </div>
