@@ -2,16 +2,16 @@ import { useToggle } from "react-use";
 import { useStore } from "@/lib/states";
 import { Separator } from "../ui/separator";
 import { ScrollArea } from "../ui/scroll-area";
-import { Sheet, SheetContent, SheetHeader, SheetTrigger } from "../ui/sheet";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "../ui/button";
+// import { Sheet, SheetContent, SheetHeader, SheetTrigger } from "../ui/sheet";
+// import { ChevronLeft, ChevronRight } from "lucide-react";
+// import { Button } from "../ui/button";
 import useHotKey from "@/hooks/useHotkey";
-import { RowContainer, LabelTitle } from "./LabelTitle";
-import CanvasOptions from "./CanvasOptions";
+// import { RowContainer, LabelTitle } from "./LabelTitle";
+// import CanvasOptions from "./CanvasOptions";
 import RatioOptions from "./RatioOptions";
 import { useTranslation } from "react-i18next";
-import React, { MutableRefObject, useRef} from "react";
-import { Settings } from "lucide-react";
+import React, { useRef} from "react";
+// import { Settings } from "lucide-react";
 import { Images } from "lucide-react";
 import { Paperclip } from "lucide-react";
 import { WandSparkles } from "lucide-react";
@@ -24,17 +24,17 @@ import 'react-lazy-load-image-component/src/effects/blur.css';
 
 import {
   Menubar,
-  MenubarCheckboxItem,
+  //MenubarCheckboxItem,
   MenubarContent,
   MenubarItem,
   MenubarMenu,
-  MenubarRadioGroup,
-  MenubarRadioItem,
-  MenubarSeparator,
-  MenubarShortcut,
-  MenubarSub,
-  MenubarSubContent,
-  MenubarSubTrigger,
+  //MenubarRadioGroup,
+  //MenubarRadioItem,
+  //MenubarSeparator,
+  //MenubarShortcut,
+  //MenubarSub,
+  //MenubarSubContent,
+  //MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar";
 
@@ -155,7 +155,7 @@ const LeftSidePanel = () => {
                       height={250}
                       width={250}
                       effect="blur"
-                      src={artwork.art} // use normal <img> attributes as props
+                      src={artwork.art}
                       />
                     </div>
 
