@@ -195,7 +195,7 @@ const LeftSidePanel = () => {
 
         <Separator />
 
-        <MenubarMenu>
+        {/* <MenubarMenu>
           <MenubarTrigger>
             <WandSparkles /> Magic AI
           </MenubarTrigger>
@@ -211,7 +211,7 @@ const LeftSidePanel = () => {
           </MenubarContent>
         </MenubarMenu>
 
-        <Separator />
+        <Separator /> */}
 
         {/* <MenubarMenu>
           <MenubarTrigger>
@@ -223,7 +223,7 @@ const LeftSidePanel = () => {
           </MenubarContent>
         </MenubarMenu> */}
 
-        <MenubarMenu>
+        {/* <MenubarMenu>
           <MenubarTrigger>
             {" "}
             <Ratio /> {t("Format")}
@@ -231,7 +231,8 @@ const LeftSidePanel = () => {
           <MenubarContent>
             <RatioOptions />
           </MenubarContent>
-        </MenubarMenu>
+        </MenubarMenu> */}
+
       </Menubar>
     );
   }
