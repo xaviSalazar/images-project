@@ -3,7 +3,7 @@ import * as fabric from "fabric"; // v6
 
 interface RefContextProps {
   fabricRef: React.RefObject<fabric.Canvas | undefined>;
-  canvasRef: React.RefObject<HTMLCanvasElement | undefined>;
+  canvasRef: React.RefObject<string | HTMLCanvasElement | undefined>;
 }
 
 const RefCanvas = createContext<RefContextProps | undefined>(undefined);
@@ -20,7 +20,7 @@ export const RefProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const fabricRef = useRef<fabric.Canvas | undefined>(undefined);
-  const canvasRef = useRef<HTMLCanvasElement | undefined>(undefined);
+  const canvasRef = useRef<string | HTMLCanvasElement | undefined>(undefined);
 
   return (
     <RefCanvas.Provider value={{ fabricRef, canvasRef }}>

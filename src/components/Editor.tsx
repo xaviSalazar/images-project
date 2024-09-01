@@ -363,7 +363,7 @@ const Editor = React.forwardRef(() => {
         userWindowHeight: window.innerHeight,
       });
 
-      return new fabric.Canvas(canvasRef.current, {
+      return new fabric.Canvas(canvasRef.current || undefined, {
         width: window.innerWidth,
         height: window.innerHeight,
         backgroundColor: "#545252",
