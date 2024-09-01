@@ -35,7 +35,8 @@
     "RemoveBG": "remove background",
     "Upload Picture": "UPLOAD FILE",
     "See gallery": "GALLERY",
-    "Format": "Screen format"
-
+    "Format": "Screen format",
+    "Place image": "Place background and product here ",
+    "Results image msg": "See your results here"
   }
 }

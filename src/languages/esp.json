@@ -35,6 +35,8 @@
     "RemoveBG": "quitar fondo",
     "Upload Picture": "Subir Archivo",
     "See gallery": "GALERIA",
-    "Format": "Formato de pantalla"
+    "Format": "Formato de pantalla",
+    "Place image": "Coloca tus imagenes aqui",
+    "Results image msg": "Observa tu resultado aqui"
   }
 }

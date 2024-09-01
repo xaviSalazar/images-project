@@ -366,7 +366,7 @@ const Editor = React.forwardRef(() => {
       return new fabric.Canvas(canvasRef.current, {
         width: window.innerWidth,
         height: window.innerHeight,
-        backgroundColor: "#bfb2b2",
+        backgroundColor: "#545252",
         imageSmoothingEnabled: false,
         fireMiddleClick: true,
         stopContextMenu: true, // 禁止默认右键菜单
@@ -573,46 +573,66 @@ const Editor = React.forwardRef(() => {
   
       // Create lines for the rectangle outline
       const topLine = new fabric.Line([topLeft.x, topLeft.y, topRight.x, topRight.y], {
-        stroke: 'black',
-        strokeWidth: 5,
+        stroke: '#98FB98',
+        strokeWidth: 1,
         strokeLineCap: 'round',
         selectable: false,
       });
       const rightLine = new fabric.Line([topRight.x, topRight.y, bottomRight.x, bottomRight.y], {
-        stroke: 'black',
-        strokeWidth: 5,
+        stroke: '#98FB98',
+        strokeWidth: 1,
         strokeLineCap: 'round',
         selectable: false,
       });
       const bottomLine = new fabric.Line([bottomRight.x, bottomRight.y, bottomLeft.x, bottomLeft.y], {
-        stroke: 'black',
-        strokeWidth: 5,
+        stroke: '#98FB98',
+        strokeWidth: 1,
         strokeLineCap: 'round',
         selectable: false,
       });
       const leftLine = new fabric.Line([bottomLeft.x, bottomLeft.y, topLeft.x, topLeft.y], {
-        stroke: 'black',
-        strokeWidth: 5,
+        stroke: '#98FB98',
+        strokeWidth: 1,
         strokeLineCap: 'round',
         selectable: false,
       });
   
-      const instruction = new FabricText('Drag and drop image here', {
-        left:centerX - clipWidth / 2 + 200,
-        top: centerY - clipHeight / 2 - 30,
-        fill: 'blue',
-        selectable: false,
-    });
-      // Group the lines into a single fabric.Group
-      const rectangleGroup = new fabric.Group([topLine, rightLine, bottomLine, leftLine, instruction], {
+      const place_img_instruction = new FabricText(t("Place image"), {
+          left:centerX - (clipWidth / 2) + 200,
+          top: centerY - (clipHeight / 2) - 50,
+          fill: '#98FB98',
+          fontFamily: 'Comic Sans',
+          fontSize: 45,
+          textAlign: 'left',
+          Shadow: 'rgba(0,0,0,0.2) 0 0 5px',
+          selectable: false,
+      });
+
+      const results_instruction = new FabricText(t("Results image msg"),{
+        left:centerX + clipWidth - 200,
+        top: centerY - (clipHeight / 2) - 50,
+        fill: '#98FB98',
+        fontFamily: 'Comic Sans',
+        fontSize: 45,
+        Shadow: 'rgba(0,0,0,0.2) 0 0 5px',
+        textAlign: 'left',
         selectable: false,
       });
+      // Group the lines into a single fabric.Group
+      const rectangleGroup = new fabric.Group([topLine, 
+                                               rightLine, 
+                                               bottomLine, 
+                                               leftLine, 
+                                               place_img_instruction, 
+                                               results_instruction], 
+                                               {selectable: false, 
+                                               });
 
       rectangleGroupRef.current = rectangleGroup
       groupCoordinatesRef.current = {offsetX: rectangleGroup.left, offsetY: rectangleGroup.top}
       canvas_instance.overlayImage = rectangleGroupRef.current
 
-  }, [aspectRatio]);
+  }, [aspectRatio, t]);
 
   const stopPanning = useCallback((opt: fabric.TEvent<MouseEvent>) => {
     if (isLeftClick(opt)) {
