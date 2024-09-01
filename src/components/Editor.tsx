@@ -366,7 +366,7 @@ const Editor = React.forwardRef(() => {
       return new fabric.Canvas(canvasRef.current, {
         width: window.innerWidth,
         height: window.innerHeight,
-        backgroundColor: "#8F8F8F",
+        backgroundColor: "#bfb2b2",
         imageSmoothingEnabled: false,
         fireMiddleClick: true,
         stopContextMenu: true, // 禁止默认右键菜单
