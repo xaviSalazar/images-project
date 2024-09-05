@@ -30,7 +30,8 @@ export async function renderImage(
   prompt_positive: string,
   prompt_negative: string,
   width: number,
-  height: number
+  height: number,
+  light_option: string,
 ) {
   const imageBase64 = await convertToBase64(imageFile);
   const objectsBase64 = await convertToBase64(imageObjects);
@@ -50,7 +51,8 @@ export async function renderImage(
         prompt_positive: prompt_positive,
         prompt_negative: prompt_negative,
         width: width,
-        height: height
+        height: height,
+        light_option: light_option
       },
     }),
   });

@@ -95,6 +95,7 @@ export type Settings = {
   // For Diffusion moel
   prompt: string;
   negativePrompt: string;
+  photoLighting: string;
   seed: number;
   seedFixed: boolean;
 
@@ -363,6 +364,7 @@ const defaultValues: AppState = {
     cv2Flag: CV2Flag.INPAINT_NS,
     prompt: DEFAULT_POSITIVE_PROMPT,
     negativePrompt: DEFAULT_NEGATIVE_PROMPT,
+    photoLighting: "natural light",
     seed: 42,
     seedFixed: false,
     sdMaskBlur: 12,
@@ -555,7 +557,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           return;
         }
 
-        const { prompt, negativePrompt } = get().settings;
+        const { prompt, negativePrompt, photoLighting } = get().settings;
 
         const {
           renders,
@@ -594,7 +596,8 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
             prompt,
             negativePrompt,
             scaledWidth,
-            scaledHeight
+            scaledHeight,
+            photoLighting,
           );
           const { img_list, seed } = res;
           for (const base64Image of img_list) {
