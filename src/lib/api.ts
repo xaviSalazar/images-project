@@ -14,15 +14,68 @@ import {
   base64ToBlob,
 } from "@/lib/utils";
 import axios from "axios";
+import { toast } from "@/components/ui/use-toast";
 
 export const API_ENDPOINT = import.meta.env.VITE_BACKEND;
 export const API_ENDPOINT_RENDER_IMAGE = import.meta.env
   .VITE_BACKEND_RENDER_IMAGE;
+  export const API_ENDPOINT_RENDER_IMAGE_STATUS = import.meta.env
+  .VITE_BACKEND_RENDER_IMAGE_STATUS;
 export const TOKEN = import.meta.env.VITE_RUNPOD;
 
 const api = axios.create({
   baseURL: API_ENDPOINT,
 });
+
+
+/* STATUS COMPLETED EXAMPLE 
+{
+  "delayTime": 5026,
+  "executionTime": 3385,
+  "id": "a94bfa83-5fb8-4470-ab19-b6609a354a60-e1",
+  "output": {
+    "result": [],
+    "status": "success"
+  },
+  "status": "COMPLETED"
+}
+*/
+const pollStatus = (taskId: string) => {
+  return new Promise((resolve, reject) => {
+    const intervalId = setInterval(async () => {
+      try {
+
+        const statusResponse = await fetch(`${API_ENDPOINT_RENDER_IMAGE_STATUS}/${taskId}`, {
+          method: 'GET',
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${TOKEN}`,
+          },
+        });
+        const statusData = await statusResponse.json();
+        toast({
+          title: "IMAGE GENERATION:",
+          description: `${statusData.status}`,
+        });
+        if (statusData.status === 'COMPLETED') {
+          // Task is completed, stop polling and retrieve the result
+          clearInterval(intervalId);
+          resolve({
+            output: statusData.output,
+            req_id: statusData.id, // Return the id from the response
+          });
+        } else if (statusData.status === 'FAILED') {
+          // Handle failure case
+          clearInterval(intervalId);
+          reject(new Error('Task failed'));
+        }
+      } catch (error) {
+        clearInterval(intervalId);
+        reject(error);
+      }
+    }, 5000); // Poll every 5 seconds
+  });
+};
 
 export async function renderImage(
   imageFile: File | Blob,
@@ -59,14 +112,24 @@ export async function renderImage(
 
   if (res.ok) {
     const responseData = await res.json(); // Parse JSON response
-    const { output } = responseData;
-    // Convert base64 image data to a Blob object
-    // const blob = base64ToBlob(output.result[0]);
-    return {
-      //blob: URL.createObjectURL(blob),
-      img_list : output.result,
-      seed: "42", // Return the id from the response
-    };
+    console.log(responseData)
+    const { id, status } = responseData;
+    toast({
+      // variant: "destructive",
+      title: "IMAGE GENERATION:",
+      description: `${status}`,
+    });
+
+    // await the result of pollstatus
+    try {
+      const { output, req_id } = await pollStatus(id);
+      return {
+        img_list: output.result, // Assuming result contains the image list
+        seed: req_id, // Return the id from the response
+      };
+    } catch (error){
+      throw new Error(`Polling failed: ${error.message}`);
+    }
   }
   const errors = await res.json();
   throw new Error(`Something went wrong: ${errors.errors}`);
