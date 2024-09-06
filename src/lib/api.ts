@@ -159,13 +159,25 @@ export async function removeBackgroundApi(
 
   if (res.ok) {
     const responseData = await res.json(); // Parse JSON response
-    const { output } = responseData;
-    // Convert base64 image data to a Blob object
-    const blob = base64ToBlob(output.result[0]);
-    return {
-      blob: URL.createObjectURL(blob),
-      seed: "42", // Return the id from the response
-    };
+    console.log(responseData)
+    const { id, status } = responseData;
+    toast({
+      // variant: "destructive",
+      title: "REMOVE BACKGROUND:",
+      description: `${status}`,
+    });
+
+    // await the result of pollstatus
+    try {
+      const { output, req_id } = await pollStatus(id);
+      const blob = base64ToBlob(output.result[0]);
+      return {
+        blob: URL.createObjectURL(blob),
+        seed: req_id, // Return the id from the response
+      };
+    } catch (error){
+      throw new Error(`Polling failed: ${error.message}`);
+    }
   }
   const errors = await res.json();
   throw new Error(`Something went wrong: ${errors.errors}`);

@@ -1404,7 +1404,6 @@ const Editor = React.forwardRef(() => {
       const { blob, seed } = res;
       const newRender = new Image();
       loadImage(newRender, blob).then(() => {
-        console.log(newRender);
         fabricInstance?.remove(current_active);
         const img_without_background = new FabricImage(newRender, {
           left: objectCenterLeft,
@@ -1422,7 +1421,6 @@ const Editor = React.forwardRef(() => {
         description: e.message ? e.message : e.toString(),
       });
     }
-
 
       // remove background free version 
       // removeBackground(objectDataUrl, config).then((blob: Blob) => {
