@@ -364,7 +364,7 @@ const defaultValues: AppState = {
     cv2Flag: CV2Flag.INPAINT_NS,
     prompt: DEFAULT_POSITIVE_PROMPT,
     negativePrompt: DEFAULT_NEGATIVE_PROMPT,
-    photoLighting: "natural light",
+    photoLighting: "environment light",
     seed: 42,
     seedFixed: false,
     sdMaskBlur: 12,
