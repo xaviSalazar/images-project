@@ -55,10 +55,27 @@ const pollStatus = (taskId: string) => {
           },
         });
         const statusData = await statusResponse.json();
-        toast({
-          title: "IMAGE GENERATION:",
-          description: `${statusData.status}`,
-        });
+        console.log(statusData)
+        if (typeof statusData.output === 'string' && statusData.output.includes('Progress')) {
+          const progressMatch = statusData.output.match(/Progress (\d+)\/(\d+)/);
+          if (progressMatch) {
+            const currentStep = parseInt(progressMatch[1]);
+            const totalSteps = parseInt(progressMatch[2]);
+            const progressValue = Math.round((currentStep / totalSteps) * 100);
+            toast({
+              title: "PROGRESS:",
+              description: `${progressValue}% PERCENT`,
+            });
+
+          }
+        }
+          else {
+            toast({
+              title: "IMAGE GENERATION:",
+              description: `${statusData.status}`,
+            });
+          }
+
         if (statusData.status === 'COMPLETED') {
           // Task is completed, stop polling and retrieve the result
           clearInterval(intervalId);
@@ -75,7 +92,7 @@ const pollStatus = (taskId: string) => {
         clearInterval(intervalId);
         reject(error);
       }
-    }, 5000); // Poll every 5 seconds
+    }, 3000); // Poll every 5 seconds
   });
 };
 
