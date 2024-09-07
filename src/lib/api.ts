@@ -77,6 +77,8 @@ const pollStatus = (taskId: string) => {
   });
 };
 
+/* POST METHOD TO RENDER AN IMAGE  
+*/
 export async function renderImage(
   imageFile: File | Blob,
   imageObjects: File | Blob,
@@ -134,7 +136,8 @@ export async function renderImage(
   const errors = await res.json();
   throw new Error(`Something went wrong: ${errors.errors}`);
 }
-
+/* POST METHOD TO REMOVE BACKGROUND 
+*/
 export async function removeBackgroundApi(
   imageFile: File | Blob,
   model: string,
@@ -181,6 +184,37 @@ export async function removeBackgroundApi(
   }
   const errors = await res.json();
   throw new Error(`Something went wrong: ${errors.errors}`);
+}
+
+export async function uploadImageToDescriptor(blob: Blob) {
+  // Prepare form data
+  const formData = new FormData();
+  formData.append("file", blob, "image.png"); // Append blob as a file
+  // formData.append("token", token); // Add token if required
+  // Set the query parameters
+  const generalThreshold = 0.35;
+  const characterThreshold = 0.85;
+  // Append query parameters to the URL
+  const url = `http://127.0.0.1:5010/upload?general_threshold=${generalThreshold}&character_threshold=${characterThreshold}`;
+
+  try {
+      const response = await fetch(url, {
+          method: 'POST',
+          body: formData,
+      });
+
+      if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+      }
+      const responseData = await response.json();
+      const {sorted_general_strings} = responseData 
+
+      return {
+        words_list: sorted_general_strings
+      };
+  } catch (error) {
+      console.error('Error:', error);
+  }
 }
 
 

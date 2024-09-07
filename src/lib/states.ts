@@ -46,7 +46,8 @@ import {
 } from "./utils";
 import inpaint, {
   renderImage,
-  getGenInfo,
+  uploadImageToDescriptor,
+ // getGenInfo,
   postAdjustMask,
   runPlugin,
 } from "./api";
@@ -232,6 +233,7 @@ type AppAction = {
 
   runInpainting: (modelToCall: string) => Promise<void>;
   runImgRendering: () => Promise<void>;
+  runDescribeImg: () => Promise<void>;
   showPrevMask: () => Promise<void>;
   hidePrevMask: () => void;
   runRenderablePlugin: (
@@ -544,6 +546,57 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         }
 
         get().resetRedoState();
+        set((state) => {
+          state.isInpainting = false;
+          state.editorState.temporaryMasks = [];
+        });
+      },
+
+      runDescribeImg: async () => {
+
+        const { isInpainting, aspectRatio, userWindowWidth, userWindowHeight } = get();
+
+        if (isInpainting) {
+          return;
+        }
+
+        const {
+          currCanvasGroups, // added to support fabric js
+        } = get().editorState;
+
+        try {
+          const { targetFile } = await generateFromCanvas(
+            currCanvasGroups[currCanvasGroups.length - 1],
+            aspectRatio,
+            userWindowWidth,
+            userWindowHeight,
+          );
+
+          set((state) => {
+            state.isInpainting = true;
+          });
+
+          const res = await uploadImageToDescriptor(
+            dataURItoBlob(targetFile),
+          );
+
+          const { words_list } = res;
+          // set prompt input to this words list
+          set((state) => {
+            state.settings.prompt = words_list;
+          });
+  
+          toast({
+            description: `Created image description`,
+          });
+
+        } catch (e: any) {
+          toast({
+            variant: "destructive",
+            title: "Uh oh! Something went wrong.",
+            description: e.message ? e.message : e.toString(),
+          });
+        }
         set((state) => {
           state.isInpainting = false;
           state.editorState.temporaryMasks = [];

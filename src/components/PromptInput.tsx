@@ -4,9 +4,11 @@ import { useStore } from "@/lib/states";
 import { useClickAway, useToggle } from "react-use";
 import { Textarea } from "./ui/textarea";
 import { cn } from "@/lib/utils";
+import { ReloadIcon } from "@radix-ui/react-icons"
 
 const PromptInput = () => {
   const [
+    runDescribeImg,
     runImgRendering,
     isProcessing,
     updateSettings,
@@ -15,6 +17,7 @@ const PromptInput = () => {
     hidePrevMask,
     isInpainting,
   ] = useStore((state) => [
+    state.runDescribeImg,
     state.runImgRendering,
     state.getIsProcessing(),
     state.updateSettings,
@@ -46,6 +49,15 @@ const PromptInput = () => {
   const handleRepaintClick = () => {
     if (!isInpainting) {
       runImgRendering()
+      // runDescribeImg();
+      // replace with model to call actually
+      // runInpainting()
+    }
+  };
+
+  const handleDescribeImg= () => {
+    if (!isInpainting) {
+      runDescribeImg();
       // replace with model to call actually
       // runInpainting()
     }
@@ -57,17 +69,27 @@ const PromptInput = () => {
     }
   };
 
-  const onMouseEnter = () => {
-    showPrevMask();
-  };
+  // const onMouseEnter = () => {
+  //   showPrevMask();
+  // };
 
-  const onMouseLeave = () => {
-    hidePrevMask();
-  };
+  // const onMouseLeave = () => {
+  //   hidePrevMask();
+  // };
 
   return (
     <div className="flex gap-4 relative w-full justify-center h-full">
       <div className="absolute flex gap-4">
+      <Button
+          variant="outline"
+          size="sm"
+          onClick={handleDescribeImg}
+          disabled={isInpainting}
+        >
+        {isInpainting && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />}
+          GENERATE PROMPT
+        </Button>
+
         <Textarea
           ref={ref}
           placeholder="Write PROMPT here..."
@@ -87,9 +109,10 @@ const PromptInput = () => {
           size="sm"
           onClick={handleRepaintClick}
           disabled={isInpainting}
-          onMouseEnter={onMouseEnter}
-          onMouseLeave={onMouseLeave}
+          // onMouseEnter={onMouseEnter}
+          // onMouseLeave={onMouseLeave}
         >
+          {isInpainting && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />}
           Paint
         </Button>
       </div>
