@@ -19,8 +19,10 @@ import { toast } from "@/components/ui/use-toast";
 export const API_ENDPOINT = import.meta.env.VITE_BACKEND;
 export const API_ENDPOINT_RENDER_IMAGE = import.meta.env
   .VITE_BACKEND_RENDER_IMAGE;
-  export const API_ENDPOINT_RENDER_IMAGE_STATUS = import.meta.env
+export const API_ENDPOINT_RENDER_IMAGE_STATUS = import.meta.env
   .VITE_BACKEND_RENDER_IMAGE_STATUS;
+export const API_ENDPOINT_PROMPT_GENERATOR = import.meta.env
+  .VITE_BACKEND_PROMPT_DESCRIPTOR;
 export const TOKEN = import.meta.env.VITE_RUNPOD;
 
 const api = axios.create({
@@ -195,7 +197,7 @@ export async function uploadImageToDescriptor(blob: Blob) {
   const generalThreshold = 0.35;
   const characterThreshold = 0.85;
   // Append query parameters to the URL
-  const url = `http://127.0.0.1:5010/upload?general_threshold=${generalThreshold}&character_threshold=${characterThreshold}`;
+  const url = `${API_ENDPOINT_PROMPT_GENERATOR}/upload?general_threshold=${generalThreshold}&character_threshold=${characterThreshold}`;
 
   try {
       const response = await fetch(url, {
