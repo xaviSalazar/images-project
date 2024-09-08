@@ -205,35 +205,46 @@ export async function removeBackgroundApi(
   throw new Error(`Something went wrong: ${errors.errors}`);
 }
 
-export async function uploadImageToDescriptor(blob: Blob) {
-  // Prepare form data
-  const formData = new FormData();
-  formData.append("file", blob, "image.png"); // Append blob as a file
-  // formData.append("token", token); // Add token if required
-  // Set the query parameters
-  const generalThreshold = 0.35;
-  const characterThreshold = 0.85;
-  // Append query parameters to the URL
-  const url = `${API_ENDPOINT_PROMPT_GENERATOR}/upload?general_threshold=${generalThreshold}&character_threshold=${characterThreshold}`;
+export async function uploadImageToDescriptor(imageFile: Blob) {
 
-  try {
-      const response = await fetch(url, {
-          method: 'POST',
-          body: formData,
-      });
-
-      if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
+  const imageBase64 = await convertToBase64(imageFile);
+  const res = await fetch(`${API_ENDPOINT_RENDER_IMAGE}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${TOKEN}`,
+    },
+    body: JSON.stringify({
+      id: randomNumberInRange(1, 65536),
+      input: {
+        action: "TaggerImage",
+        image: imageBase64,
       }
-      const responseData = await response.json();
-      const {sorted_general_strings} = responseData 
+    }),
+  });
 
+  if (res.ok) {
+    const responseData = await res.json(); // Parse JSON response
+    console.log(responseData)
+    const { id, status } = responseData;
+    toast({
+      // variant: "destructive",
+      title: "PROMPT GENERATE:",
+      description: `${status}`,
+    });
+
+    // await the result of pollstatus
+    try {
+      const { output, req_id } = await pollStatus(id);
       return {
-        words_list: sorted_general_strings
+        words_list: output.result[0],
       };
-  } catch (error) {
-      console.error('Error:', error);
+    } catch (error){
+      throw new Error(`Polling failed: ${error.message}`);
+    }
   }
+  const errors = await res.json();
+  throw new Error(`Something went wrong: ${errors.errors}`);
 }
 
 
