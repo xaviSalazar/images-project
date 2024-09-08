@@ -186,6 +186,7 @@ function Home() {
       // add image
       fabricRef.current.add(scaledImage);
       toast({
+        variant: "success",
         title: "NUEVA IMAGEN",
         description: "Nueva imagen agregada",
       });

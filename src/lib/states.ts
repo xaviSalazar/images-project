@@ -668,6 +668,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           // }
           //get().setImageSize(newRender.width, newRender.height);
           toast({
+            variant: "success",
             description: `LOADED NEW IMAGE SUCCESS`,
           });
         } catch (e: any) {
