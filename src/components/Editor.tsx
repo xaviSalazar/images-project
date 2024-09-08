@@ -354,6 +354,9 @@ const Editor = React.forwardRef(() => {
   const [buttonPosition, setButtonPosition] = useState({ left: 0, top: 0 });
   const [buttonVisible, setButtonVisible] = useState(false);
 
+  const [BottomButtonPosition, setBottomButtonPosition] = useState({ left: 0, top: 0 });
+  const [BottomButtonVisible, setBottomButtonVisible] = useState(false);
+
   useEffect(() => {
     const initMainCanvas = (): fabric.Canvas => {
       oldWindowSize.current = {width: window.innerWidth, height: window.innerHeight}
@@ -397,14 +400,12 @@ const Editor = React.forwardRef(() => {
     };
 
     fabric.Canvas.prototype.getAbsoluteCoords = function (object) {
-      return {
-        left: object.left,
-        top: object.top,
-      };
+      const m = object.calcTransformMatrix();
+      return {left: m[4], top: m[5]};
     };
 
     function positionBtn(obj) {
-      const btnContainer = document.getElementById("button-container");
+      const btnContainer = document.getElementById("upper-button-options");
       if (!btnContainer) return;
       if (!fabricRef.current) return;
       const zoom = fabricRef.current.getZoom();
@@ -419,6 +420,24 @@ const Editor = React.forwardRef(() => {
         viewportTransform[5];
       setButtonPosition({ left, top });
       setButtonVisible(true);
+    }
+
+    function positionBottomBtn(obj) {
+      const btnContainer = document.getElementById("bottom-button-options");
+      if (!btnContainer) return;
+      if (!fabricRef.current) return;
+      const zoom = fabricRef.current.getZoom();
+      const viewportTransform = fabricRef.current.viewportTransform;
+      const absCoords = fabricRef.current.getAbsoluteCoords(obj);
+      console.log(absCoords)
+      console.log(viewportTransform)
+      console.log(obj.scaleX, obj.scaleY)
+      const left =
+        (absCoords.left + (obj.width * obj.scaleX) / 2) * zoom - viewportTransform[4] + 120;
+      const top =
+        (absCoords.top + (obj.height * obj.scaleY) / 2) * zoom + viewportTransform[5] * 1.25 ;
+      setBottomButtonPosition({ left, top });
+      setBottomButtonVisible(true);
     }
 
     // Activate drawing mode for mask overlay
@@ -448,18 +467,23 @@ const Editor = React.forwardRef(() => {
 
     fabricRef.current?.on("selection:updated", function (e) {
       positionBtn(e.selected[0]);
+      positionBottomBtn(e.selected[0]);
     });
 
     fabricRef.current?.on("selection:created", function (e) {
       positionBtn(e.selected[0]);
+      positionBottomBtn(e.selected[0]);
     });
 
     fabricRef.current?.on("object:moving", function (e) {
       setButtonVisible(false);
+      setBottomButtonVisible(false);
+
     });
 
     fabricRef.current?.on("selection:cleared", function () {
       setButtonVisible(false);
+      setBottomButtonVisible(false);
     });
 
     fabricRef.current?.on("path:created", () => {
@@ -482,6 +506,7 @@ const Editor = React.forwardRef(() => {
       );
 
       setButtonVisible(false);
+      setBottomButtonVisible(false);
       opt.e.preventDefault();
       opt.e.stopPropagation();
     });
@@ -1448,7 +1473,7 @@ const Editor = React.forwardRef(() => {
       aria-hidden="true"
     >
       <Menubar
-        id="button-container"
+        id="upper-button-options"
         style={{
           position: "absolute",
           left: buttonPosition.left,
@@ -1496,41 +1521,6 @@ const Editor = React.forwardRef(() => {
         </MenubarMenu>
 
         <MenubarMenu>
-          <MenubarTrigger>{t("Layer")}</MenubarTrigger>
-          <MenubarContent>
-            <MenubarItem onClick={() => handleLayoutControl("toFront")}>
-              toFront{" "}
-              <MenubarShortcut>
-                <ArrowUpIcon className="h-4 w-4" />
-              </MenubarShortcut>
-            </MenubarItem>
-            <MenubarSeparator />
-            <MenubarItem onClick={() => handleLayoutControl("toBack")}>
-              toBack{" "}
-              <MenubarShortcut>
-                <ArrowDownIcon className="h-4 w-4" />
-              </MenubarShortcut>
-            </MenubarItem>
-            <MenubarSeparator />
-            <MenubarItem onClick={() => handleLayoutControl("toForward")}>
-              toForward{" "}
-              <MenubarShortcut>
-                {" "}
-                <DoubleArrowUpIcon className="h-4 w-4" />{" "}
-              </MenubarShortcut>
-            </MenubarItem>
-            <MenubarSeparator />
-            <MenubarItem onClick={() => handleLayoutControl("toBackward")}>
-              toBackward{" "}
-              <MenubarShortcut>
-                {" "}
-                <DoubleArrowDownIcon className="h-4 w-4" />{" "}
-              </MenubarShortcut>
-            </MenubarItem>
-          </MenubarContent>
-        </MenubarMenu>
-
-        <MenubarMenu>
           <MenubarTrigger onClick={handleViewMenuOpen}>{t("Variation")}</MenubarTrigger>
           <MenubarContent>
             <MenubarCheckboxItem
@@ -1564,6 +1554,54 @@ const Editor = React.forwardRef(() => {
             </MenubarItem>
           </MenubarContent>
         </MenubarMenu>
+      </Menubar>
+
+      <Menubar
+        id="bottom-button-options"
+        style={{
+          position: "absolute",
+          left: BottomButtonPosition.left,
+          top: BottomButtonPosition.top,
+          display: BottomButtonVisible ? "flex" : "none", // Toggle visibility
+          zIndex: 9999,
+        }}
+      >
+        <MenubarMenu>
+          <MenubarTrigger onClick={() => handleLayoutControl("toForward")} >{t("toFront")}</MenubarTrigger>
+          <MenubarTrigger onClick={() => handleLayoutControl("toBackward")} >{t("toBack")}</MenubarTrigger>
+          {/* <MenubarContent>
+            <MenubarItem onClick={() => handleLayoutControl("toFront")}>
+              toFront{" "}
+              <MenubarShortcut>
+                <ArrowUpIcon className="h-4 w-4" />
+              </MenubarShortcut>
+            </MenubarItem>
+            <MenubarSeparator />
+            <MenubarItem onClick={() => handleLayoutControl("toBack")}>
+              toBack{" "}
+              <MenubarShortcut>
+                <ArrowDownIcon className="h-4 w-4" />
+              </MenubarShortcut>
+            </MenubarItem>
+            <MenubarSeparator />
+            <MenubarItem onClick={() => handleLayoutControl("toForward")}>
+              toForward{" "}
+              <MenubarShortcut>
+                {" "}
+                <DoubleArrowUpIcon className="h-4 w-4" />{" "}
+              </MenubarShortcut>
+            </MenubarItem>
+            <MenubarSeparator />
+            <MenubarItem onClick={() => handleLayoutControl("toBackward")}>
+              toBackward{" "}
+              <MenubarShortcut>
+                {" "}
+                <DoubleArrowDownIcon className="h-4 w-4" />{" "}
+              </MenubarShortcut>
+            </MenubarItem>
+          </MenubarContent> */}
+        </MenubarMenu>
+
       </Menubar>
 
       {renderCanvas()}

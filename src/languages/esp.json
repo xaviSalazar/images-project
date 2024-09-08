@@ -31,7 +31,9 @@
     "Variation" : "Variacion",
     "Fixed image": "Imagen original (sin cambios)",
     "Modify image": "Nueva variacion IA",
-
+    "toBack": "Traer atras",
+    "toFront": "Traer adelante",
+    
     "RemoveBG": "quitar fondo",
     "Upload Picture": "Cargar Imagen",
     "See gallery": "GALERIA",
