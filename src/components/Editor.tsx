@@ -410,14 +410,9 @@ const Editor = React.forwardRef(() => {
       if (!fabricRef.current) return;
       const zoom = fabricRef.current.getZoom();
       const viewportTransform = fabricRef.current.viewportTransform;
-      const absCoords = fabricRef.current.getAbsoluteCoords(obj);
-      const left =
-        (absCoords.left + (obj.width * obj.scaleX) / 2) * zoom +
-        viewportTransform[4] -
-        350;
-      const top =
-        (absCoords.top - (obj.height * obj.scaleY) / 2) * zoom +
-        viewportTransform[5];
+      const mTotal = fabric.util.multiplyTransformMatrices(viewportTransform, obj.calcTransformMatrix());
+      const left = mTotal[4] - 90
+      const top = mTotal[5] - (zoom * obj.height)/2  /* size of div i guess */
       setButtonPosition({ left, top });
       setButtonVisible(true);
     }
@@ -428,14 +423,9 @@ const Editor = React.forwardRef(() => {
       if (!fabricRef.current) return;
       const zoom = fabricRef.current.getZoom();
       const viewportTransform = fabricRef.current.viewportTransform;
-      const absCoords = fabricRef.current.getAbsoluteCoords(obj);
-      console.log(absCoords)
-      console.log(viewportTransform)
-      console.log(obj.scaleX, obj.scaleY)
-      const left =
-        (absCoords.left + (obj.width * obj.scaleX) / 2) * zoom - viewportTransform[4] + 120;
-      const top =
-        (absCoords.top + (obj.height * obj.scaleY) / 2) * zoom + viewportTransform[5] * 1.25 ;
+      const mTotal = fabric.util.multiplyTransformMatrices(viewportTransform, obj.calcTransformMatrix());
+      const left = mTotal[4] - 100
+      const top = mTotal[5] + (zoom * obj.height)/2 + 60 /* size of div i guess */
       setBottomButtonPosition({ left, top });
       setBottomButtonVisible(true);
     }
@@ -1567,8 +1557,14 @@ const Editor = React.forwardRef(() => {
         }}
       >
         <MenubarMenu>
-          <MenubarTrigger onClick={() => handleLayoutControl("toForward")} >{t("toFront")}</MenubarTrigger>
-          <MenubarTrigger onClick={() => handleLayoutControl("toBackward")} >{t("toBack")}</MenubarTrigger>
+          <MenubarTrigger onClick={() => handleLayoutControl("toForward")} >
+              {t("toFront")}  
+              <MenubarShortcut> <ArrowUpIcon className="h-4 w-4" /></MenubarShortcut>
+          </MenubarTrigger>
+          <MenubarTrigger onClick={() => handleLayoutControl("toBackward")} >
+            {t("toBack")}
+            <MenubarShortcut> <ArrowDownIcon className="h-4 w-4" /></MenubarShortcut>
+          </MenubarTrigger>
           {/* <MenubarContent>
             <MenubarItem onClick={() => handleLayoutControl("toFront")}>
               toFront{" "}
