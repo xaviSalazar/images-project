@@ -10,6 +10,7 @@ import { predefinedRatios } from "@/lib/const";
 import { useToast } from "@/components/ui/use-toast";
 import { useKeyPressEvent } from "react-use";
 import { IconButton } from "@/components/ui/button";
+import { Button } from "./ui/button";
 import {removeBackgroundApi} from "@/lib/api"
 import { useTranslation } from "react-i18next";
 import {resizeImageWithPica} from "@/lib/utils"
@@ -1557,13 +1558,18 @@ const Editor = React.forwardRef(() => {
         }}
       >
         <MenubarMenu>
-          <MenubarTrigger onClick={() => handleLayoutControl("toForward")} >
-              {t("toFront")}  
-              <MenubarShortcut> <ArrowUpIcon className="h-4 w-4" /></MenubarShortcut>
+          <MenubarTrigger onClick={() => handleLayoutControl("toForward")} asChild >
+          <Button variant="secondary">
+          {t("toFront")}
+              <ArrowUpIcon className="h-4 w-4" />
+          </Button>
           </MenubarTrigger>
-          <MenubarTrigger onClick={() => handleLayoutControl("toBackward")} >
+          <MenubarTrigger onClick={() => handleLayoutControl("toBackward")} asChild>
+          <Button variant="secondary">
             {t("toBack")}
-            <MenubarShortcut> <ArrowDownIcon className="h-4 w-4" /></MenubarShortcut>
+            <ArrowDownIcon className="h-4 w-4" />
+          </Button>
+
           </MenubarTrigger>
           {/* <MenubarContent>
             <MenubarItem onClick={() => handleLayoutControl("toFront")}>
