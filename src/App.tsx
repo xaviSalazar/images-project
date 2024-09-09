@@ -129,9 +129,13 @@ function Home() {
       const canvasHeight = fabricRef.current.height ?? 0;
       const imageWidth = image?.width ?? 1;
       const imageHeight = image?.height ?? 1;
-
-      const scaleX = scaledWidth / imageWidth;
-      const scaleY = scaledHeight / imageHeight;
+      let scaleX = 1; // default
+      let scaleY = 1;// default
+      if(imageWidth + imageHeight > scaledWidth + scaledHeight)
+      {
+        scaleX = scaledWidth / imageWidth;
+        scaleY = scaledHeight / imageHeight;
+      }
       // Calculate integer scale factor
       const integerScale = Math.floor(Math.min(scaleX, scaleY) * 100) / 100;
 
