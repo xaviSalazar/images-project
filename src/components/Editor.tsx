@@ -370,7 +370,7 @@ const Editor = React.forwardRef(() => {
       return new fabric.Canvas(canvasRef.current || undefined, {
         width: window.innerWidth,
         height: window.innerHeight,
-        backgroundColor: "#545252",
+        backgroundColor: "#27272a",
         imageSmoothingEnabled: false,
         fireMiddleClick: true,
         stopContextMenu: true, // 禁止默认右键菜单
@@ -412,8 +412,8 @@ const Editor = React.forwardRef(() => {
       const zoom = fabricRef.current.getZoom();
       const viewportTransform = fabricRef.current.viewportTransform;
       const mTotal = fabric.util.multiplyTransformMatrices(viewportTransform, obj.calcTransformMatrix());
-      const left = mTotal[4] - 90
-      const top = mTotal[5] - (zoom * obj.height)/2  /* size of div i guess */
+      const left = mTotal[4] - 150
+      const top = mTotal[5] - (zoom * obj.height * obj.scaleY)/2  /* size of div i guess */
       setButtonPosition({ left, top });
       setButtonVisible(true);
     }
@@ -426,7 +426,7 @@ const Editor = React.forwardRef(() => {
       const viewportTransform = fabricRef.current.viewportTransform;
       const mTotal = fabric.util.multiplyTransformMatrices(viewportTransform, obj.calcTransformMatrix());
       const left = mTotal[4] - 100
-      const top = mTotal[5] + (zoom * obj.height)/2 + 60 /* size of div i guess */
+      const top = mTotal[5] + (zoom * obj.height * obj.scaleY)/2 + 65 /* size of div i guess */
       setBottomButtonPosition({ left, top });
       setBottomButtonVisible(true);
     }
@@ -591,34 +591,34 @@ const Editor = React.forwardRef(() => {
   
       // Create lines for the rectangle outline
       const topLine = new fabric.Line([topLeft.x, topLeft.y, topRight.x, topRight.y], {
-        stroke: '#98FB98',
-        strokeWidth: 2,
+        stroke: '#84CC16',
+        strokeWidth: 3,
         strokeLineCap: 'round',
         selectable: false,
       });
       const rightLine = new fabric.Line([topRight.x, topRight.y, bottomRight.x, bottomRight.y], {
-        stroke: '#98FB98',
-        strokeWidth: 2,
+        stroke: '#84CC16',
+        strokeWidth: 3,
         strokeLineCap: 'round',
         selectable: false,
       });
       const bottomLine = new fabric.Line([bottomRight.x, bottomRight.y, bottomLeft.x, bottomLeft.y], {
-        stroke: '#98FB98',
-        strokeWidth: 2,
+        stroke: '#84CC16',
+        strokeWidth: 3,
         strokeLineCap: 'round',
         selectable: false,
       });
       const leftLine = new fabric.Line([bottomLeft.x, bottomLeft.y, topLeft.x, topLeft.y], {
-        stroke: '#98FB98',
-        strokeWidth: 2,
+        stroke: '#84CC16',
+        strokeWidth: 3,
         strokeLineCap: 'round',
         selectable: false,
       });
   
       const place_img_instruction = new FabricText(t("Place image"), {
-          left:centerX - (clipWidth / 2) + 200,
+          left:centerX - (clipWidth / 2) + 310,
           top: centerY - (clipHeight / 2) - 50,
-          fill: '#98FB98',
+          fill: '#84CC16',
           fontFamily: 'Comic Sans',
           fontSize: 45,
           textAlign: 'left',
@@ -629,7 +629,7 @@ const Editor = React.forwardRef(() => {
       const results_instruction = new FabricText(t("Results image msg"),{
         left:centerX + clipWidth - 200,
         top: centerY - (clipHeight / 2) - 50,
-        fill: '#98FB98',
+        fill: '#84CC16',
         fontFamily: 'Comic Sans',
         fontSize: 45,
         Shadow: 'rgba(0,0,0,0.2) 0 0 5px',
