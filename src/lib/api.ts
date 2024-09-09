@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Filename,
   GenInfo,
@@ -23,6 +24,8 @@ export const API_ENDPOINT_RENDER_IMAGE_STATUS = import.meta.env
   .VITE_BACKEND_RENDER_IMAGE_STATUS;
 export const API_ENDPOINT_PROMPT_GENERATOR = import.meta.env
   .VITE_BACKEND_PROMPT_DESCRIPTOR;
+export const API_ENDPOINT_JOB_CANCEL= import.meta.env
+  .VITE_BACKEND_RENDER_IMAGE_CANCEL
 export const TOKEN = import.meta.env.VITE_RUNPOD;
 
 const api = axios.create({
@@ -44,6 +47,27 @@ const api = axios.create({
 */
 const pollStatus = (taskId: string) => {
   return new Promise((resolve, reject) => {
+
+    const handleReject = async (error: Error, taskId) => {
+      console.log(taskId)
+
+      const cancelRequest = await fetch(`${API_ENDPOINT_JOB_CANCEL}/${taskId}`, {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${TOKEN}`,
+        },
+      });
+      const status = await cancelRequest.json();
+      console.log(status)
+      if(status.status === "CANCELLED")
+      {
+        clearInterval(intervalId);
+        reject(error);
+
+      } 
+    };
+
     const intervalId = setInterval(async () => {
       try {
 
@@ -62,11 +86,19 @@ const pollStatus = (taskId: string) => {
             const currentStep = parseInt(progressMatch[1]);
             const totalSteps = parseInt(progressMatch[2]);
             const progressValue = Math.round((currentStep / totalSteps) * 100);
-            toast({
-              title: "PROGRESS:",
-              description: `${progressValue}% PERCENT`,
-            });
-
+          // Update toast with a "Stop" button
+          toast({
+            title: "PROGRESS:",
+            description: `${progressValue}% PERCENT`,
+            action: React.createElement(
+              "button",
+              {
+                onClick: () => handleReject(new Error("Polling was manually stopped."), statusData.id),
+                style: { color: 'red' }
+              },
+              "STOP"
+            ),
+          });
           }
         }
           else {
