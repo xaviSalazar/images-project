@@ -616,22 +616,22 @@ const Editor = React.forwardRef(() => {
       });
   
       const place_img_instruction = new FabricText(t("Place image"), {
-          left:centerX - (clipWidth / 2) + 310,
+          left:centerX - (clipWidth / 2) + 250,
           top: centerY - (clipHeight / 2) - 50,
           fill: '#84CC16',
           fontFamily: 'Comic Sans',
-          fontSize: 45,
+          fontSize: 35,
           textAlign: 'left',
           Shadow: 'rgba(0,0,0,0.2) 0 0 5px',
           selectable: false,
       });
 
       const results_instruction = new FabricText(t("Results image msg"),{
-        left:centerX + clipWidth - 200,
+        left:centerX + clipWidth - 280,
         top: centerY - (clipHeight / 2) - 50,
         fill: '#84CC16',
         fontFamily: 'Comic Sans',
-        fontSize: 45,
+        fontSize: 35,
         Shadow: 'rgba(0,0,0,0.2) 0 0 5px',
         textAlign: 'left',
         selectable: false,
