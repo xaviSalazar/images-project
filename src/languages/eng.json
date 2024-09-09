@@ -31,13 +31,15 @@
     "Variation" : "Variation",
     "Fixed image": "Imagen fija (no variar)",
     "Modify image": "New Ai image variation",
-    "toBack": "Bring to back",
+    "toBack": "Back",
+    "toFront": "Front",
+
 
     "RemoveBG": "remove background",
     "Upload Picture": "Upload File",
     "See gallery": "GALLERY",
     "Format": "Screen format",
-    "Place image": "Place background and product here ",
+    "Place image": "Place background and products here ",
     "Results image msg": "See your results here"
   }
 }

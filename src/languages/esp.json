@@ -31,14 +31,14 @@
     "Variation" : "Variacion",
     "Fixed image": "Imagen original (sin cambios)",
     "Modify image": "Nueva variacion IA",
-    "toBack": "Traer atras",
-    "toFront": "Traer adelante",
+    "toBack": "Atras",
+    "toFront": "Adelante",
     
     "RemoveBG": "quitar fondo",
     "Upload Picture": "Cargar Imagen",
     "See gallery": "GALERIA",
     "Format": "Formato de pantalla",
-    "Place image": "Coloca tus imagenes aqui",
+    "Place image": "Coloca tu fondo e imagenes aqui",
     "Results image msg": "Observa tu resultado aqui"
   }
 }
