@@ -141,6 +141,9 @@ export async function renderImage(
   height: number,
   min_light: number,
   max_light: number,
+  start_color: string,
+  light_orientation: string,
+  color_transition: number,
   dev_mode: boolean,
 ) {
   const imageBase64 = await convertToBase64(imageFile);
@@ -167,6 +170,9 @@ export async function renderImage(
         light_prompt_negative: light_prompt_negative,
         min_light: min_light,
         max_light: max_light,
+        start_color: start_color,
+        light_orientation: light_orientation,
+        color_transition: color_transition,
       },
     }),
   });

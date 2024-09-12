@@ -9,6 +9,8 @@ import {
   ExtenderDirection,
   FreeuConfig,
   LDMSampler,
+  ColorStart,
+  LightOrientation,
   Line,
   LineGroup,
   ModelInfo,
@@ -86,6 +88,8 @@ export type Settings = {
   // For LDM
   ldmSteps: number;
   ldmSampler: LDMSampler;
+  lightOrientation: LightOrientation;
+  colorStart: ColorStart;
 
   // For ZITS
   zitsWireframe: boolean;
@@ -108,6 +112,7 @@ export type Settings = {
   sdSteps: number;
   minimumLight: number;
   maximumLight: number;
+  colorTransition: number;
   sdGuidanceScale: number;
   sdSampler: string;
   sdMatchHistograms: boolean;
@@ -366,6 +371,8 @@ const defaultValues: AppState = {
     enableAutoExtractPrompt: true,
     ldmSteps: 30,
     ldmSampler: LDMSampler.ddim,
+    lightOrientation: LightOrientation.vertical,
+    colorStart: ColorStart.black_to_white,
     zitsWireframe: true,
     cv2Radius: 5,
     cv2Flag: CV2Flag.INPAINT_NS,
@@ -378,8 +385,9 @@ const defaultValues: AppState = {
     sdMaskBlur: 12,
     sdStrength: 1.0,
     sdSteps: 50,
-    minimumLight: 0.5,
+    minimumLight: 0.0,
     maximumLight: 0.9,
+    colorTransition: 0.25,
     sdGuidanceScale: 7.5,
     sdSampler: "DPM++ 2M",
     sdMatchHistograms: false,
@@ -623,7 +631,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
 
         const { prompt, negativePrompt,
                photoLighting, negativePhotoLighting,
-               minimumLight, maximumLight,
+               minimumLight, maximumLight, colorStart, lightOrientation, colorTransition,
                isDevModeActive } = get().settings;
 
         const {
@@ -653,8 +661,8 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
             state.isInpainting = true;
           });
   
-          // console.log(targetFile)
-          // console.log(staticElements)
+          console.log(targetFile)
+          console.log(staticElements)
           // console.log(scaledWidth,scaledHeight)
 
           const res = await renderImage(
@@ -668,6 +676,9 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
             scaledHeight,
             minimumLight,
             maximumLight,
+            colorStart,
+            lightOrientation,
+            colorTransition,
             isDevModeActive
           );
           const { img_list, seed } = res;

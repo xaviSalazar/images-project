@@ -84,6 +84,16 @@ export enum LDMSampler {
   plms = "plms",
 }
 
+export enum LightOrientation {
+  horizontal = "horizontal",
+  vertical = "vertical",
+}
+
+export enum ColorStart {
+  black_to_white = "black_white",
+  white_to_black = "white_black"
+}
+
 export enum CV2Flag {
   INPAINT_NS = "INPAINT_NS",
   INPAINT_TELEA = "INPAINT_TELEA",

@@ -28,6 +28,9 @@ import { RowContainer, LabelTitle } from "./LabelTitle";
 import { Upload } from "lucide-react";
 import { useClickAway } from "react-use";
 
+import { LightOrientation, ColorStart } from "@/lib/types";
+
+
 const ExtenderButton = ({
   text,
   onClick,
@@ -379,7 +382,7 @@ const LightOptions = () => {
             ref={positivePromptRef}
             rows={4}
             onKeyUp={onKeyUp}
-            className="max-h-[8rem] overflow-y-auto mb-2"
+            className="max-h-[1rem] overflow-y-auto mb-2"
             placeholder=""
             id="negative-prompt"
             value={settings.photoLighting}
@@ -642,14 +645,14 @@ const LightOptions = () => {
     return (
       <div className="flex flex-col gap-1">
         <LabelTitle
-          htmlFor="LUZ MINIMO"
-          text="LUZ MINIMO"
+          htmlFor="Minimo de luz"
+          text="Minimo de luz"
           toolTip="The number of denoising steps. More denoising steps usually lead to a higher quality image at the expense of slower inference."
         />
         <RowContainer>
           <Slider
             className="w-[180px]"
-            defaultValue={[0.3]}
+            defaultValue={[0]}
             min={0}
             max={1}
             step={0.01}
@@ -674,7 +677,7 @@ const LightOptions = () => {
     return (
       <div className="flex flex-col gap-1">
         <LabelTitle
-          text="LUZ MAXIMO"
+          text="Luminosidad, contraste"
           url="https://huggingface.co/docs/diffusers/main/en/using-diffusers/inpaint#guidance-scale"
           toolTip="Guidance scale affects how aligned the text prompt and generated image are. Higher value means the prompt and generated image are closely aligned, so the output is a stricter interpretation of the prompt"
         />
@@ -703,6 +706,101 @@ const LightOptions = () => {
       </div>
     );
   };
+
+  const colorTransition = () => {
+    return (
+      <div className="flex flex-col gap-1">
+        <LabelTitle
+          text="Transicion de color"
+          url="https://huggingface.co/docs/diffusers/main/en/using-diffusers/inpaint#guidance-scale"
+          toolTip="Transicion de color"
+        />
+        <RowContainer>
+          <Slider
+            className="w-[180px]"
+            defaultValue={[0.25]}
+            min={0}
+            max={1}
+            step={0.01}
+            value={[settings.colorTransition]}
+            onValueChange={(vals) =>
+              updateSettings({ colorTransition: vals[0] })
+            }
+          />
+          <NumberInput
+            id="guidance-scale"
+            className="w-[60px] rounded-full"
+            numberValue={settings.colorTransition}
+            allowFloat={true}
+            onNumberValueChange={(val) => {
+              updateSettings({ colorTransition: val });
+            }}
+          />
+        </RowContainer>
+      </div>
+    );
+  };
+
+  const SelectOrientation = () => {
+    return (
+     <div className="flex flex-col gap-4 mt-4">
+      <RowContainer>
+        <LabelTitle text="Luz Orientacion" />
+        <Select
+          value={settings.lightOrientation as string}
+          onValueChange={(value) => {
+            const orientation = value as LightOrientation;
+            updateSettings({ lightOrientation: orientation });
+          }}
+        >
+          <SelectTrigger className="w-[150px]">
+            <SelectValue placeholder="Elija" />
+          </SelectTrigger>
+          <SelectContent align="end">
+            <SelectGroup>
+              {Object.values(LightOrientation).map((orientation) => (
+                <SelectItem key={orientation as string} value={orientation as string}>
+                  {orientation as string}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </RowContainer>
+    </div>
+  );
+};
+
+const SelectStartColor = () => {
+  return (
+   <div className="flex flex-col gap-4 mt-4">
+    <RowContainer>
+      <LabelTitle text="Color va desde" />
+      <Select
+        value={settings.colorStart as string}
+        onValueChange={(value) => {
+          const orientation = value as ColorStart;
+          updateSettings({ colorStart: orientation });
+        }}
+      >
+        <SelectTrigger className="w-[150px]">
+          <SelectValue placeholder="Elija" />
+        </SelectTrigger>
+        <SelectContent align="end">
+          <SelectGroup>
+            {Object.values(ColorStart).map((orientation) => (
+              <SelectItem key={orientation as string} value={orientation as string}>
+                {orientation as string}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    </RowContainer>
+  </div>
+);
+};
+
 
 //   const renderSampler = () => {
 //     if (settings.model.name === ANYTEXT) {
@@ -902,7 +1000,7 @@ const LightOptions = () => {
 //               </div>
 //             </Button>
 //           </RowContainer>
-//         </div>
+//         </div>colorTransition
 //         <Separator />
 //       </>
 //     );
@@ -911,12 +1009,14 @@ const LightOptions = () => {
   return (
     <div className="flex flex-col gap-4 mt-4">
       {lightMinimum()}
-      <Separator />
       {lightMaximum()}
+      {colorTransition()}
       <Separator />
       {/* {renderSeed()} */}
       {renderPositiveLightPrompt()}
       {renderNegativeLightPrompt()}
+      {SelectOrientation()}
+      {SelectStartColor()}
       <Separator />
       {/* {renderConterNetSetting()} */}
       {/* {renderLCMLora()} */}
