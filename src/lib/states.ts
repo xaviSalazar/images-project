@@ -81,6 +81,7 @@ export type Settings = {
   showSelectable: boolean;
   showExtender: boolean;
   extenderDirection: ExtenderDirection;
+  isDevModeActive: boolean;
 
   // For LDM
   ldmSteps: number;
@@ -354,6 +355,7 @@ const defaultValues: AppState = {
     showExtender: false,
     showDrawing: false,
     showSelectable: false,
+    isDevModeActive: false,
     extenderDirection: ExtenderDirection.xy,
     enableDownloadMask: false,
     enableManualInpainting: false,
@@ -564,6 +566,8 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           currCanvasGroups, // added to support fabric js
         } = get().editorState;
 
+        const { isDevModeActive } = get().settings;
+
         try {
           const { targetFile } = await generateFromCanvas(
             currCanvasGroups[currCanvasGroups.length - 1],
@@ -578,6 +582,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
 
           const res = await uploadImageToDescriptor(
             dataURItoBlob(targetFile),
+            isDevModeActive
           );
 
           const { words_list } = res;
@@ -610,7 +615,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           return;
         }
 
-        const { prompt, negativePrompt, photoLighting } = get().settings;
+        const { prompt, negativePrompt, photoLighting, isDevModeActive } = get().settings;
 
         const {
           renders,
@@ -651,6 +656,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
             scaledWidth,
             scaledHeight,
             photoLighting,
+            isDevModeActive
           );
           const { img_list, seed } = res;
           for (const base64Image of img_list) {

@@ -20,6 +20,8 @@ import { toast } from "@/components/ui/use-toast";
 export const API_ENDPOINT = import.meta.env.VITE_BACKEND;
 export const API_ENDPOINT_RENDER_IMAGE = import.meta.env
   .VITE_BACKEND_RENDER_IMAGE;
+export const API_ENDPOINT_RENDER_IMAGE_DEV = import.meta.env
+  .VITE_BACKEND_RENDER_IMAGE_DEV;
 export const API_ENDPOINT_RENDER_IMAGE_STATUS = import.meta.env
   .VITE_BACKEND_RENDER_IMAGE_STATUS;
 export const API_ENDPOINT_JOB_CANCEL= import.meta.env
@@ -136,11 +138,13 @@ export async function renderImage(
   width: number,
   height: number,
   light_option: string,
+  dev_mode: boolean,
 ) {
   const imageBase64 = await convertToBase64(imageFile);
   const objectsBase64 = await convertToBase64(imageObjects);
+  const api_call = dev_mode ? API_ENDPOINT_RENDER_IMAGE_DEV : API_ENDPOINT_RENDER_IMAGE;
 
-  const res = await fetch(`${API_ENDPOINT_RENDER_IMAGE}`, {
+  const res = await fetch(`${api_call}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -163,37 +167,49 @@ export async function renderImage(
 
   if (res.ok) {
     const responseData = await res.json(); // Parse JSON response
-    console.log(responseData)
-    const { id, status } = responseData;
-    toast({
-      // variant: "destructive",
-      title: "IMAGE GENERATION:",
-      description: `${status}`,
-    });
-
-    // await the result of pollstatus
-    try {
-      const { output, req_id } = await pollStatus(id);
+    if(dev_mode)
+    { 
+      const { output } = responseData;
       return {
-        img_list: output.result, // Assuming result contains the image list
-        seed: req_id, // Return the id from the response
+        img_list : output.result,
+        seed: "42", // Return the id from the response
       };
-    } catch (error){
-      throw new Error(`Polling failed: ${error.message}`);
+
+    } else {
+      const { id, status } = responseData;
+      toast({
+        title: "IMAGE GENERATION:",
+        description: `${status}`,
+      });
+
+      try {
+        const { output, req_id } = await pollStatus(id);
+        return {
+          img_list: output.result, // Assuming result contains the image list
+          seed: req_id, // Return the id from the response
+        };
+      } catch (error){
+        throw new Error(`Polling failed: ${error.message}`);
+      }
     }
   }
+
   const errors = await res.json();
   throw new Error(`Something went wrong: ${errors.errors}`);
 }
+
 /* POST METHOD TO REMOVE BACKGROUND 
 */
 export async function removeBackgroundApi(
   imageFile: File | Blob,
   model: string,
+  dev_mode: boolean,
 ) {
   const imageBase64 = await convertToBase64(imageFile);
+  const api_call = dev_mode ? API_ENDPOINT_RENDER_IMAGE_DEV : API_ENDPOINT_RENDER_IMAGE;
 
-  const res = await fetch(`${API_ENDPOINT_RENDER_IMAGE}`, {
+
+  const res = await fetch(`${api_call}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -211,34 +227,49 @@ export async function removeBackgroundApi(
 
   if (res.ok) {
     const responseData = await res.json(); // Parse JSON response
-    console.log(responseData)
-    const { id, status } = responseData;
-    toast({
-      // variant: "destructive",
-      title: "REMOVE BACKGROUND:",
-      description: `${status}`,
-    });
 
-    // await the result of pollstatus
-    try {
-      const { output, req_id } = await pollStatus(id);
+    if(dev_mode){
+      const { output } = responseData;
+      // Convert base64 image data to a Blob object
       const blob = base64ToBlob(output.result[0]);
       return {
         blob: URL.createObjectURL(blob),
-        seed: req_id, // Return the id from the response
+        seed: "42", // Return the id from the response
       };
-    } catch (error){
-      throw new Error(`Polling failed: ${error.message}`);
     }
+    else {
+
+      const { id, status } = responseData;
+      toast({
+        // variant: "destructive",
+        title: "REMOVE BACKGROUND:",
+        description: `${status}`,
+      });
+  
+      // await the result of pollstatus
+      try {
+        const { output, req_id } = await pollStatus(id);
+        const blob = base64ToBlob(output.result[0]);
+        return {
+          blob: URL.createObjectURL(blob),
+          seed: req_id, // Return the id from the response
+        };
+      } catch (error){
+        throw new Error(`Polling failed: ${error.message}`);
+      }
+
+    }
+
   }
   const errors = await res.json();
   throw new Error(`Something went wrong: ${errors.errors}`);
 }
 
-export async function uploadImageToDescriptor(imageFile: Blob) {
+export async function uploadImageToDescriptor(imageFile: Blob, dev_mode:boolean) {
 
+  const api_call = dev_mode ? API_ENDPOINT_RENDER_IMAGE_DEV : API_ENDPOINT_RENDER_IMAGE;
   const imageBase64 = await convertToBase64(imageFile);
-  const res = await fetch(`${API_ENDPOINT_RENDER_IMAGE}`, {
+  const res = await fetch(`${api_call}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -255,22 +286,28 @@ export async function uploadImageToDescriptor(imageFile: Blob) {
 
   if (res.ok) {
     const responseData = await res.json(); // Parse JSON response
-    console.log(responseData)
-    const { id, status } = responseData;
-    toast({
-      // variant: "destructive",
-      title: "PROMPT GENERATE:",
-      description: `${status}`,
-    });
 
-    // await the result of pollstatus
-    try {
-      const { output, req_id } = await pollStatus(id);
-      return {
-        words_list: output.result[0],
-      };
-    } catch (error){
-      throw new Error(`Polling failed: ${error.message}`);
+    if (dev_mode) 
+    {
+      const { output } = responseData;
+      return {words_list: output.result[0]}
+    } else 
+    {
+      const { id, status } = responseData;
+      toast({
+        // variant: "destructive",
+        title: "PROMPT GENERATE:",
+        description: `${status}`,
+      });
+      // await the result of pollstatus
+      try {
+        const { output, req_id } = await pollStatus(id);
+        return {
+          words_list: output.result[0],
+        };
+      } catch (error){
+        throw new Error(`Polling failed: ${error.message}`);
+      }
     }
   }
   const errors = await res.json();

@@ -181,6 +181,8 @@ const Editor = React.forwardRef(() => {
   const temporaryMasks = useStore((state) => state.editorState.temporaryMasks);
   const lineGroups = useStore((state) => state.editorState.lineGroups);
   const curLineGroup = useStore((state) => state.editorState.curLineGroup);
+  const isBrushActivated = useStore((state => state.settings.showDrawing))
+  const dev_mode = useStore((state => state.settings.isDevModeActive))
   const currCanvasGroups = useStore(
     (state) => state.editorState.currCanvasGroups,
   );
@@ -203,7 +205,6 @@ const Editor = React.forwardRef(() => {
   const lastPosY = useRef(0);
   const windowSize = useWindowSize();
   
-  const isBrushActivated = useRef<boolean>(settings.showDrawing)
   const isPanningActivated = useRef<boolean>(false)
 
   const [compatibleWidth, setCompatibleWidth] = useState<number>(
@@ -659,7 +660,7 @@ const Editor = React.forwardRef(() => {
   }, []);
 
   const startPanning = useCallback((opt: fabric.TEvent<MouseEvent>) => {
-    if (isLeftClick(opt) && !fabricRef.current.getActiveObject() && !isBrushActivated.current && isPanningActivated.current) {
+    if (isLeftClick(opt) && !fabricRef.current.getActiveObject() && !isBrushActivated && isPanningActivated.current) {
       const evt = opt.e;
       isDragging.current = true;
       lastPosX.current = evt.clientX;
@@ -1416,6 +1417,7 @@ const Editor = React.forwardRef(() => {
       const res = await removeBackgroundApi(
         dataURItoBlob(resizedImageSrc),
         model,
+        dev_mode
       );
       const { blob, seed } = res;
       const newRender = new Image();
@@ -1717,7 +1719,6 @@ const Editor = React.forwardRef(() => {
             onPressedChange={(value: boolean) => {
               updateSettings({ showDrawing: value });
               handleDrawingMode(value);
-              isBrushActivated.current = value 
               if (value) {
                 updateSettings({ showSelectable: false });
               }
