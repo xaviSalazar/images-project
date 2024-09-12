@@ -98,6 +98,7 @@ export type Settings = {
   prompt: string;
   negativePrompt: string;
   photoLighting: string;
+  negativePhotoLighting: string;
   seed: number;
   seedFixed: boolean;
 
@@ -105,6 +106,8 @@ export type Settings = {
   sdMaskBlur: number;
   sdStrength: number;
   sdSteps: number;
+  minimumLight: number;
+  maximumLight: number;
   sdGuidanceScale: number;
   sdSampler: string;
   sdMatchHistograms: boolean;
@@ -369,11 +372,14 @@ const defaultValues: AppState = {
     prompt: DEFAULT_POSITIVE_PROMPT,
     negativePrompt: DEFAULT_NEGATIVE_PROMPT,
     photoLighting: "environment light",
+    negativePhotoLighting: "black, white, flat, low contrast, oversaturated, underexposed, overexposed, blurred, noisy, (worst quality, low quality, illustration, painting, cartoons, sketch), blurry, watermark, low quality",
     seed: 42,
     seedFixed: false,
     sdMaskBlur: 12,
     sdStrength: 1.0,
     sdSteps: 50,
+    minimumLight: 0.5,
+    maximumLight: 0.9,
     sdGuidanceScale: 7.5,
     sdSampler: "DPM++ 2M",
     sdMatchHistograms: false,
@@ -615,7 +621,10 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           return;
         }
 
-        const { prompt, negativePrompt, photoLighting, isDevModeActive } = get().settings;
+        const { prompt, negativePrompt,
+               photoLighting, negativePhotoLighting,
+               minimumLight, maximumLight,
+               isDevModeActive } = get().settings;
 
         const {
           renders,
@@ -644,18 +653,21 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
             state.isInpainting = true;
           });
   
-          console.log(targetFile)
-          console.log(staticElements)
-          console.log(scaledWidth,scaledHeight)
+          // console.log(targetFile)
+          // console.log(staticElements)
+          // console.log(scaledWidth,scaledHeight)
 
           const res = await renderImage(
             dataURItoBlob(targetFile),
             dataURItoBlob(staticElements),
             prompt,
+            photoLighting,
             negativePrompt,
+            negativePhotoLighting,
             scaledWidth,
             scaledHeight,
-            photoLighting,
+            minimumLight,
+            maximumLight,
             isDevModeActive
           );
           const { img_list, seed } = res;

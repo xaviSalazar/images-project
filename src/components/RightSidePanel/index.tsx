@@ -10,6 +10,7 @@ import { RowContainer } from "./LabelTitle";
 import { CV2, LDM, MODEL_TYPE_INPAINT } from "@/lib/const";
 import LDMOptions from "./LDMOptions";
 import DiffusionOptions from "./DiffusionOptions";
+import LightOptions from "./LightOptions";
 import CV2Options from "./CV2Options";
 
 const RightSidePanel = () => {
@@ -39,7 +40,9 @@ const RightSidePanel = () => {
     if (settings.model.name === CV2) {
       return <CV2Options />;
     }
-    return <DiffusionOptions />;
+    // return <DiffusionOptions />;
+    return <LightOptions />;
+
   };
 
   return (

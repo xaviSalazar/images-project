@@ -134,10 +134,13 @@ export async function renderImage(
   imageFile: File | Blob,
   imageObjects: File | Blob,
   prompt_positive: string,
+  light_prompt_positive: string,
   prompt_negative: string,
+  light_prompt_negative: string,
   width: number,
   height: number,
-  light_option: string,
+  min_light: number,
+  max_light: number,
   dev_mode: boolean,
 ) {
   const imageBase64 = await convertToBase64(imageFile);
@@ -160,7 +163,10 @@ export async function renderImage(
         prompt_negative: prompt_negative,
         width: width,
         height: height,
-        light_option: light_option
+        light_prompt_positive: light_prompt_positive,
+        light_prompt_negative: light_prompt_negative,
+        min_light: min_light,
+        max_light: max_light,
       },
     }),
   });
