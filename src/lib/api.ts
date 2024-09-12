@@ -22,8 +22,6 @@ export const API_ENDPOINT_RENDER_IMAGE = import.meta.env
   .VITE_BACKEND_RENDER_IMAGE;
 export const API_ENDPOINT_RENDER_IMAGE_STATUS = import.meta.env
   .VITE_BACKEND_RENDER_IMAGE_STATUS;
-export const API_ENDPOINT_PROMPT_GENERATOR = import.meta.env
-  .VITE_BACKEND_PROMPT_DESCRIPTOR;
 export const API_ENDPOINT_JOB_CANCEL= import.meta.env
   .VITE_BACKEND_RENDER_IMAGE_CANCEL
 export const TOKEN = import.meta.env.VITE_RUNPOD;
