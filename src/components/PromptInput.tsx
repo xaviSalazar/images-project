@@ -5,8 +5,6 @@ import { useClickAway, useToggle } from "react-use";
 import { Textarea } from "./ui/textarea";
 import { cn } from "@/lib/utils";
 import { ReloadIcon } from "@radix-ui/react-icons"
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
 
 const PromptInput = () => {
   const [
@@ -30,7 +28,6 @@ const PromptInput = () => {
   ]);
 
   const prompt = useStore((state) => state.settings.prompt);
-  const dev_mode = useStore((state => state.settings.isDevModeActive))
 
   const [showScroll, toggleShowScroll] = useToggle(false);
 
@@ -66,10 +63,6 @@ const PromptInput = () => {
     }
   };
 
-  const handleSwitchChange = (checked: boolean) => {
-    updateSettings({ isDevModeActive: checked });
-  };
-
   const onKeyUp = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && e.ctrlKey && prompt.length !== 0) {
       //  handleRepaintClick()
@@ -87,24 +80,12 @@ const PromptInput = () => {
   return (
     <div className="flex gap-4 relative w-full justify-center h-full">
       <div className="absolute flex gap-4">
-
-        <div className="flex items-center space-x-2">
-          <Switch 
-            id="development-mode" 
-            checked={dev_mode}
-            onCheckedChange={handleSwitchChange} 
-          />
-          <Label htmlFor="development-mode">
-          {dev_mode ? 'Testing mode' : 'Oficial mode'}
-          </Label>
-        </div>
-
-        <Button
-            variant="outline"
-            size="sm"
-            onClick={handleDescribeImg}
-            disabled={isInpainting}
-          >
+      <Button
+          variant="outline"
+          size="sm"
+          onClick={handleDescribeImg}
+          disabled={isInpainting}
+        >
         {isInpainting && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />}
           GENERATE PROMPT
         </Button>
