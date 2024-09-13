@@ -606,6 +606,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           });
   
           toast({
+            variant: "success",
             description: `Created image description`,
           });
 

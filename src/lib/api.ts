@@ -22,10 +22,6 @@ export const API_ENDPOINT_RENDER_IMAGE = import.meta.env
   .VITE_BACKEND_RENDER_IMAGE;
 export const API_ENDPOINT_RENDER_IMAGE_DEV = import.meta.env
   .VITE_BACKEND_RENDER_IMAGE_DEV;
-export const API_ENDPOINT_RENDER_IMAGE_STATUS = import.meta.env
-  .VITE_BACKEND_RENDER_IMAGE_STATUS;
-export const API_ENDPOINT_JOB_CANCEL= import.meta.env
-  .VITE_BACKEND_RENDER_IMAGE_CANCEL
 export const TOKEN = import.meta.env.VITE_RUNPOD;
 
 const api = axios.create({
@@ -51,7 +47,7 @@ const pollStatus = (taskId: string) => {
     const handleReject = async (error: Error, taskId) => {
       console.log(taskId)
 
-      const cancelRequest = await fetch(`${API_ENDPOINT_JOB_CANCEL}/${taskId}`, {
+      const cancelRequest = await fetch(`${API_ENDPOINT_RENDER_IMAGE}/cancel/${taskId}`, {
         method: 'POST',
         headers: {
           "Content-Type": "application/json",
@@ -71,7 +67,7 @@ const pollStatus = (taskId: string) => {
     const intervalId = setInterval(async () => {
       try {
 
-        const statusResponse = await fetch(`${API_ENDPOINT_RENDER_IMAGE_STATUS}/${taskId}`, {
+        const statusResponse = await fetch(`${API_ENDPOINT_RENDER_IMAGE}/status/${taskId}`, {
           method: 'GET',
           headers: {
             "Content-Type": "application/json",
@@ -88,8 +84,7 @@ const pollStatus = (taskId: string) => {
             const progressValue = Math.round((currentStep / totalSteps) * 100);
           // Update toast with a "Stop" button
           toast({
-            title: "PROGRESS:",
-            description: `${progressValue}% PERCENT`,
+            title: `PROGRESS: ${progressValue}%`,
             action: React.createElement(
               "button",
               {
@@ -105,6 +100,14 @@ const pollStatus = (taskId: string) => {
             toast({
               title: "IMAGE GENERATION:",
               description: `${statusData.status}`,
+              action: React.createElement(
+                "button",
+                {
+                  onClick: () => handleReject(new Error("Polling was manually stopped."), statusData.id),
+                  style: { color: 'red' }
+                },
+                "STOP"
+              ),
             });
           }
 
@@ -148,7 +151,7 @@ export async function renderImage(
 ) {
   const imageBase64 = await convertToBase64(imageFile);
   const objectsBase64 = await convertToBase64(imageObjects);
-  const api_call = dev_mode ? API_ENDPOINT_RENDER_IMAGE_DEV : API_ENDPOINT_RENDER_IMAGE;
+  const api_call = dev_mode ? API_ENDPOINT_RENDER_IMAGE_DEV : `${API_ENDPOINT_RENDER_IMAGE}/run`;
 
   const res = await fetch(`${api_call}`, {
     method: "POST",
@@ -279,7 +282,7 @@ export async function removeBackgroundApi(
 
 export async function uploadImageToDescriptor(imageFile: Blob, dev_mode:boolean) {
 
-  const api_call = dev_mode ? API_ENDPOINT_RENDER_IMAGE_DEV : API_ENDPOINT_RENDER_IMAGE;
+  const api_call = dev_mode ? API_ENDPOINT_RENDER_IMAGE_DEV : `${API_ENDPOINT_RENDER_IMAGE}/run`;
   const imageBase64 = await convertToBase64(imageFile);
   const res = await fetch(`${api_call}`, {
     method: "POST",
