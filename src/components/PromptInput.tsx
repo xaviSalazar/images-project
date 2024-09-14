@@ -4,7 +4,7 @@ import { useStore } from "@/lib/states";
 import { useClickAway, useToggle } from "react-use";
 import { Textarea } from "./ui/textarea";
 import { cn } from "@/lib/utils";
-import { ReloadIcon } from "@radix-ui/react-icons"
+import { ReloadIcon } from "@radix-ui/react-icons";
 
 const PromptInput = () => {
   const [
@@ -48,14 +48,14 @@ const PromptInput = () => {
 
   const handleRepaintClick = () => {
     if (!isInpainting) {
-      runImgRendering()
+      runImgRendering();
       // runDescribeImg();
       // replace with model to call actually
       // runInpainting()
     }
   };
 
-  const handleDescribeImg= () => {
+  const handleDescribeImg = () => {
     if (!isInpainting) {
       runDescribeImg();
       // replace with model to call actually
@@ -80,13 +80,13 @@ const PromptInput = () => {
   return (
     <div className="flex gap-4 relative w-full justify-center h-full">
       <div className="absolute flex gap-4">
-      <Button
+        <Button
           variant="outline"
           size="sm"
           onClick={handleDescribeImg}
           disabled={isInpainting}
         >
-        {isInpainting && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />}
+          {isInpainting && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />}
           GENERATE PROMPT
         </Button>
 
@@ -95,7 +95,7 @@ const PromptInput = () => {
           placeholder="Write PROMPT here..."
           className={cn(
             showScroll ? "focus:overflow-y-auto" : "overflow-y-hidden",
-            "min-h-[32px] h-[32px] overflow-x-hidden focus:h-[120px] overflow-y-hidden transition-[height] w-[500px] py-2 px-3 bg-white text-black border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 resize-none"
+            "min-h-[32px] h-[32px] overflow-x-hidden focus:h-[120px] overflow-y-hidden transition-[height] w-[500px] py-2 px-3 bg-white text-black border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 resize-none",
           )}
           style={{
             scrollbarGutter: "stable",

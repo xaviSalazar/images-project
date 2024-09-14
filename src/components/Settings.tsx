@@ -20,7 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 // import { useQuery } from "@tanstack/react-query";
-import {  switchPluginModel } from "@/lib/api";
+import { switchPluginModel } from "@/lib/api";
 import { ModelInfo, PluginName } from "@/lib/types";
 import { useStore } from "@/lib/states";
 import { ScrollArea } from "./ui/scroll-area";

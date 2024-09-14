@@ -28,7 +28,6 @@ const api = axios.create({
   baseURL: API_ENDPOINT,
 });
 
-
 /* STATUS COMPLETED EXAMPLE 
 {
   "delayTime": 5026,
@@ -43,85 +42,99 @@ const api = axios.create({
 */
 const pollStatus = (taskId: string) => {
   return new Promise((resolve, reject) => {
-
     const handleReject = async (error: Error, taskId) => {
-      console.log(taskId)
+      console.log(taskId);
 
-      const cancelRequest = await fetch(`${API_ENDPOINT_RENDER_IMAGE}/cancel/${taskId}`, {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${TOKEN}`,
-        },
-      });
-      const status = await cancelRequest.json();
-      console.log(status)
-      if(status.status === "CANCELLED")
-      {
-        clearInterval(intervalId);
-        reject(error);
-
-      } 
-    };
-
-    const intervalId = setInterval(async () => {
-      try {
-
-        const statusResponse = await fetch(`${API_ENDPOINT_RENDER_IMAGE}/status/${taskId}`, {
-          method: 'GET',
+      const cancelRequest = await fetch(
+        `${API_ENDPOINT_RENDER_IMAGE}/cancel/${taskId}`,
+        {
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${TOKEN}`,
           },
-        });
+        },
+      );
+      const status = await cancelRequest.json();
+      console.log(status);
+      if (status.status === "CANCELLED") {
+        clearInterval(intervalId);
+        reject(error);
+      }
+    };
+
+    const intervalId = setInterval(async () => {
+      try {
+        const statusResponse = await fetch(
+          `${API_ENDPOINT_RENDER_IMAGE}/status/${taskId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${TOKEN}`,
+            },
+          },
+        );
         const statusData = await statusResponse.json();
-        console.log(statusData)
-        if (typeof statusData.output === 'string' && statusData.output.includes('Progress')) {
-          const progressMatch = statusData.output.match(/Progress (\d+)\/(\d+)/);
+        console.log(statusData);
+        if (
+          typeof statusData.output === "string" &&
+          statusData.output.includes("Progress")
+        ) {
+          const progressMatch = statusData.output.match(
+            /Progress (\d+)\/(\d+)/,
+          );
           if (progressMatch) {
             const currentStep = parseInt(progressMatch[1]);
             const totalSteps = parseInt(progressMatch[2]);
             const progressValue = Math.round((currentStep / totalSteps) * 100);
-          // Update toast with a "Stop" button
-          toast({
-            title: `PROGRESS: ${progressValue}%`,
-            action: React.createElement(
-              "button",
-              {
-                onClick: () => handleReject(new Error("Polling was manually stopped."), statusData.id),
-                style: { color: 'red' }
-              },
-              "STOP"
-            ),
-          });
-          }
-        }
-          else {
+            // Update toast with a "Stop" button
             toast({
-              title: "IMAGE GENERATION:",
-              description: `${statusData.status}`,
+              title: `PROGRESS: ${progressValue}%`,
               action: React.createElement(
                 "button",
                 {
-                  onClick: () => handleReject(new Error("Polling was manually stopped."), statusData.id),
-                  style: { color: 'red' }
+                  onClick: () =>
+                    handleReject(
+                      new Error("Polling was manually stopped."),
+                      statusData.id,
+                    ),
+                  style: { color: "red" },
                 },
-                "STOP"
+                "STOP",
               ),
             });
           }
+        } else {
+          toast({
+            title: "IMAGE GENERATION:",
+            description: `${statusData.status}`,
+            action: React.createElement(
+              "button",
+              {
+                onClick: () =>
+                  handleReject(
+                    new Error("Polling was manually stopped."),
+                    statusData.id,
+                  ),
+                style: { color: "red" },
+              },
+              "STOP",
+            ),
+          });
+        }
 
-        if (statusData.status === 'COMPLETED') {
+        if (statusData.status === "COMPLETED") {
           // Task is completed, stop polling and retrieve the result
           clearInterval(intervalId);
           resolve({
             output: statusData.output,
             req_id: statusData.id, // Return the id from the response
           });
-        } else if (statusData.status === 'FAILED') {
+        } else if (statusData.status === "FAILED") {
           // Handle failure case
           clearInterval(intervalId);
-          reject(new Error('Task failed'));
+          reject(new Error("Task failed"));
         }
       } catch (error) {
         clearInterval(intervalId);
@@ -131,8 +144,8 @@ const pollStatus = (taskId: string) => {
   });
 };
 
-/* POST METHOD TO RENDER AN IMAGE  
-*/
+/* POST METHOD TO RENDER AN IMAGE
+ */
 export async function renderImage(
   imageFile: File | Blob,
   imageObjects: File | Blob,
@@ -151,7 +164,9 @@ export async function renderImage(
 ) {
   const imageBase64 = await convertToBase64(imageFile);
   const objectsBase64 = await convertToBase64(imageObjects);
-  const api_call = dev_mode ? API_ENDPOINT_RENDER_IMAGE_DEV : `${API_ENDPOINT_RENDER_IMAGE}/run`;
+  const api_call = dev_mode
+    ? API_ENDPOINT_RENDER_IMAGE_DEV
+    : `${API_ENDPOINT_RENDER_IMAGE}/run`;
 
   const res = await fetch(`${api_call}`, {
     method: "POST",
@@ -182,14 +197,12 @@ export async function renderImage(
 
   if (res.ok) {
     const responseData = await res.json(); // Parse JSON response
-    if(dev_mode)
-    { 
+    if (dev_mode) {
       const { output } = responseData;
       return {
-        img_list : output.result,
+        img_list: output.result,
         seed: "42", // Return the id from the response
       };
-
     } else {
       const { id, status } = responseData;
       toast({
@@ -203,7 +216,7 @@ export async function renderImage(
           img_list: output.result, // Assuming result contains the image list
           seed: req_id, // Return the id from the response
         };
-      } catch (error){
+      } catch (error) {
         throw new Error(`Polling failed: ${error.message}`);
       }
     }
@@ -213,16 +226,17 @@ export async function renderImage(
   throw new Error(`Something went wrong: ${errors.errors}`);
 }
 
-/* POST METHOD TO REMOVE BACKGROUND 
-*/
+/* POST METHOD TO REMOVE BACKGROUND
+ */
 export async function removeBackgroundApi(
   imageFile: File | Blob,
   model: string,
   dev_mode: boolean,
 ) {
   const imageBase64 = await convertToBase64(imageFile);
-  const api_call = dev_mode ? API_ENDPOINT_RENDER_IMAGE_DEV : API_ENDPOINT_RENDER_IMAGE;
-
+  const api_call = dev_mode
+    ? API_ENDPOINT_RENDER_IMAGE_DEV
+    : API_ENDPOINT_RENDER_IMAGE;
 
   const res = await fetch(`${api_call}`, {
     method: "POST",
@@ -243,7 +257,7 @@ export async function removeBackgroundApi(
   if (res.ok) {
     const responseData = await res.json(); // Parse JSON response
 
-    if(dev_mode){
+    if (dev_mode) {
       const { output } = responseData;
       // Convert base64 image data to a Blob object
       const blob = base64ToBlob(output.result[0]);
@@ -251,16 +265,14 @@ export async function removeBackgroundApi(
         blob: URL.createObjectURL(blob),
         seed: "42", // Return the id from the response
       };
-    }
-    else {
-
+    } else {
       const { id, status } = responseData;
       toast({
         // variant: "destructive",
         title: "REMOVE BACKGROUND:",
         description: `${status}`,
       });
-  
+
       // await the result of pollstatus
       try {
         const { output, req_id } = await pollStatus(id);
@@ -269,20 +281,22 @@ export async function removeBackgroundApi(
           blob: URL.createObjectURL(blob),
           seed: req_id, // Return the id from the response
         };
-      } catch (error){
+      } catch (error) {
         throw new Error(`Polling failed: ${error.message}`);
       }
-
     }
-
   }
   const errors = await res.json();
   throw new Error(`Something went wrong: ${errors.errors}`);
 }
 
-export async function uploadImageToDescriptor(imageFile: Blob, dev_mode:boolean) {
-
-  const api_call = dev_mode ? API_ENDPOINT_RENDER_IMAGE_DEV : `${API_ENDPOINT_RENDER_IMAGE}/run`;
+export async function uploadImageToDescriptor(
+  imageFile: Blob,
+  dev_mode: boolean,
+) {
+  const api_call = dev_mode
+    ? API_ENDPOINT_RENDER_IMAGE_DEV
+    : `${API_ENDPOINT_RENDER_IMAGE}/run`;
   const imageBase64 = await convertToBase64(imageFile);
   const res = await fetch(`${api_call}`, {
     method: "POST",
@@ -295,19 +309,17 @@ export async function uploadImageToDescriptor(imageFile: Blob, dev_mode:boolean)
       input: {
         action: "TaggerImage",
         image: imageBase64,
-      }
+      },
     }),
   });
 
   if (res.ok) {
     const responseData = await res.json(); // Parse JSON response
 
-    if (dev_mode) 
-    {
+    if (dev_mode) {
       const { output } = responseData;
-      return {words_list: output.result[0]}
-    } else 
-    {
+      return { words_list: output.result[0] };
+    } else {
       const { id, status } = responseData;
       toast({
         // variant: "destructive",
@@ -320,7 +332,7 @@ export async function uploadImageToDescriptor(imageFile: Blob, dev_mode:boolean)
         return {
           words_list: output.result[0],
         };
-      } catch (error){
+      } catch (error) {
         throw new Error(`Polling failed: ${error.message}`);
       }
     }
@@ -328,7 +340,6 @@ export async function uploadImageToDescriptor(imageFile: Blob, dev_mode:boolean)
   const errors = await res.json();
   throw new Error(`Something went wrong: ${errors.errors}`);
 }
-
 
 export default async function inpaint(
   imageFile: File | Blob,

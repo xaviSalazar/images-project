@@ -49,7 +49,7 @@ import {
 import inpaint, {
   renderImage,
   uploadImageToDescriptor,
- // getGenInfo,
+  // getGenInfo,
   postAdjustMask,
   runPlugin,
 } from "./api";
@@ -260,12 +260,11 @@ type AppAction = {
   handleCanvasMouseMove: (point: Point) => void;
   cleanCurLineGroup: () => void;
   resetRedoState: () => void;
-  setTriggerUndoRedo : (newValue: boolean) => void;
+  setTriggerUndoRedo: (newValue: boolean) => void;
   undo: () => void;
   redo: () => void;
   undoDisabled: () => boolean;
   redoDisabled: () => boolean;
-
 
   adjustMask: (operate: AdjustMaskOperate) => Promise<void>;
   clearMask: () => void;
@@ -379,7 +378,8 @@ const defaultValues: AppState = {
     prompt: DEFAULT_POSITIVE_PROMPT,
     negativePrompt: DEFAULT_NEGATIVE_PROMPT,
     photoLighting: "environment light",
-    negativePhotoLighting: "black, white, flat, low contrast, oversaturated, underexposed, overexposed, blurred, noisy, (worst quality, low quality, illustration, painting, cartoons, sketch), blurry, watermark, low quality",
+    negativePhotoLighting:
+      "black, white, flat, low contrast, oversaturated, underexposed, overexposed, blurred, noisy, (worst quality, low quality, illustration, painting, cartoons, sketch), blurry, watermark, low quality",
     seed: 42,
     seedFixed: false,
     sdMaskBlur: 12,
@@ -519,7 +519,6 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         console.log("run inpainging");
         // Generate mask and image separately
 
-
         try {
           const { targetMask, targetFile } = await generateFromCanvas(
             currCanvasGroups[currCanvasGroups.length - 1],
@@ -569,8 +568,8 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
       },
 
       runDescribeImg: async () => {
-
-        const { isInpainting, aspectRatio, userWindowWidth, userWindowHeight } = get();
+        const { isInpainting, aspectRatio, userWindowWidth, userWindowHeight } =
+          get();
 
         if (isInpainting) {
           return;
@@ -596,7 +595,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
 
           const res = await uploadImageToDescriptor(
             dataURItoBlob(targetFile),
-            isDevModeActive
+            isDevModeActive,
           );
 
           const { words_list } = res;
@@ -604,12 +603,11 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           set((state) => {
             state.settings.prompt = words_list;
           });
-  
+
           toast({
             variant: "success",
             description: `Created image description`,
           });
-
         } catch (e: any) {
           toast({
             variant: "destructive",
@@ -624,16 +622,31 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
       },
 
       runImgRendering: async () => {
-        const { isInpainting, aspectRatio, userWindowWidth, userWindowHeight, scaledWidth, scaledHeight } = get();
+        const {
+          isInpainting,
+          aspectRatio,
+          userWindowWidth,
+          userWindowHeight,
+          scaledWidth,
+          scaledHeight,
+        } = get();
 
         if (isInpainting) {
           return;
         }
 
-        const { prompt, negativePrompt,
-               photoLighting, negativePhotoLighting,
-               minimumLight, maximumLight, colorStart, lightOrientation, colorTransition,
-               isDevModeActive } = get().settings;
+        const {
+          prompt,
+          negativePrompt,
+          photoLighting,
+          negativePhotoLighting,
+          minimumLight,
+          maximumLight,
+          colorStart,
+          lightOrientation,
+          colorTransition,
+          isDevModeActive,
+        } = get().settings;
 
         const {
           renders,
@@ -650,7 +663,6 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         }
 
         try {
-
           const { targetFile, staticElements } = await generateFromCanvas(
             currCanvasGroups[currCanvasGroups.length - 1],
             aspectRatio,
@@ -661,9 +673,9 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
           set((state) => {
             state.isInpainting = true;
           });
-  
-          console.log(targetFile)
-          console.log(staticElements)
+
+          console.log(targetFile);
+          console.log(staticElements);
           // console.log(scaledWidth,scaledHeight)
 
           const res = await renderImage(
@@ -680,7 +692,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
             colorStart,
             lightOrientation,
             colorTransition,
-            isDevModeActive
+            isDevModeActive,
           );
           const { img_list, seed } = res;
           for (const base64Image of img_list) {
@@ -854,10 +866,10 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         return get().settings.model.model_type !== MODEL_TYPE_INPAINT;
       },
 
-      setTriggerUndoRedo: (newValue: boolean) => 
+      setTriggerUndoRedo: (newValue: boolean) =>
         set((state) => {
           state.editorState.triggerRedoUndo = newValue;
-      }),
+        }),
 
       // undo/redo
 
@@ -876,7 +888,6 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
         }
         return false;
       },
-
 
       undo: () => {
         if (
@@ -902,7 +913,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
             editorState.redoCurCanvas.push(lastLine);
             editorState.triggerRedoUndo = true;
           });
-        } 
+        }
       },
 
       redoDisabled: (): boolean => {
@@ -937,7 +948,7 @@ export const useStore = createWithEqualityFn<AppState & AppAction>()(
             editorState.currCanvasGroups.push(draw);
             editorState.triggerRedoUndo = true;
           });
-        } 
+        }
       },
 
       resetRedoState: () => {

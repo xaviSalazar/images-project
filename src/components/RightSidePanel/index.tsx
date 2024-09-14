@@ -42,7 +42,6 @@ const RightSidePanel = () => {
     }
     // return <DiffusionOptions />;
     return <LightOptions />;
-
   };
 
   return (

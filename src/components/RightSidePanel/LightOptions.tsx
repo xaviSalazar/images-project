@@ -30,7 +30,6 @@ import { useClickAway } from "react-use";
 
 import { LightOrientation, ColorStart } from "@/lib/types";
 
-
 const ExtenderButton = ({
   text,
   onClick,
@@ -340,7 +339,6 @@ const LightOptions = () => {
   };
 
   const renderNegativeLightPrompt = () => {
-
     return (
       <div className="flex flex-col gap-4">
         <LabelTitle
@@ -370,7 +368,6 @@ const LightOptions = () => {
   };
 
   const renderPositiveLightPrompt = () => {
-
     return (
       <div className="flex flex-col gap-4">
         <LabelTitle
@@ -689,9 +686,7 @@ const LightOptions = () => {
             max={1}
             step={0.01}
             value={[settings.maximumLight]}
-            onValueChange={(vals) =>
-              updateSettings({ maximumLight: vals[0] })
-            }
+            onValueChange={(vals) => updateSettings({ maximumLight: vals[0] })}
           />
           <NumberInput
             id="guidance-scale"
@@ -743,268 +738,273 @@ const LightOptions = () => {
 
   const SelectOrientation = () => {
     return (
-     <div className="flex flex-col gap-4 mt-4">
-      <RowContainer>
-        <LabelTitle text="Luz Orientacion" />
-        <Select
-          value={settings.lightOrientation as string}
-          onValueChange={(value) => {
-            const orientation = value as LightOrientation;
-            updateSettings({ lightOrientation: orientation });
-          }}
-        >
-          <SelectTrigger className="w-[150px]">
-            <SelectValue placeholder="Elija" />
-          </SelectTrigger>
-          <SelectContent align="end">
-            <SelectGroup>
-              {Object.values(LightOrientation).map((orientation) => (
-                <SelectItem key={orientation as string} value={orientation as string}>
-                  {orientation as string}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </RowContainer>
-    </div>
-  );
-};
+      <div className="flex flex-col gap-4 mt-4">
+        <RowContainer>
+          <LabelTitle text="Luz Orientacion" />
+          <Select
+            value={settings.lightOrientation as string}
+            onValueChange={(value) => {
+              const orientation = value as LightOrientation;
+              updateSettings({ lightOrientation: orientation });
+            }}
+          >
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Elija" />
+            </SelectTrigger>
+            <SelectContent align="end">
+              <SelectGroup>
+                {Object.values(LightOrientation).map((orientation) => (
+                  <SelectItem
+                    key={orientation as string}
+                    value={orientation as string}
+                  >
+                    {orientation as string}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </RowContainer>
+      </div>
+    );
+  };
 
-const SelectStartColor = () => {
-  return (
-   <div className="flex flex-col gap-4 mt-4">
-    <RowContainer>
-      <LabelTitle text="Color va desde" />
-      <Select
-        value={settings.colorStart as string}
-        onValueChange={(value) => {
-          const orientation = value as ColorStart;
-          updateSettings({ colorStart: orientation });
-        }}
-      >
-        <SelectTrigger className="w-[150px]">
-          <SelectValue placeholder="Elija" />
-        </SelectTrigger>
-        <SelectContent align="end">
-          <SelectGroup>
-            {Object.values(ColorStart).map((orientation) => (
-              <SelectItem key={orientation as string} value={orientation as string}>
-                {orientation as string}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-    </RowContainer>
-  </div>
-);
-};
+  const SelectStartColor = () => {
+    return (
+      <div className="flex flex-col gap-4 mt-4">
+        <RowContainer>
+          <LabelTitle text="Color va desde" />
+          <Select
+            value={settings.colorStart as string}
+            onValueChange={(value) => {
+              const orientation = value as ColorStart;
+              updateSettings({ colorStart: orientation });
+            }}
+          >
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Elija" />
+            </SelectTrigger>
+            <SelectContent align="end">
+              <SelectGroup>
+                {Object.values(ColorStart).map((orientation) => (
+                  <SelectItem
+                    key={orientation as string}
+                    value={orientation as string}
+                  >
+                    {orientation as string}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </RowContainer>
+      </div>
+    );
+  };
 
+  //   const renderSampler = () => {
+  //     if (settings.model.name === ANYTEXT) {
+  //       return null;
+  //     }
 
-//   const renderSampler = () => {
-//     if (settings.model.name === ANYTEXT) {
-//       return null;
-//     }
+  //     return (
+  //       <RowContainer>
+  //         <LabelTitle text="Sampler" />
+  //         <Select
+  //           defaultValue={settings.sdSampler}
+  //           value={settings.sdSampler}
+  //           onValueChange={(value) => {
+  //             updateSettings({ sdSampler: value });
+  //           }}
+  //         >
+  //           <SelectTrigger className="w-[175px] text-xs">
+  //             <SelectValue placeholder="Select sampler" />
+  //           </SelectTrigger>
+  //           <SelectContent align="end">
+  //             <SelectGroup>
+  //               {samplers.map((sampler) => (
+  //                 <SelectItem key={sampler} value={sampler} className="text-xs">
+  //                   {sampler}
+  //                 </SelectItem>
+  //               ))}
+  //             </SelectGroup>
+  //           </SelectContent>
+  //         </Select>
+  //       </RowContainer>
+  //     );
+  //   };
 
-//     return (
-//       <RowContainer>
-//         <LabelTitle text="Sampler" />
-//         <Select
-//           defaultValue={settings.sdSampler}
-//           value={settings.sdSampler}
-//           onValueChange={(value) => {
-//             updateSettings({ sdSampler: value });
-//           }}
-//         >
-//           <SelectTrigger className="w-[175px] text-xs">
-//             <SelectValue placeholder="Select sampler" />
-//           </SelectTrigger>
-//           <SelectContent align="end">
-//             <SelectGroup>
-//               {samplers.map((sampler) => (
-//                 <SelectItem key={sampler} value={sampler} className="text-xs">
-//                   {sampler}
-//                 </SelectItem>
-//               ))}
-//             </SelectGroup>
-//           </SelectContent>
-//         </Select>
-//       </RowContainer>
-//     );
-//   };
+  //   const renderSeed = () => {
+  //     return (
+  //       <RowContainer>
+  //         {/* 每次会从服务器返回更新该值 */}
+  //         <LabelTitle
+  //           text="Seed"
+  //           toolTip="Using same parameters and a fixed seed can generate same result image."
+  //         />
+  //         {/* <Pin /> */}
+  //         <div className="flex gap-2 justify-center items-center">
+  //           <Switch
+  //             id="seed"
+  //             checked={settings.seedFixed}
+  //             onCheckedChange={(value) => {
+  //               updateSettings({ seedFixed: value });
+  //             }}
+  //           />
+  //           <NumberInput
+  //             id="seed"
+  //             className="w-[100px]"
+  //             disabled={!settings.seedFixed}
+  //             numberValue={settings.seed}
+  //             allowFloat={false}
+  //             onNumberValueChange={(val) => {
+  //               updateSettings({ seed: val });
+  //             }}
+  //           />
+  //         </div>
+  //       </RowContainer>
+  //     );
+  //   };
 
-//   const renderSeed = () => {
-//     return (
-//       <RowContainer>
-//         {/* 每次会从服务器返回更新该值 */}
-//         <LabelTitle
-//           text="Seed"
-//           toolTip="Using same parameters and a fixed seed can generate same result image."
-//         />
-//         {/* <Pin /> */}
-//         <div className="flex gap-2 justify-center items-center">
-//           <Switch
-//             id="seed"
-//             checked={settings.seedFixed}
-//             onCheckedChange={(value) => {
-//               updateSettings({ seedFixed: value });
-//             }}
-//           />
-//           <NumberInput
-//             id="seed"
-//             className="w-[100px]"
-//             disabled={!settings.seedFixed}
-//             numberValue={settings.seed}
-//             allowFloat={false}
-//             onNumberValueChange={(val) => {
-//               updateSettings({ seed: val });
-//             }}
-//           />
-//         </div>
-//       </RowContainer>
-//     );
-//   };
+  //   const renderMaskBlur = () => {
+  //     return (
+  //       <div className="flex flex-col gap-1">
+  //         <LabelTitle
+  //           text="Mask blur"
+  //           toolTip="How much to blur the mask before processing, in pixels. Make the generated inpainting boundaries appear more natural."
+  //         />
+  //         <RowContainer>
+  //           <Slider
+  //             className="w-[180px]"
+  //             defaultValue={[settings.sdMaskBlur]}
+  //             min={0}
+  //             max={96}
+  //             step={1}
+  //             value={[Math.floor(settings.sdMaskBlur)]}
+  //             onValueChange={(vals) => updateSettings({ sdMaskBlur: vals[0] })}
+  //           />
+  //           <NumberInput
+  //             id="mask-blur"
+  //             className="w-[60px] rounded-full"
+  //             numberValue={settings.sdMaskBlur}
+  //             allowFloat={false}
+  //             onNumberValueChange={(value) => {
+  //               updateSettings({ sdMaskBlur: value });
+  //             }}
+  //           />
+  //         </RowContainer>
+  //       </div>
+  //     );
+  //   };
 
-//   const renderMaskBlur = () => {
-//     return (
-//       <div className="flex flex-col gap-1">
-//         <LabelTitle
-//           text="Mask blur"
-//           toolTip="How much to blur the mask before processing, in pixels. Make the generated inpainting boundaries appear more natural."
-//         />
-//         <RowContainer>
-//           <Slider
-//             className="w-[180px]"
-//             defaultValue={[settings.sdMaskBlur]}
-//             min={0}
-//             max={96}
-//             step={1}
-//             value={[Math.floor(settings.sdMaskBlur)]}
-//             onValueChange={(vals) => updateSettings({ sdMaskBlur: vals[0] })}
-//           />
-//           <NumberInput
-//             id="mask-blur"
-//             className="w-[60px] rounded-full"
-//             numberValue={settings.sdMaskBlur}
-//             allowFloat={false}
-//             onNumberValueChange={(value) => {
-//               updateSettings({ sdMaskBlur: value });
-//             }}
-//           />
-//         </RowContainer>
-//       </div>
-//     );
-//   };
+  //   const renderMatchHistograms = () => {
+  //     return (
+  //       <>
+  //         <RowContainer>
+  //           <LabelTitle
+  //             text="Match histograms"
+  //             toolTip="Match the inpainting result histogram to the source image histogram"
+  //             url="https://github.com/Sanster/lama-cleaner/pull/143#issuecomment-1325859307"
+  //           />
+  //           <Switch
+  //             id="match-histograms"
+  //             checked={settings.sdMatchHistograms}
+  //             onCheckedChange={(value) => {
+  //               updateSettings({ sdMatchHistograms: value });
+  //             }}
+  //           />
+  //         </RowContainer>
+  //         <Separator />
+  //       </>
+  //     );
+  //   };
 
-//   const renderMatchHistograms = () => {
-//     return (
-//       <>
-//         <RowContainer>
-//           <LabelTitle
-//             text="Match histograms"
-//             toolTip="Match the inpainting result histogram to the source image histogram"
-//             url="https://github.com/Sanster/lama-cleaner/pull/143#issuecomment-1325859307"
-//           />
-//           <Switch
-//             id="match-histograms"
-//             checked={settings.sdMatchHistograms}
-//             onCheckedChange={(value) => {
-//               updateSettings({ sdMatchHistograms: value });
-//             }}
-//           />
-//         </RowContainer>
-//         <Separator />
-//       </>
-//     );
-//   };
+  //   const renderMaskAdjuster = () => {
+  //     return (
+  //       <>
+  //         <div className="flex flex-col gap-1">
+  //           <LabelTitle
+  //             htmlFor="adjustMaskKernelSize"
+  //             text={t("Adjust Mask")}
+  //             toolTip="Expand or shrink mask. Using the slider to adjust the kernel size for dilation or erosion."
+  //           />
+  //           <RowContainer>
+  //             <Slider
+  //               className="w-[180px]"
+  //               defaultValue={[12]}
+  //               min={1}
+  //               max={100}
+  //               step={1}
+  //               value={[Math.floor(settings.adjustMaskKernelSize)]}
+  //               onValueChange={(vals) =>
+  //                 updateSettings({ adjustMaskKernelSize: vals[0] })
+  //               }
+  //             />
+  //             <NumberInput
+  //               id="adjustMaskKernelSize"
+  //               className="w-[60px] rounded-full"
+  //               numberValue={settings.adjustMaskKernelSize}
+  //               allowFloat={false}
+  //               onNumberValueChange={(val) => {
+  //                 updateSettings({ adjustMaskKernelSize: val });
+  //               }}
+  //             />
+  //           </RowContainer>
 
-//   const renderMaskAdjuster = () => {
-//     return (
-//       <>
-//         <div className="flex flex-col gap-1">
-//           <LabelTitle
-//             htmlFor="adjustMaskKernelSize"
-//             text={t("Adjust Mask")}
-//             toolTip="Expand or shrink mask. Using the slider to adjust the kernel size for dilation or erosion."
-//           />
-//           <RowContainer>
-//             <Slider
-//               className="w-[180px]"
-//               defaultValue={[12]}
-//               min={1}
-//               max={100}
-//               step={1}
-//               value={[Math.floor(settings.adjustMaskKernelSize)]}
-//               onValueChange={(vals) =>
-//                 updateSettings({ adjustMaskKernelSize: vals[0] })
-//               }
-//             />
-//             <NumberInput
-//               id="adjustMaskKernelSize"
-//               className="w-[60px] rounded-full"
-//               numberValue={settings.adjustMaskKernelSize}
-//               allowFloat={false}
-//               onNumberValueChange={(val) => {
-//                 updateSettings({ adjustMaskKernelSize: val });
-//               }}
-//             />
-//           </RowContainer>
+  //           <RowContainer>
+  //             <div className="flex gap-1 justify-start">
+  //               <Button
+  //                 variant="outline"
+  //                 className="p-1 h-8"
+  //                 onClick={() => adjustMask("expand")}
+  //                 disabled={isProcessing}
+  //               >
+  //                 <div className="flex items-center gap-1 select-none">
+  //                   {/* <Plus size={16} /> */}
+  //                   {t("Expand")}
+  //                 </div>
+  //               </Button>
 
-//           <RowContainer>
-//             <div className="flex gap-1 justify-start">
-//               <Button
-//                 variant="outline"
-//                 className="p-1 h-8"
-//                 onClick={() => adjustMask("expand")}
-//                 disabled={isProcessing}
-//               >
-//                 <div className="flex items-center gap-1 select-none">
-//                   {/* <Plus size={16} /> */}
-//                   {t("Expand")}
-//                 </div>
-//               </Button>
+  //               <Button
+  //                 variant="outline"
+  //                 className="p-1 h-8"
+  //                 onClick={() => adjustMask("shrink")}
+  //                 disabled={isProcessing}
+  //               >
+  //                 <div className="flex items-center gap-1 select-none">
+  //                   {/* <Minus size={16} /> */}
+  //                   {t("Shrink")}
+  //                 </div>
+  //               </Button>
 
-//               <Button
-//                 variant="outline"
-//                 className="p-1 h-8"
-//                 onClick={() => adjustMask("shrink")}
-//                 disabled={isProcessing}
-//               >
-//                 <div className="flex items-center gap-1 select-none">
-//                   {/* <Minus size={16} /> */}
-//                   {t("Shrink")}
-//                 </div>
-//               </Button>
+  //               <Button
+  //                 variant="outline"
+  //                 className="p-1 h-8"
+  //                 onClick={() => adjustMask("reverse")}
+  //                 disabled={isProcessing}
+  //               >
+  //                 <div className="flex items-center gap-1 select-none">
+  //                   {t("Reverse")}
+  //                 </div>
+  //               </Button>
+  //             </div>
 
-//               <Button
-//                 variant="outline"
-//                 className="p-1 h-8"
-//                 onClick={() => adjustMask("reverse")}
-//                 disabled={isProcessing}
-//               >
-//                 <div className="flex items-center gap-1 select-none">
-//                   {t("Reverse")}
-//                 </div>
-//               </Button>
-//             </div>
-
-//             <Button
-//               variant="outline"
-//               className="p-1 h-8 justify-self-end"
-//               onClick={clearMask}
-//               disabled={isProcessing}
-//             >
-//               <div className="flex items-center gap-1 select-none">
-//                 {t("Clear")}
-//               </div>
-//             </Button>
-//           </RowContainer>
-//         </div>colorTransition
-//         <Separator />
-//       </>
-//     );
-//   };
+  //             <Button
+  //               variant="outline"
+  //               className="p-1 h-8 justify-self-end"
+  //               onClick={clearMask}
+  //               disabled={isProcessing}
+  //             >
+  //               <div className="flex items-center gap-1 select-none">
+  //                 {t("Clear")}
+  //               </div>
+  //             </Button>
+  //           </RowContainer>
+  //         </div>colorTransition
+  //         <Separator />
+  //       </>
+  //     );
+  //   };
 
   return (
     <div className="flex flex-col gap-4 mt-4">

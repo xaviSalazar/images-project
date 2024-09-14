@@ -1,5 +1,5 @@
 // src/components/LanguageSwitcher.tsx
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 import { useLanguageStore } from "@/lib/states";
 import { useTranslation } from "react-i18next";
 
@@ -35,8 +35,10 @@ export function LanguageSwitcher() {
   useEffect(() => {
     // Detect browser language
     const browserLanguage = navigator.language.slice(0, 2); // Get first two characters of the language code
-    const supportedLanguage = languages.find((lang) => lang.value === browserLanguage);
-    
+    const supportedLanguage = languages.find(
+      (lang) => lang.value === browserLanguage,
+    );
+
     if (supportedLanguage) {
       setLanguage(browserLanguage);
       changeLanguage(browserLanguage);

@@ -28,12 +28,12 @@
     "Delete": "suprimir",
     "Layer": "Disposicion",
 
-    "Variation" : "Variacion",
+    "Variation": "Variacion",
     "Fixed image": "Imagen original (sin cambios)",
     "Modify image": "Nueva variacion IA",
     "toBack": "Atras",
     "toFront": "Adelante",
-    
+
     "RemoveBG": "quitar fondo",
     "Upload Picture": "Cargar Imagen",
     "See gallery": "GALERIA",

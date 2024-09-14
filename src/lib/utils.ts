@@ -6,7 +6,7 @@ import { BRUSH_COLOR } from "./const";
 import { LOG_LEVELS } from "./const";
 import { predefinedRatios } from "@/lib/const";
 import * as fabric from "fabric"; // v6
-import Pica from 'pica';
+import Pica from "pica";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -281,20 +281,20 @@ export const resizeImageWithPica = async (imageSrc, width, height) => {
 
     img.onload = async () => {
       const pica = new Pica();
-      const sourceCanvas = document.createElement('canvas');
-      const destCanvas = document.createElement('canvas');
-      
+      const sourceCanvas = document.createElement("canvas");
+      const destCanvas = document.createElement("canvas");
+
       sourceCanvas.width = img.width;
       sourceCanvas.height = img.height;
       destCanvas.width = width;
       destCanvas.height = height;
 
-      const ctx = sourceCanvas.getContext('2d');
+      const ctx = sourceCanvas.getContext("2d");
       ctx.drawImage(img, 0, 0);
 
       try {
         await pica.resize(sourceCanvas, destCanvas);
-        resolve(destCanvas.toDataURL('image/png', 1));
+        resolve(destCanvas.toDataURL("image/png", 1));
       } catch (error) {
         reject(error);
       }
@@ -305,7 +305,6 @@ export const resizeImageWithPica = async (imageSrc, width, height) => {
     };
   });
 };
-
 
 export const generateFromCanvas = async (
   canvasObject: object,
@@ -345,7 +344,7 @@ export const generateFromCanvas = async (
       const fixedImgCanvas = new fabric.Canvas(undefined, {
         width: outputWidth,
         height: outputHeight,
-        backgroundColor : "#00b140",
+        backgroundColor: "#00b140",
       });
 
       const objCanvas = JSON.parse(canvasObject.data);
@@ -405,9 +404,9 @@ export const generateFromCanvas = async (
           //   left: clone.left,
           //   top: clone.top,
           // });
-      
+
           // tmpImgCanvas.add(resizedImage);
-      
+
           // // Add object to fixed image canvas if it's marked as "fixed"
           if (single_obj.img_view === "fixed") {
             fixedImgCanvas.add(clone_fixed_elements);
@@ -449,7 +448,6 @@ export const generateFromCanvas = async (
         targetFile: image,
         staticElements: elements,
       });
-
     } catch (error) {
       reject(`Add a background image to canvas`);
     }

@@ -11,9 +11,9 @@ import { useToast } from "@/components/ui/use-toast";
 import { useKeyPressEvent } from "react-use";
 import { IconButton } from "@/components/ui/button";
 import { Button } from "./ui/button";
-import {removeBackgroundApi} from "@/lib/api"
+import { removeBackgroundApi } from "@/lib/api";
 import { useTranslation } from "react-i18next";
-import {resizeImageWithPica} from "@/lib/utils"
+import { resizeImageWithPica } from "@/lib/utils";
 
 import {
   Menubar,
@@ -26,12 +26,7 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar-horizontal";
 
-import {
-  cn,
-  isLeftClick,
-  dataURItoBlob,
-  debugLog,
-} from "@/lib/utils";
+import { cn, isLeftClick, dataURItoBlob, debugLog } from "@/lib/utils";
 import {
   Eraser,
   Redo,
@@ -50,7 +45,7 @@ import {
   ArrowDownIcon,
   ArrowUpIcon,
   CookieIcon,
-  PersonIcon
+  PersonIcon,
 } from "@radix-ui/react-icons";
 import { useImage } from "@/hooks/useImage";
 import { Slider } from "./ui/slider";
@@ -139,7 +134,7 @@ const Editor = React.forwardRef(() => {
     isCropperExtenderResizing,
     decreaseBaseBrushSize,
     increaseBaseBrushSize,
-    setTriggerUndoRedo, 
+    setTriggerUndoRedo,
   ] = useStore((state) => [
     state.disableShortCuts,
     state.isInpainting,
@@ -174,20 +169,21 @@ const Editor = React.forwardRef(() => {
     state.setTriggerUndoRedo,
   ]);
   const baseBrushSize = useStore((state) => state.editorState.baseBrushSize);
-  const triggerRedoUndo = useStore((state) => state.editorState.triggerRedoUndo)
+  const triggerRedoUndo = useStore(
+    (state) => state.editorState.triggerRedoUndo,
+  );
   const brushSize = useStore((state) => state.getBrushSize());
   const renders = useStore((state) => state.editorState.renders);
   const extraMasks = useStore((state) => state.editorState.extraMasks);
   const temporaryMasks = useStore((state) => state.editorState.temporaryMasks);
   const lineGroups = useStore((state) => state.editorState.lineGroups);
   const curLineGroup = useStore((state) => state.editorState.curLineGroup);
-  const isBrushActivated = useStore((state => state.settings.showDrawing))
-  const dev_mode = useStore((state => state.settings.isDevModeActive))
+  const isBrushActivated = useStore((state) => state.settings.showDrawing);
+  const dev_mode = useStore((state) => state.settings.isDevModeActive);
   const currCanvasGroups = useStore(
     (state) => state.editorState.currCanvasGroups,
   );
   const { t } = useTranslation();
-
 
   // Local State
   const [showOriginal, setShowOriginal] = useState(false);
@@ -204,14 +200,14 @@ const Editor = React.forwardRef(() => {
   const lastPosX = useRef(0);
   const lastPosY = useRef(0);
   const windowSize = useWindowSize();
-  
-  const isPanningActivated = useRef<boolean>(false)
+
+  const isPanningActivated = useRef<boolean>(false);
 
   const [compatibleWidth, setCompatibleWidth] = useState<number>(
-  windowSize.width,
+    windowSize.width,
   );
   const [compatibleHeight, setCompatibleHeight] = useState<number>(
-  windowSize.height,
+    windowSize.height,
   );
 
   const [isDraging, setIsDraging] = useState(false);
@@ -225,7 +221,10 @@ const Editor = React.forwardRef(() => {
   const rectangleCut = useRef<fabric.Object | null>(null);
   const isCropping = useRef<boolean>(false);
 
-  const oldWindowSize = useRef<{width:number, height:number}>({width: 0, height:0})
+  const oldWindowSize = useRef<{ width: number; height: number }>({
+    width: 0,
+    height: 0,
+  });
 
   const hadDrawSomething = useCallback(() => {
     return currCanvasGroups.length !== 0;
@@ -240,20 +239,20 @@ const Editor = React.forwardRef(() => {
 
   function animateImageOpacity(object, duration, toOpacity, animationIdRef) {
     if (!object) return;
-  
+
     const startOpacity = object.get("opacity");
     const startTime = performance.now();
-  
+
     function step(timestamp) {
       if (!animationIdRef.current) return; // If animationIdRef.current is null, stop the animation
-  
+
       const elapsed = timestamp - startTime;
       const progress = Math.min(elapsed / duration, 1);
       const newOpacity = startOpacity + (toOpacity - startOpacity) * progress;
-  
+
       object.set("opacity", newOpacity);
       object.canvas?.renderAll();
-  
+
       if (progress < 1) {
         animationIdRef.current = requestAnimationFrame(step);
       } else {
@@ -261,7 +260,7 @@ const Editor = React.forwardRef(() => {
         animateImageOpacity(object, duration, nextOpacity, animationIdRef);
       }
     }
-  
+
     animationIdRef.current = requestAnimationFrame(step);
   }
 
@@ -356,12 +355,18 @@ const Editor = React.forwardRef(() => {
   const [buttonPosition, setButtonPosition] = useState({ left: 0, top: 0 });
   const [buttonVisible, setButtonVisible] = useState(false);
 
-  const [BottomButtonPosition, setBottomButtonPosition] = useState({ left: 0, top: 0 });
+  const [BottomButtonPosition, setBottomButtonPosition] = useState({
+    left: 0,
+    top: 0,
+  });
   const [BottomButtonVisible, setBottomButtonVisible] = useState(false);
 
   useEffect(() => {
     const initMainCanvas = (): fabric.Canvas => {
-      oldWindowSize.current = {width: window.innerWidth, height: window.innerHeight}
+      oldWindowSize.current = {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      };
 
       updateAppState({
         userWindowWidth: window.innerWidth,
@@ -403,7 +408,7 @@ const Editor = React.forwardRef(() => {
 
     fabric.Canvas.prototype.getAbsoluteCoords = function (object) {
       const m = object.calcTransformMatrix();
-      return {left: m[4], top: m[5]};
+      return { left: m[4], top: m[5] };
     };
 
     function positionBtn(obj) {
@@ -412,9 +417,14 @@ const Editor = React.forwardRef(() => {
       if (!fabricRef.current) return;
       const zoom = fabricRef.current.getZoom();
       const viewportTransform = fabricRef.current.viewportTransform;
-      const mTotal = fabric.util.multiplyTransformMatrices(viewportTransform, obj.calcTransformMatrix());
-      const left = mTotal[4] - 150
-      const top = mTotal[5] - (zoom * obj.height * obj.scaleY)/2  /* size of div i guess */
+      const mTotal = fabric.util.multiplyTransformMatrices(
+        viewportTransform,
+        obj.calcTransformMatrix(),
+      );
+      const left = mTotal[4] - 150;
+      const top =
+        mTotal[5] -
+        (zoom * obj.height * obj.scaleY) / 2; /* size of div i guess */
       setButtonPosition({ left, top });
       setButtonVisible(true);
     }
@@ -425,9 +435,15 @@ const Editor = React.forwardRef(() => {
       if (!fabricRef.current) return;
       const zoom = fabricRef.current.getZoom();
       const viewportTransform = fabricRef.current.viewportTransform;
-      const mTotal = fabric.util.multiplyTransformMatrices(viewportTransform, obj.calcTransformMatrix());
-      const left = mTotal[4] - 100
-      const top = mTotal[5] + (zoom * obj.height * obj.scaleY)/2 + 65 /* size of div i guess */
+      const mTotal = fabric.util.multiplyTransformMatrices(
+        viewportTransform,
+        obj.calcTransformMatrix(),
+      );
+      const left = mTotal[4] - 100;
+      const top =
+        mTotal[5] +
+        (zoom * obj.height * obj.scaleY) / 2 +
+        65; /* size of div i guess */
       setBottomButtonPosition({ left, top });
       setBottomButtonVisible(true);
     }
@@ -470,7 +486,6 @@ const Editor = React.forwardRef(() => {
     fabricRef.current?.on("object:moving", function (e) {
       setButtonVisible(false);
       setBottomButtonVisible(false);
-
     });
 
     fabricRef.current?.on("selection:cleared", function () {
@@ -509,148 +524,164 @@ const Editor = React.forwardRef(() => {
     };
   }, []);
 
-  const rectangleGroupRef = useRef<fabric.Group | undefined> (undefined);
-  const groupCoordinatesRef = useRef<{offsetX: number, offsetY:number}> ();
+  const rectangleGroupRef = useRef<fabric.Group | undefined>(undefined);
+  const groupCoordinatesRef = useRef<{ offsetX: number; offsetY: number }>();
 
   useEffect(() => {
-
     const canvas_instance = fabricRef.current;
-    if(!canvas_instance) return;
+    if (!canvas_instance) return;
 
-      const width = canvas_instance?.width ?? 0;
-      const height = canvas_instance?.height ?? 0;
+    const width = canvas_instance?.width ?? 0;
+    const height = canvas_instance?.height ?? 0;
 
-      // Adjust clipping area based on the aspect ratio
-      let clipWidth, clipHeight;
+    // Adjust clipping area based on the aspect ratio
+    let clipWidth, clipHeight;
 
-      const ratioObject = predefinedRatios.find(
-        (ratio) => ratio.name === aspectRatio,
-      );
+    const ratioObject = predefinedRatios.find(
+      (ratio) => ratio.name === aspectRatio,
+    );
 
-      if (ratioObject) {
-        debugLog(LOG_LEVELS.DEBUG, "choosed Ratio\n", ratioObject);
-        const { width: ratioWidth, height: ratioHeight } = ratioObject;
-        clipWidth = ratioWidth;
-        clipHeight = ratioHeight;
-      }
+    if (ratioObject) {
+      debugLog(LOG_LEVELS.DEBUG, "choosed Ratio\n", ratioObject);
+      const { width: ratioWidth, height: ratioHeight } = ratioObject;
+      clipWidth = ratioWidth;
+      clipHeight = ratioHeight;
+    }
 
-      debugLog(LOG_LEVELS.DEBUG, " <<user canvas window>>  width, heigth ", [
-        canvas_instance.width,
-        canvas_instance.height,
-      ]);
-      debugLog(LOG_LEVELS.DEBUG, "<<user choosedWidth, choosedHeigth>> ", [
-        clipWidth,
-        clipHeight,
-      ]);
-      debugLog(
-        LOG_LEVELS.DEBUG,
-        "<<user transf canvas  matrix>>\n",
-        canvas_instance.viewportTransform,
-      );
+    debugLog(LOG_LEVELS.DEBUG, " <<user canvas window>>  width, heigth ", [
+      canvas_instance.width,
+      canvas_instance.height,
+    ]);
+    debugLog(LOG_LEVELS.DEBUG, "<<user choosedWidth, choosedHeigth>> ", [
+      clipWidth,
+      clipHeight,
+    ]);
+    debugLog(
+      LOG_LEVELS.DEBUG,
+      "<<user transf canvas  matrix>>\n",
+      canvas_instance.viewportTransform,
+    );
 
-      const zoomX = width / clipWidth;
-      const zoomY = height / clipHeight;
+    const zoomX = width / clipWidth;
+    const zoomY = height / clipHeight;
 
-      debugLog(LOG_LEVELS.DEBUG, " <<zoom initial>>  zoomX, zoomY ", [
-        zoomX,
-        zoomY,
-      ]);
+    debugLog(LOG_LEVELS.DEBUG, " <<zoom initial>>  zoomX, zoomY ", [
+      zoomX,
+      zoomY,
+    ]);
 
-      const calculated_zoom = Math.min(zoomX, zoomY) - 0.35;
+    const calculated_zoom = Math.min(zoomX, zoomY) - 0.35;
 
-      debugLog(LOG_LEVELS.DEBUG, " <<calculated zoom>> ", calculated_zoom);
+    debugLog(LOG_LEVELS.DEBUG, " <<calculated zoom>> ", calculated_zoom);
 
-      fabricRef.current.setViewportTransform([1, 0, 0, 1, -250, 0]); // Reset panning
+    fabricRef.current.setViewportTransform([1, 0, 0, 1, -250, 0]); // Reset panning
 
-      fabricRef.current?.zoomToPoint(
-        { x: fabricRef.current?.width / 2, y: fabricRef.current?.height / 2 },
-        calculated_zoom,
-      );
+    fabricRef.current?.zoomToPoint(
+      { x: fabricRef.current?.width / 2, y: fabricRef.current?.height / 2 },
+      calculated_zoom,
+    );
 
-      updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
-      setImageSize(clipWidth, clipHeight)
+    updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
+    setImageSize(clipWidth, clipHeight);
 
-      const centerX = width / 2;
-      const centerY = height / 2;
-      // Calculate corner points of the rectangle
-      const topLeft = {
-        x: centerX - clipWidth / 2,
-        y: centerY - clipHeight / 2,
-      };
-      const topRight = {
-        x: centerX + clipWidth / 2,
-        y: centerY - clipHeight / 2,
-      };
-      const bottomRight = {
-        x: centerX + clipWidth / 2,
-        y: centerY + clipHeight / 2,
-      };
-      const bottomLeft = {
-        x: centerX - clipWidth / 2,
-        y: centerY + clipHeight / 2,
-      };
-  
-      // Create lines for the rectangle outline
-      const topLine = new fabric.Line([topLeft.x, topLeft.y, topRight.x, topRight.y], {
-        stroke: '#84CC16',
+    const centerX = width / 2;
+    const centerY = height / 2;
+    // Calculate corner points of the rectangle
+    const topLeft = {
+      x: centerX - clipWidth / 2,
+      y: centerY - clipHeight / 2,
+    };
+    const topRight = {
+      x: centerX + clipWidth / 2,
+      y: centerY - clipHeight / 2,
+    };
+    const bottomRight = {
+      x: centerX + clipWidth / 2,
+      y: centerY + clipHeight / 2,
+    };
+    const bottomLeft = {
+      x: centerX - clipWidth / 2,
+      y: centerY + clipHeight / 2,
+    };
+
+    // Create lines for the rectangle outline
+    const topLine = new fabric.Line(
+      [topLeft.x, topLeft.y, topRight.x, topRight.y],
+      {
+        stroke: "#84CC16",
         strokeWidth: 3,
-        strokeLineCap: 'round',
+        strokeLineCap: "round",
         selectable: false,
-      });
-      const rightLine = new fabric.Line([topRight.x, topRight.y, bottomRight.x, bottomRight.y], {
-        stroke: '#84CC16',
+      },
+    );
+    const rightLine = new fabric.Line(
+      [topRight.x, topRight.y, bottomRight.x, bottomRight.y],
+      {
+        stroke: "#84CC16",
         strokeWidth: 3,
-        strokeLineCap: 'round',
+        strokeLineCap: "round",
         selectable: false,
-      });
-      const bottomLine = new fabric.Line([bottomRight.x, bottomRight.y, bottomLeft.x, bottomLeft.y], {
-        stroke: '#84CC16',
+      },
+    );
+    const bottomLine = new fabric.Line(
+      [bottomRight.x, bottomRight.y, bottomLeft.x, bottomLeft.y],
+      {
+        stroke: "#84CC16",
         strokeWidth: 3,
-        strokeLineCap: 'round',
+        strokeLineCap: "round",
         selectable: false,
-      });
-      const leftLine = new fabric.Line([bottomLeft.x, bottomLeft.y, topLeft.x, topLeft.y], {
-        stroke: '#84CC16',
+      },
+    );
+    const leftLine = new fabric.Line(
+      [bottomLeft.x, bottomLeft.y, topLeft.x, topLeft.y],
+      {
+        stroke: "#84CC16",
         strokeWidth: 3,
-        strokeLineCap: 'round',
+        strokeLineCap: "round",
         selectable: false,
-      });
-  
-      const place_img_instruction = new FabricText(t("Place image"), {
-          left:centerX - (clipWidth / 2) + 250,
-          top: centerY - (clipHeight / 2) - 50,
-          fill: '#84CC16',
-          fontFamily: 'Comic Sans',
-          fontSize: 35,
-          textAlign: 'left',
-          Shadow: 'rgba(0,0,0,0.2) 0 0 5px',
-          selectable: false,
-      });
+      },
+    );
 
-      const results_instruction = new FabricText(t("Results image msg"),{
-        left:centerX + clipWidth - 280,
-        top: centerY - (clipHeight / 2) - 50,
-        fill: '#84CC16',
-        fontFamily: 'Comic Sans',
-        fontSize: 35,
-        Shadow: 'rgba(0,0,0,0.2) 0 0 5px',
-        textAlign: 'left',
-        selectable: false,
-      });
-      // Group the lines into a single fabric.Group
-      const rectangleGroup = new fabric.Group([topLine, 
-                                               rightLine, 
-                                               bottomLine, 
-                                               leftLine, 
-                                               place_img_instruction, 
-                                               results_instruction], 
-                                               {selectable: false, 
-                                               });
+    const place_img_instruction = new FabricText(t("Place image"), {
+      left: centerX - clipWidth / 2 + 250,
+      top: centerY - clipHeight / 2 - 50,
+      fill: "#84CC16",
+      fontFamily: "Comic Sans",
+      fontSize: 35,
+      textAlign: "left",
+      Shadow: "rgba(0,0,0,0.2) 0 0 5px",
+      selectable: false,
+    });
 
-      rectangleGroupRef.current = rectangleGroup
-      groupCoordinatesRef.current = {offsetX: rectangleGroup.left, offsetY: rectangleGroup.top}
-      canvas_instance.overlayImage = rectangleGroupRef.current
+    const results_instruction = new FabricText(t("Results image msg"), {
+      left: centerX + clipWidth - 280,
+      top: centerY - clipHeight / 2 - 50,
+      fill: "#84CC16",
+      fontFamily: "Comic Sans",
+      fontSize: 35,
+      Shadow: "rgba(0,0,0,0.2) 0 0 5px",
+      textAlign: "left",
+      selectable: false,
+    });
+    // Group the lines into a single fabric.Group
+    const rectangleGroup = new fabric.Group(
+      [
+        topLine,
+        rightLine,
+        bottomLine,
+        leftLine,
+        place_img_instruction,
+        results_instruction,
+      ],
+      { selectable: false },
+    );
 
+    rectangleGroupRef.current = rectangleGroup;
+    groupCoordinatesRef.current = {
+      offsetX: rectangleGroup.left,
+      offsetY: rectangleGroup.top,
+    };
+    canvas_instance.overlayImage = rectangleGroupRef.current;
   }, [aspectRatio, t]);
 
   const stopPanning = useCallback((opt: fabric.TEvent<MouseEvent>) => {
@@ -660,7 +691,12 @@ const Editor = React.forwardRef(() => {
   }, []);
 
   const startPanning = useCallback((opt: fabric.TEvent<MouseEvent>) => {
-    if (isLeftClick(opt) && !fabricRef.current.getActiveObject() && !isBrushActivated && isPanningActivated.current) {
+    if (
+      isLeftClick(opt) &&
+      !fabricRef.current.getActiveObject() &&
+      !isBrushActivated &&
+      isPanningActivated.current
+    ) {
       const evt = opt.e;
       isDragging.current = true;
       lastPosX.current = evt.clientX;
@@ -718,20 +754,19 @@ const Editor = React.forwardRef(() => {
     handleSaveState(fabricRef.current);
   }, [renders]);
 
- // REDO / UNDO ACTION
+  // REDO / UNDO ACTION
   useEffect(() => {
-
     if (!fabricRef.current) return;
     if (currCanvasGroups.length === 0) return;
-    
+
     const lastElement = currCanvasGroups[currCanvasGroups.length - 1];
     const state = JSON.parse(lastElement.data);
 
     fabricRef.current.loadFromJSON(state).then(() => {
       fabricRef.current?.renderAll();
-          })
+    });
     // Reset Trigger
-    setTriggerUndoRedo(false)
+    setTriggerUndoRedo(false);
   }, [triggerRedoUndo]);
 
   // CHANGE BRUSH SIZE
@@ -786,8 +821,8 @@ const Editor = React.forwardRef(() => {
   // Zoom reset
   const resetZoom = useCallback(() => {
     if (fabricRef.current) {
-      const zoomX = fabricRef.current?.width  / scaledWidth;
-      const zoomY = fabricRef.current?.height  / scaledHeight;
+      const zoomX = fabricRef.current?.width / scaledWidth;
+      const zoomY = fabricRef.current?.height / scaledHeight;
       const calculated_zoom = Math.min(zoomX, zoomY) - 0.35;
       fabricRef.current.setViewportTransform([1, 0, 0, 1, -250, 0]); // Reset panning
       fabricRef.current?.zoomToPoint(
@@ -797,33 +832,36 @@ const Editor = React.forwardRef(() => {
     }
   }, [scaledWidth, scaledHeight]);
 
-     // Function to move the group by an offset
-     const moveGroupByOffset = (group:fabric.Group, offsetX:number, offsetY:number) => {
-      group.set({
-        left: groupCoordinatesRef.current?.offsetX - offsetX/2,
-        top: groupCoordinatesRef.current?.offsetY - offsetY/2,
-      });
-      group.setCoords(); // Update the coordinates
-      fabricRef.current?.renderAll(); // Re-render the canvas
-    };
-
-    useEffect(() => {
-    window.addEventListener("resize", () => {
-    const offsetX = oldWindowSize.current.width - window.innerWidth;
-    const offsetY = oldWindowSize.current.height - window.innerHeight;
-    setCompatibleWidth(window.innerWidth)
-    setCompatibleHeight(window.innerHeight)
-    updateAppState({
-      userWindowWidth: window.innerWidth,
-      userWindowHeight: window.innerHeight,
+  // Function to move the group by an offset
+  const moveGroupByOffset = (
+    group: fabric.Group,
+    offsetX: number,
+    offsetY: number,
+  ) => {
+    group.set({
+      left: groupCoordinatesRef.current?.offsetX - offsetX / 2,
+      top: groupCoordinatesRef.current?.offsetY - offsetY / 2,
     });
-    fabricRef.current.setWidth(window.innerWidth)
-    fabricRef.current.setHeight(window.innerHeight)
-    moveGroupByOffset(rectangleGroupRef.current, offsetX, offsetY);
+    group.setCoords(); // Update the coordinates
+    fabricRef.current?.renderAll(); // Re-render the canvas
+  };
+
+  useEffect(() => {
+    window.addEventListener("resize", () => {
+      const offsetX = oldWindowSize.current.width - window.innerWidth;
+      const offsetY = oldWindowSize.current.height - window.innerHeight;
+      setCompatibleWidth(window.innerWidth);
+      setCompatibleHeight(window.innerHeight);
+      updateAppState({
+        userWindowWidth: window.innerWidth,
+        userWindowHeight: window.innerHeight,
+      });
+      fabricRef.current.setWidth(window.innerWidth);
+      fabricRef.current.setHeight(window.innerHeight);
+      moveGroupByOffset(rectangleGroupRef.current, offsetX, offsetY);
     });
     return () => {
-      window.removeEventListener("resize", () => {
-      });
+      window.removeEventListener("resize", () => {});
     };
   }, []);
 
@@ -1104,8 +1142,7 @@ const Editor = React.forwardRef(() => {
   // };
 
   const handleDownload = async (source: string) => {
-
-    if(!fabricRef.current) return;
+    if (!fabricRef.current) return;
     const predefinedRatio = predefinedRatios.find(
       (ratio) => ratio.name === aspectRatio,
     );
@@ -1176,7 +1213,7 @@ const Editor = React.forwardRef(() => {
         cloned.top += 100;
         canvas_instance.add(cloned);
       });
-    saveState();
+      saveState();
     }
   };
 
@@ -1184,28 +1221,28 @@ const Editor = React.forwardRef(() => {
     const canvas_instance = fabricRef.current;
     if (!canvas_instance) return;
     const current_active = canvas_instance.getActiveObject();
-    if(!current_active) return;
+    if (!current_active) return;
 
     const objectWidth =
-    (current_active.width ?? 0) * (current_active.scaleX ?? 0);
-  const objectHeight =
-    (current_active.height ?? 0) * (current_active.scaleY ?? 0);
+      (current_active.width ?? 0) * (current_active.scaleX ?? 0);
+    const objectHeight =
+      (current_active.height ?? 0) * (current_active.scaleY ?? 0);
     let CvRef: HTMLCanvasElement | undefined = undefined;
-  var tempCanvas = new fabric.Canvas(CvRef, {
-    width: objectWidth,
-    height: objectHeight,
-  });
-  // Clone the active object to the temporary canvas
-  const cloned_object = await current_active.clone();
+    var tempCanvas = new fabric.Canvas(CvRef, {
+      width: objectWidth,
+      height: objectHeight,
+    });
+    // Clone the active object to the temporary canvas
+    const cloned_object = await current_active.clone();
 
-  cloned_object.set({
-    left: objectWidth / 2,
-    top: objectHeight / 2,
-    scaleX: current_active.scaleX,
-    scaleY: current_active.scaleY,
-    originX: "center",
-    originY: "center",
-  });
+    cloned_object.set({
+      left: objectWidth / 2,
+      top: objectHeight / 2,
+      scaleX: current_active.scaleX,
+      scaleY: current_active.scaleY,
+      originX: "center",
+      originY: "center",
+    });
 
     tempCanvas.add(cloned_object);
     tempCanvas.renderAll();
@@ -1222,8 +1259,6 @@ const Editor = React.forwardRef(() => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
-    
   };
 
   const handleCut = () => {
@@ -1358,10 +1393,9 @@ const Editor = React.forwardRef(() => {
   };
 
   const handleRemoveBg = async (model: string) => {
-    
-    const fabricInstance = fabricRef.current;    
+    const fabricInstance = fabricRef.current;
     const current_active = fabricInstance?.getActiveObject();
-    console.log(current_active)
+    console.log(current_active);
 
     if (!current_active) return;
 
@@ -1374,7 +1408,11 @@ const Editor = React.forwardRef(() => {
 
     const originalSource = current_active._originalElement.currentSrc;
 
-    const resizedImageSrc = await resizeImageWithPica(originalSource, objectWidth, objectHeight);
+    const resizedImageSrc = await resizeImageWithPica(
+      originalSource,
+      objectWidth,
+      objectHeight,
+    );
 
     // Create a temporary canvas
     // let CvRef: HTMLCanvasElement | null = null;
@@ -1398,26 +1436,26 @@ const Editor = React.forwardRef(() => {
     //   tempCanvas.add(cloned_object);
     //   tempCanvas.renderAll();
 
-      // Get the data URL of the cloned object
-      
-      //const objectDataUrl = tempCanvas.toDataURL({format: "png",quality: 1,multiplier: 1});
+    // Get the data URL of the cloned object
 
-      // // preview download
-      // const link = document.createElement("a");
-      // link.href = resizedImageSrc;
-      // link.download = `objectDataUrl.png`;
-      // document.body.appendChild(link);
-      // link.click();
-      // document.body.removeChild(link);
-      
-      const animationIdRef = { current: null };
+    //const objectDataUrl = tempCanvas.toDataURL({format: "png",quality: 1,multiplier: 1});
+
+    // // preview download
+    // const link = document.createElement("a");
+    // link.href = resizedImageSrc;
+    // link.download = `objectDataUrl.png`;
+    // document.body.appendChild(link);
+    // link.click();
+    // document.body.removeChild(link);
+
+    const animationIdRef = { current: null };
 
     try {
-      animateImageOpacity(current_active, 1000, 0, animationIdRef); // Start the continuous animation  
+      animateImageOpacity(current_active, 1000, 0, animationIdRef); // Start the continuous animation
       const res = await removeBackgroundApi(
         dataURItoBlob(resizedImageSrc),
         model,
-        dev_mode
+        dev_mode,
       );
       const { blob, seed } = res;
       const newRender = new Image();
@@ -1440,25 +1478,25 @@ const Editor = React.forwardRef(() => {
       });
     }
 
-      // remove background free version 
-      // removeBackground(objectDataUrl, config).then((blob: Blob) => {
-      //   // The result is a blob encoded as PNG. It can be converted to an URL to be used as HTMLImage.src
-      //   const url = URL.createObjectURL(blob);
-      //   const newRender = new Image();
-      //   loadImage(newRender, url).then(() => {
-      //     console.log(newRender);
-      //     fabricInstance?.remove(current_active);
-      //     const img_without_background = new FabricImage(newRender, {
-      //       left: objectCenterLeft,
-      //       top: objectCenterTop,
-      //       originX: "center",
-      //       originY: "center",
-      //     });
-      //     fabricInstance?.add(img_without_background);
-      //     fabricInstance?.requestRenderAll();
-      //   });
-      // });
-  }
+    // remove background free version
+    // removeBackground(objectDataUrl, config).then((blob: Blob) => {
+    //   // The result is a blob encoded as PNG. It can be converted to an URL to be used as HTMLImage.src
+    //   const url = URL.createObjectURL(blob);
+    //   const newRender = new Image();
+    //   loadImage(newRender, url).then(() => {
+    //     console.log(newRender);
+    //     fabricInstance?.remove(current_active);
+    //     const img_without_background = new FabricImage(newRender, {
+    //       left: objectCenterLeft,
+    //       top: objectCenterTop,
+    //       originX: "center",
+    //       originY: "center",
+    //     });
+    //     fabricInstance?.add(img_without_background);
+    //     fabricInstance?.requestRenderAll();
+    //   });
+    // });
+  };
 
   return (
     <div
@@ -1478,8 +1516,7 @@ const Editor = React.forwardRef(() => {
         <MenubarMenu>
           <MenubarTrigger>{t("Edit")}</MenubarTrigger>
           <MenubarContent>
-
-          <MenubarItem onClick={handleDownloadObject}>
+            <MenubarItem onClick={handleDownloadObject}>
               {t("Descargar")}
               <MenubarShortcut>
                 <Download />
@@ -1500,8 +1537,8 @@ const Editor = React.forwardRef(() => {
               </MenubarShortcut>
             </MenubarItem>
             <MenubarSeparator />
-            <MenubarItem 
-              onClick={handleDelete}      
+            <MenubarItem
+              onClick={handleDelete}
               className="bg-red-500 text-white hover:bg-red-600"
             >
               {t("Delete")}
@@ -1514,7 +1551,9 @@ const Editor = React.forwardRef(() => {
         </MenubarMenu>
 
         <MenubarMenu>
-          <MenubarTrigger onClick={handleViewMenuOpen}>{t("Variation")}</MenubarTrigger>
+          <MenubarTrigger onClick={handleViewMenuOpen}>
+            {t("Variation")}
+          </MenubarTrigger>
           <MenubarContent>
             <MenubarCheckboxItem
               checked={isFixed}
@@ -1524,7 +1563,7 @@ const Editor = React.forwardRef(() => {
             </MenubarCheckboxItem>
             <MenubarSeparator />
             <MenubarCheckboxItem checked={isModify} onClick={handleModifyClick}>
-            {t("Modify image")}
+              {t("Modify image")}
             </MenubarCheckboxItem>
           </MenubarContent>
         </MenubarMenu>
@@ -1560,18 +1599,23 @@ const Editor = React.forwardRef(() => {
         }}
       >
         <MenubarMenu>
-          <MenubarTrigger onClick={() => handleLayoutControl("toForward")} asChild >
-          <Button variant="secondary">
-          {t("toFront")}
+          <MenubarTrigger
+            onClick={() => handleLayoutControl("toForward")}
+            asChild
+          >
+            <Button variant="secondary">
+              {t("toFront")}
               <ArrowUpIcon className="h-4 w-4" />
-          </Button>
+            </Button>
           </MenubarTrigger>
-          <MenubarTrigger onClick={() => handleLayoutControl("toBackward")} asChild>
-          <Button variant="secondary">
-            {t("toBack")}
-            <ArrowDownIcon className="h-4 w-4" />
-          </Button>
-
+          <MenubarTrigger
+            onClick={() => handleLayoutControl("toBackward")}
+            asChild
+          >
+            <Button variant="secondary">
+              {t("toBack")}
+              <ArrowDownIcon className="h-4 w-4" />
+            </Button>
           </MenubarTrigger>
           {/* <MenubarContent>
             <MenubarItem onClick={() => handleLayoutControl("toFront")}>
@@ -1605,7 +1649,6 @@ const Editor = React.forwardRef(() => {
             </MenubarItem>
           </MenubarContent> */}
         </MenubarMenu>
-
       </Menubar>
 
       {renderCanvas()}
@@ -1650,16 +1693,15 @@ const Editor = React.forwardRef(() => {
             aria-label="Toggle italic"
             defaultPressed={isPanningActivated.current}
             onPressedChange={(value: boolean) => {
-              isPanningActivated.current = value 
+              isPanningActivated.current = value;
               if (value) {
               }
             }}
           >
             <div className="icon-button-icon-wrapper">
-            <GrabIcon />
+              <GrabIcon />
             </div>
           </Toggle>
-
 
           {/* <IconButton
             tooltip="Show original image"
@@ -1724,11 +1766,10 @@ const Editor = React.forwardRef(() => {
               }
             }}
           >
-          <div className="icon-button-icon-wrapper">
-            <Paintbrush />
-          </div>
+            <div className="icon-button-icon-wrapper">
+              <Paintbrush />
+            </div>
           </Toggle>
-
         </div>
       </div>
     </div>

@@ -41,7 +41,6 @@ export const LOG_LEVELS = {
   ERROR: "error",
 };
 
-
 export const SUPPORTED_FILE_TYPE = [
   "image/jpeg",
   "image/png",

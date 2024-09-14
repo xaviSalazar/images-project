@@ -6,13 +6,13 @@ import { useStore } from "./lib/states";
 import { useWindowSize } from "react-use";
 import { useRefContext } from "@/components/RefCanvas";
 import { useImage } from "@/hooks/useImage";
-import { FabricImage,  } from "fabric";
+import { FabricImage } from "fabric";
 import * as fabric from "fabric";
 import { useToast } from "./components/ui/use-toast";
 
 import { LOG_LEVELS } from "./lib/const";
 import { debugLog } from "./lib/utils";
-import { SUPPORTED_FILE_TYPE } from "@/lib/const"
+import { SUPPORTED_FILE_TYPE } from "@/lib/const";
 
 function Home() {
   const [
@@ -34,7 +34,6 @@ function Home() {
   const { fabricRef } = useRefContext();
   const [image, isLoaded] = useImage(file);
   const { toast } = useToast();
-
 
   const windowSize = useWindowSize();
 
@@ -76,7 +75,7 @@ function Home() {
       } else {
         toast({
           variant: "destructive",
-          description:  "Please drag and drop an image file",
+          description: "Please drag and drop an image file",
         });
       }
     } else {
@@ -130,9 +129,8 @@ function Home() {
       const imageWidth = image?.width ?? 1;
       const imageHeight = image?.height ?? 1;
       let scaleX = 1; // default
-      let scaleY = 1;// default
-      if(imageWidth + imageHeight > scaledWidth + scaledHeight)
-      {
+      let scaleY = 1; // default
+      if (imageWidth + imageHeight > scaledWidth + scaledHeight) {
         scaleX = scaledWidth / imageWidth;
         scaleY = scaledHeight / imageHeight;
       }
@@ -145,22 +143,22 @@ function Home() {
         originY: "center",
       });
 
-    //   scaledImage.resizeFilter = new fabric.filters.Resize({
-    //     resizeType: 'lanczos', // typo fixed
-    //     lanczosLobes: 3 // typo fixed
-    // })
+      //   scaledImage.resizeFilter = new fabric.filters.Resize({
+      //     resizeType: 'lanczos', // typo fixed
+      //     lanczosLobes: 3 // typo fixed
+      // })
 
-    scaledImage.scaleX  = integerScale
-    scaledImage.scaleY = integerScale
+      scaledImage.scaleX = integerScale;
+      scaledImage.scaleY = integerScale;
 
-    //********* How to apply filters */
-    // const filter = new fabric.filters.Convolute({
-    //   matrix: [ -1, -1,  -1,
-    //            -1,  9, -1,
-    //            -1, -1,  -1 ]
-    // });
-    // scaledImage.filters.push(filter)
-    // scaledImage.applyFilters();
+      //********* How to apply filters */
+      // const filter = new fabric.filters.Convolute({
+      //   matrix: [ -1, -1,  -1,
+      //            -1,  9, -1,
+      //            -1, -1,  -1 ]
+      // });
+      // scaledImage.filters.push(filter)
+      // scaledImage.applyFilters();
 
       const centerX = canvasWidth / 2;
       const centerY = canvasHeight / 2;

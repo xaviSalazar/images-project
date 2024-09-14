@@ -10,17 +10,15 @@ import useHotKey from "@/hooks/useHotkey";
 // import CanvasOptions from "./CanvasOptions";
 import RatioOptions from "./RatioOptions";
 import { useTranslation } from "react-i18next";
-import React, { useRef} from "react";
+import React, { useRef } from "react";
 // import { Settings } from "lucide-react";
 import { Images } from "lucide-react";
 import { Paperclip } from "lucide-react";
 import { WandSparkles } from "lucide-react";
 import { Ratio } from "lucide-react";
-import { SUPPORTED_FILE_TYPE } from "@/lib/const"
-import { LazyLoadImage } from 'react-lazy-load-image-component';
-import 'react-lazy-load-image-component/src/effects/blur.css';
-
-
+import { SUPPORTED_FILE_TYPE } from "@/lib/const";
+import { LazyLoadImage } from "react-lazy-load-image-component";
+import "react-lazy-load-image-component/src/effects/blur.css";
 
 import {
   Menubar,
@@ -70,20 +68,20 @@ export const works: Artwork[] = [
   //   artist: "Stable Diffusion5",
   //   art: `${domain_dist}photo-ai/TEST2_0.png`,
   // },
-
 ];
 
 const LeftSidePanel = () => {
-  const [isInpainting, runImgRendering, windowSize, setFile] = useStore((state) => [
-    state.isInpainting,
-    state.runImgRendering,
-    state.windowSize,
-    state.setFile,
-  ]);
+  const [isInpainting, runImgRendering, windowSize, setFile] = useStore(
+    (state) => [
+      state.isInpainting,
+      state.runImgRendering,
+      state.windowSize,
+      state.setFile,
+    ],
+  );
 
   const fileInputRef = useRef(null);
   const { t } = useTranslation();
-
 
   const [open, toggleOpen] = useToggle(true);
 
@@ -119,13 +117,13 @@ const LeftSidePanel = () => {
       alert(`error: ${(e as any).message}`);
     }
   };
-  
+
   const handleUploadClick = () => {
-    console.log("handle upload")
+    console.log("handle upload");
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
-  }
+  };
 
   function MenubarDemo() {
     return (
@@ -148,14 +146,13 @@ const LeftSidePanel = () => {
                     draggable
                     onDragStart={(event) => handleDragStart(event, artwork)}
                   >
-
                     <div className="overflow-hidden rounded-md">
                       <LazyLoadImage
-                      alt={`Photo by ${artwork.artist}`}
-                      height={250}
-                      width={250}
-                      effect="blur"
-                      src={artwork.art}
+                        alt={`Photo by ${artwork.artist}`}
+                        height={250}
+                        width={250}
+                        effect="blur"
+                        src={artwork.art}
                       />
                     </div>
 
@@ -165,7 +162,6 @@ const LeftSidePanel = () => {
                         {artwork.artist}
                       </span>
                     </figcaption>
-
                   </figure>
                 ))}
               </div>
@@ -177,20 +173,20 @@ const LeftSidePanel = () => {
 
         <MenubarMenu>
           <MenubarTrigger onClick={handleUploadClick}>
-          <input
-            ref={fileInputRef}
-            className="hidden"
-            type="file"
-            onChange={(ev) => {
-              const file = ev.currentTarget.files?.[0]
-              if (file) {
-                onFileSelected(file)
-              }
-            }}
-            accept={SUPPORTED_FILE_TYPE.join(', ')}
-          />
+            <input
+              ref={fileInputRef}
+              className="hidden"
+              type="file"
+              onChange={(ev) => {
+                const file = ev.currentTarget.files?.[0];
+                if (file) {
+                  onFileSelected(file);
+                }
+              }}
+              accept={SUPPORTED_FILE_TYPE.join(", ")}
+            />
             <Paperclip /> {t("Upload Picture")}
-        </MenubarTrigger>
+          </MenubarTrigger>
         </MenubarMenu>
 
         <Separator />
@@ -232,7 +228,6 @@ const LeftSidePanel = () => {
             <RatioOptions />
           </MenubarContent>
         </MenubarMenu> */}
-
       </Menubar>
     );
   }

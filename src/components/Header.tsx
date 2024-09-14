@@ -6,8 +6,8 @@ import Shortcuts from "@/components/Shortcuts";
 import SettingsDialog from "./Settings";
 import LanguageSwitcher from "./LanguageSwitcher";
 import PromptInput from "./PromptInput";
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { useStore } from "@/lib/states";
 
 // import { ScrollArea } from "@/components/ui/scroll-area";
@@ -85,17 +85,12 @@ const Header = () => {
   //   state.imageWidth,
   // ]);
 
-  const [
-    updateSettings,
-  ] = useStore((state) => [
-    state.updateSettings,
-  ]);
+  const [updateSettings] = useStore((state) => [state.updateSettings]);
 
-  const dev_mode = useStore((state => state.settings.isDevModeActive))
+  const dev_mode = useStore((state) => state.settings.isDevModeActive);
   const handleSwitchChange = (checked: boolean) => {
     updateSettings({ isDevModeActive: checked });
   };
-
 
   return (
     <header className="h-[60px] px-6 py-4 absolute top-[0] flex justify-between items-center w-full z-20 border-b backdrop-filter backdrop-blur-md bg-background/70">
@@ -114,14 +109,14 @@ const Header = () => {
       {/* {model.need_prompt ? <PromptInput /> : <></>} */}
 
       <div className="flex items-center space-x-2">
-          <Switch 
-            id="development-mode" 
-            checked={dev_mode}
-            onCheckedChange={handleSwitchChange} 
-          />
-          <Label htmlFor="development-mode">
-          {dev_mode ? 'Testing mode' : 'Oficial mode'}
-          </Label>
+        <Switch
+          id="development-mode"
+          checked={dev_mode}
+          onCheckedChange={handleSwitchChange}
+        />
+        <Label htmlFor="development-mode">
+          {dev_mode ? "Testing mode" : "Oficial mode"}
+        </Label>
       </div>
 
       <PromptInput />

@@ -91,7 +91,7 @@ export enum LightOrientation {
 
 export enum ColorStart {
   black_to_white = "black_white",
-  white_to_black = "white_black"
+  white_to_black = "white_black",
 }
 
 export enum CV2Flag {
