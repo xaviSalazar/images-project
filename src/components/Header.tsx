@@ -4,6 +4,8 @@ import Shortcuts from "@/components/Shortcuts";
 // import { useStore } from "@/lib/states";
 // import { RotateCw, Image, Upload } from "lucide-react";
 import SettingsDialog from "./Settings";
+import InstructionsDialog from "./Instructions";
+
 import LanguageSwitcher from "./LanguageSwitcher";
 import PromptInput from "./PromptInput";
 import { Label } from "@/components/ui/label";
@@ -122,9 +124,10 @@ const Header = () => {
       <PromptInput />
 
       <div className="flex gap-1">
+        <InstructionsDialog />
         <LanguageSwitcher />
         <Shortcuts />
-        <SettingsDialog />
+        {/* <SettingsDialog /> */}
       </div>
 
       {/* <div className="flex gap-3 absolute top-[150px] left-[24px] items-center">
