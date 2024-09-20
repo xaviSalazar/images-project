@@ -483,7 +483,7 @@ const Editor = React.forwardRef(() => {
       positionBottomBtn(e.selected[0]);
     });
 
-    fabricRef.current?.on("object:moving", function (e) {
+    fabricRef.current?.on("object:moving", function () {
       setButtonVisible(false);
       setBottomButtonVisible(false);
     });
@@ -497,8 +497,11 @@ const Editor = React.forwardRef(() => {
       saveState();
     });
 
-    fabricRef.current?.on("object:modified", () => {
-      saveState();
+    fabricRef.current?.on("object:modified", (e) => { 
+      const active_object = e.target.canvas?.getActiveObject()
+      positionBtn(active_object);
+      positionBottomBtn(active_object);
+      saveState();  
     });
 
     fabricRef.current?.on("mouse:wheel", function (opt) {
