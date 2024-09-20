@@ -23,8 +23,7 @@ export const ANYTEXT = "Sanster/AnyText";
 export const DEFAULT_POSITIVE_PROMPT =
   "Lush, vibrant Amazon rainforest at golden hour, showcasing an elegant cosmetic product elegantly positioned on a natural rock amidst exotic flowers using cream colors. Ultra-high definition 4K resolution, capturing breathtaking details with a crystal-clear, cinematic quality. Focus on achieving a serene, tranquil atmosphere that highlights the product’s harmony with nature, ensuring a realistic, highly detailed background that complements the product beautifully without any digital distortion";
 export const DEFAULT_NEGATIVE_PROMPT =
-  "flat, low contrast, oversaturated, underexposed, overexposed, blurred, noisy, (worst quality, low quality, illustration, 3d, 2d, painting, cartoons, sketch) , tooth, dull, blurry, watermark, low quality";
-
+  "lowres, low quality, cropped, worst quality, watermark, cartoon, painting, drawing"
 export const predefinedRatios = [
   { name: "1:1", ratio: 1, width: 1024, height: 1024 },
   { name: "3:2", ratio: 3 / 2, width: 1152, height: 768 },
