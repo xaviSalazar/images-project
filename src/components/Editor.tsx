@@ -14,6 +14,7 @@ import { Button } from "./ui/button";
 import { removeBackgroundApi } from "@/lib/api";
 import { useTranslation } from "react-i18next";
 import { resizeImageWithPica } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
 
 import {
   Menubar,
@@ -439,7 +440,7 @@ const Editor = React.forwardRef(() => {
       const top =
         mTotal[5] +
         (zoom * obj.height * obj.scaleY) / 2 +
-        65; /* size of div i guess */
+        77; /* size of div i guess */
       setBottomButtonPosition({ left, top });
       setBottomButtonVisible(true);
     }
@@ -1589,6 +1590,8 @@ const Editor = React.forwardRef(() => {
           </MenubarContent>
         </MenubarMenu>
 
+        <Separator orientation="vertical" />
+
         <MenubarMenu>
           <MenubarTrigger onClick={handleViewMenuOpen}>
             {t("Variation")}
@@ -1606,6 +1609,8 @@ const Editor = React.forwardRef(() => {
             </MenubarCheckboxItem>
           </MenubarContent>
         </MenubarMenu>
+
+        <Separator orientation="vertical" />
 
         <MenubarMenu>
           <MenubarTrigger>{t("RemoveBG")}</MenubarTrigger>
@@ -1647,6 +1652,7 @@ const Editor = React.forwardRef(() => {
               <ArrowUpIcon className="h-4 w-4" />
             </Button>
           </MenubarTrigger>
+          <Separator orientation="vertical" />
           <MenubarTrigger
             onClick={() => handleLayoutControl("toBackward")}
             asChild
@@ -1656,37 +1662,6 @@ const Editor = React.forwardRef(() => {
               <ArrowDownIcon className="h-4 w-4" />
             </Button>
           </MenubarTrigger>
-          {/* <MenubarContent>
-            <MenubarItem onClick={() => handleLayoutControl("toFront")}>
-              toFront{" "}
-              <MenubarShortcut>
-                <ArrowUpIcon className="h-4 w-4" />
-              </MenubarShortcut>
-            </MenubarItem>
-            <MenubarSeparator />
-            <MenubarItem onClick={() => handleLayoutControl("toBack")}>
-              toBack{" "}
-              <MenubarShortcut>
-                <ArrowDownIcon className="h-4 w-4" />
-              </MenubarShortcut>
-            </MenubarItem>
-            <MenubarSeparator />
-            <MenubarItem onClick={() => handleLayoutControl("toForward")}>
-              toForward{" "}
-              <MenubarShortcut>
-                {" "}
-                <DoubleArrowUpIcon className="h-4 w-4" />{" "}
-              </MenubarShortcut>
-            </MenubarItem>
-            <MenubarSeparator />
-            <MenubarItem onClick={() => handleLayoutControl("toBackward")}>
-              toBackward{" "}
-              <MenubarShortcut>
-                {" "}
-                <DoubleArrowDownIcon className="h-4 w-4" />{" "}
-              </MenubarShortcut>
-            </MenubarItem>
-          </MenubarContent> */}
         </MenubarMenu>
       </Menubar>
 
