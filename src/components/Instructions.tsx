@@ -34,31 +34,23 @@ export interface Artwork {
 export const works: Artwork[] = [
     {
       artist: "Adobe photos 1",
-      art: `${domain_dist}photo-ai/Instruction_one.gif`,
+      art: `${domain_dist}photo-ai/Choose_background_youtube.mp4`,
     },
     {
       artist: "Adobe photos 2",
-      art: `${domain_dist}photo-ai/Instruction_two.gif`,
+      art: `${domain_dist}photo-ai/Add_product_youtube.mp4`,
     },
     {
       artist: "Adobe photos 3",
-      art: `${domain_dist}photo-ai/Instruction_three_rembg.gif`,
+      art: `${domain_dist}photo-ai/RemoveBackground_youtube.mp4`,
     },
     {
       artist: "Adobe photos 4",
-      art: `${domain_dist}photo-ai/Instruction_four.gif`,
+      art: `${domain_dist}photo-ai/Keep_Original_image_youtube.mp4`,
     },
     {
       artist: "Adobe photos 5",
-      art: `${domain_dist}photo-ai/Instruction_five.gif`,
-    },
-    {
-      artist: "Adobe photos 6",
-      art: `${domain_dist}photo-ai/Instruction_six_prompt.gif`,
-    },
-    {
-      artist: "Adobe photos 7",
-      art: `${domain_dist}photo-ai/Instruction_seven_generate.gif`,
+      art: `${domain_dist}photo-ai/Generate_prompt_and_image_youtube.mp4`,
     },
 ];
 
@@ -69,18 +61,15 @@ export function InstructionsDialog() {
   const TAB_ADD_EXAMPLE_BACKGROUND = t("CHOOSE BACKGROUND SAMPLES");
   const TAB_ADD_IMAGES = t("ADD OWN IMAGES");
   const TAB_MODIFY_IMAGE = t("REMOVE BACKGROUND");
-  const TAB_PLACE_OBJECTS = t("PLACE YOUR OBJECTS");
   const TAB_KEEP_ORIGINAL_OBJECT = t("KEEP ORIGINAL IMAGE");
-  const TAB_GENERATE_PROMPT = t("GENERATE PROMPT");
-  const TAB_GENERATE_IMAGE = t("GENERATE IMAGE");
+  const TAB_PLACE_OBJECTS = t("PLACE YOUR OBJECTS");
 
   const TAB_INSTR = [TAB_ADD_EXAMPLE_BACKGROUND, 
                     TAB_ADD_IMAGES, 
-                    TAB_MODIFY_IMAGE, 
-                    TAB_PLACE_OBJECTS, 
+                    TAB_MODIFY_IMAGE,  
                     TAB_KEEP_ORIGINAL_OBJECT,
-                    TAB_GENERATE_PROMPT,
-                    TAB_GENERATE_IMAGE]
+                    TAB_PLACE_OBJECTS, 
+                    ]
 
   const [tab, setTab] = useState(TAB_ADD_EXAMPLE_BACKGROUND);
   const [open, toggleOpen] = useToggle(false);
@@ -126,22 +115,24 @@ export function InstructionsDialog() {
     toggleOpen();
   }
 
-  function renderInstructions(imageIndex: number) {
+  function renderInstructions(videoIndex: number) {
     return (
-        <div className="w-full h-full overflow-hidden rounded-md">        
-        <figure key={works[imageIndex].artist} className="w-full h-full">
-          <LazyLoadImage
-            alt={`Photo by ${works[imageIndex].artist}`}
+      <div className="w-full h-full overflow-hidden rounded-md">
+        <figure key={works[videoIndex].artist} className="w-full h-full">
+          <video
+            controls
             height="100%"
             width="100%"
-            effect="blur"
-            src={works[imageIndex].art}
             className="object-contain w-full h-full"
-            />
+            preload="auto" // Ensures the video is preloaded
+          >
+            <source src={works[videoIndex].art} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
           <figcaption className="pt-2 text-xs text-muted-foreground">
-            Photo by{" "}
+            Video by{" "}
             <span className="font-semibold text-foreground">
-              {works[imageIndex].artist}
+              {works[videoIndex].artist}
             </span>
           </figcaption>
         </figure>
@@ -211,11 +202,9 @@ export function InstructionsDialog() {
             <div className="flex flex-grow w-full justify-center">
                 {tab === TAB_ADD_EXAMPLE_BACKGROUND ? renderInstructions(0) : <></>}
                 {tab === TAB_ADD_IMAGES ? renderInstructions(1): <></>}
-                {tab === TAB_MODIFY_IMAGE ? renderInstructions(2): <></>}
-                {tab === TAB_PLACE_OBJECTS ? renderInstructions(3): <></>}
-                {tab === TAB_KEEP_ORIGINAL_OBJECT ? renderInstructions(4): <></>}
-                {tab === TAB_GENERATE_PROMPT ? renderInstructions(5): <></>}
-                {tab === TAB_GENERATE_IMAGE ? renderInstructions(6): <></>}
+                 {tab === TAB_MODIFY_IMAGE ? renderInstructions(2): <></>}
+                {tab === TAB_KEEP_ORIGINAL_OBJECT ? renderInstructions(3): <></>}
+                {tab ===  TAB_PLACE_OBJECTS ? renderInstructions(4): <></>}
             </div> 
           </div>
         </DialogContent>
