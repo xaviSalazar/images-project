@@ -387,10 +387,6 @@ const Editor = React.forwardRef(() => {
       });
     };
 
-    fabric.FabricObject.ownDefaults.noScaleCache = true;
-    fabric.FabricObject.ownDefaults.originX = "center";
-    fabric.FabricObject.ownDefaults.originY = "center";
-
     (fabricRef as MutableRefObject<fabric.Canvas | null>).current =
       initMainCanvas();
 
@@ -457,14 +453,54 @@ const Editor = React.forwardRef(() => {
       fabricRef.current.freeDrawingBrush = brush;
     }
 
-    // modify around image contour
-    fabric.FabricObject.ownDefaults.transparentCorners = false;
-    fabric.FabricObject.ownDefaults.borderColor = "#51B9F9";
-    fabric.FabricObject.ownDefaults.cornerColor = "yellow";
-    fabric.FabricObject.ownDefaults.borderScaleFactor = 2.5;
-    fabric.FabricObject.ownDefaults.cornerStyle = "rect";
-    fabric.FabricObject.ownDefaults.cornerStrokeColor = "#0E98FC";
-    fabric.FabricObject.ownDefaults.borderOpacityWhenMoving = 1;
+    fabric.InteractiveFabricObject.ownDefaults = {
+      ...fabric.InteractiveFabricObject.ownDefaults,
+      noScaleCache: true,
+      cornerStyle: 'rect',
+      cornerStrokeColor: '#0E98FC',
+      cornerColor: 'white',
+      padding: 7,
+      transparentCorners: false,
+      cornerDashArray: [2, 2],
+      borderColor: '#51B9F9',
+      borderDashArray: [3, 1, 3],
+      borderScaleFactor: 2.0,
+      borderOpacityWhenMoving: 1,
+  }
+
+  // SEE DOCUMENTATION https://fabricjs.github.io/docs/configuring-controls/
+
+  fabric.FabricObject.createControls = () => {
+    const controls = fabric.controlsUtils.createObjectDefaultControls();
+    delete controls.mtr;
+    return {
+      controls: {
+        ...controls,
+        mySpecialControl: new fabric.Control({
+          x: 0.55,
+          y: -0.55,
+          withConnection: true,
+          actionName: 'rotate',
+          actionHandler: fabric.controlsUtils.rotationWithSnapping,
+          cursorStyleHandler: fabric.controlsUtils.rotationStyleHandler,
+          sizeX: 50, // Increase the hit area width
+          sizeY: 50, // Increase the hit area height
+          render: function (ctx, left, top) {
+            // Custom icon image
+            const rotateImgIcon = new Image();
+            rotateImgIcon.src = "data:image/png;base64,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"
+            rotateImgIcon.onload = function () {
+              const size = 60;
+              ctx.save();
+              ctx.translate(left, top);
+              ctx.drawImage(rotateImgIcon, -size / 2, -size / 2, size, size);
+              ctx.restore();
+            };
+          }
+        })
+      }
+    }
+  }
 
     // Event listener for panning
     fabricRef.current?.on("mouse:up", stopPanning);
