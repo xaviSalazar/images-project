@@ -39,6 +39,14 @@
     "See gallery": "GALERIA",
     "Format": "Formato de pantalla",
     "Place image": "Coloca tu fondo e imagenes aqui",
-    "Results image msg": "Observa tu resultado aqui"
+    "Results image msg": "Observa tu resultado aqui",
+
+    "CHOOSE BACKGROUND SAMPLES": "1. Elije fondos de ejemplo",
+    "ADD OWN IMAGES":"2. Agrega imagenes propias",
+    "REMOVE BACKGROUND":"3. Eliminar fondos de imagenes",
+    "PLACE YOUR OBJECTS": "4. Crea tu ambiente",
+    "KEEP ORIGINAL IMAGE": "5. No variar producto original",
+    "GENERATE PROMPT": "6. Genera una descripcion automatica de tu image",
+    "GENERATE IMAGE": "7. Generar imagen"
   }
 }

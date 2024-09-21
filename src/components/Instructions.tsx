@@ -13,45 +13,78 @@ import { cn } from "@/lib/utils";
 // import { useQuery } from "@tanstack/react-query";
 import { ModelInfo, PluginName } from "@/lib/types";
 import { useStore } from "@/lib/states";
-import { useToast } from "./ui/use-toast";
 import {
   AlertDialog,
   AlertDialogContent,
   AlertDialogHeader,
 } from "./ui/alert-dialog";
+import { useTranslation } from "react-i18next";
 
 import useHotKey from "@/hooks/useHotkey";
 
 const domain_dist = "https://d1d5i0xjsb5dtw.cloudfront.net/";
 
-const TAB_ADD_EXAMPLE_BACKGROUND = "Ejemplo fondos";
-const TAB_ADD_IMAGES = "Agrega tus imagenes";
-const TAB_MODIFY_IMAGE = "Editar Imagen";
-// const TAB_FILE_MANAGER = "File Manager"
 
-const TAB_INSTR = [TAB_ADD_EXAMPLE_BACKGROUND, TAB_ADD_IMAGES, TAB_MODIFY_IMAGE]
+
 export interface Artwork {
     artist: string;
     art: string;
   }
+
 export const works: Artwork[] = [
     {
       artist: "Adobe photos 1",
-      art: `${domain_dist}photo-ai/Instruction_1.gif`,
+      art: `${domain_dist}photo-ai/Instruction_one.gif`,
     },
     {
       artist: "Adobe photos 2",
-      art: `${domain_dist}photo-ai/Instruction_2.gif`,
+      art: `${domain_dist}photo-ai/Instruction_two.gif`,
     },
     {
       artist: "Adobe photos 3",
-      art: `${domain_dist}photo-ai/Instruction_3.gif`,
+      art: `${domain_dist}photo-ai/Instruction_three_rembg.gif`,
+    },
+    {
+      artist: "Adobe photos 4",
+      art: `${domain_dist}photo-ai/Instruction_four.gif`,
+    },
+    {
+      artist: "Adobe photos 5",
+      art: `${domain_dist}photo-ai/Instruction_five.gif`,
+    },
+    {
+      artist: "Adobe photos 6",
+      art: `${domain_dist}photo-ai/Instruction_six_prompt.gif`,
+    },
+    {
+      artist: "Adobe photos 7",
+      art: `${domain_dist}photo-ai/Instruction_seven_generate.gif`,
     },
 ];
 
 export function InstructionsDialog() {
-  const [open, toggleOpen] = useToggle(false);
+
+  const { t } = useTranslation();
+
+  const TAB_ADD_EXAMPLE_BACKGROUND = t("CHOOSE BACKGROUND SAMPLES");
+  const TAB_ADD_IMAGES = t("ADD OWN IMAGES");
+  const TAB_MODIFY_IMAGE = t("REMOVE BACKGROUND");
+  const TAB_PLACE_OBJECTS = t("PLACE YOUR OBJECTS");
+  const TAB_KEEP_ORIGINAL_OBJECT = t("KEEP ORIGINAL IMAGE");
+  const TAB_GENERATE_PROMPT = t("GENERATE PROMPT");
+  const TAB_GENERATE_IMAGE = t("GENERATE IMAGE");
+
+  const TAB_INSTR = [TAB_ADD_EXAMPLE_BACKGROUND, 
+                    TAB_ADD_IMAGES, 
+                    TAB_MODIFY_IMAGE, 
+                    TAB_PLACE_OBJECTS, 
+                    TAB_KEEP_ORIGINAL_OBJECT,
+                    TAB_GENERATE_PROMPT,
+                    TAB_GENERATE_IMAGE]
+
   const [tab, setTab] = useState(TAB_ADD_EXAMPLE_BACKGROUND);
+  const [open, toggleOpen] = useToggle(false);
+
   const [
     updateAppState,
     settings,
@@ -71,7 +104,7 @@ export function InstructionsDialog() {
     state.updateServerConfig,
     state.setServerConfig,
   ]);
-  const { toast } = useToast();
+  // const { toast } = useToast();
   const [model, setModel] = useState<ModelInfo>(settings.model);
   const [modelSwitchingTexts, setModelSwitchingTexts] = useState<string[]>([]);
   const openModelSwitching = modelSwitchingTexts.length > 0;
@@ -103,8 +136,8 @@ export function InstructionsDialog() {
             width="100%"
             effect="blur"
             src={works[imageIndex].art}
-            className="object-cover w-full h-full"
-          />
+            className="object-contain w-full h-full"
+            />
           <figcaption className="pt-2 text-xs text-muted-foreground">
             Photo by{" "}
             <span className="font-semibold text-foreground">
@@ -179,6 +212,10 @@ export function InstructionsDialog() {
                 {tab === TAB_ADD_EXAMPLE_BACKGROUND ? renderInstructions(0) : <></>}
                 {tab === TAB_ADD_IMAGES ? renderInstructions(1): <></>}
                 {tab === TAB_MODIFY_IMAGE ? renderInstructions(2): <></>}
+                {tab === TAB_PLACE_OBJECTS ? renderInstructions(3): <></>}
+                {tab === TAB_KEEP_ORIGINAL_OBJECT ? renderInstructions(4): <></>}
+                {tab === TAB_GENERATE_PROMPT ? renderInstructions(5): <></>}
+                {tab === TAB_GENERATE_IMAGE ? renderInstructions(6): <></>}
             </div> 
           </div>
         </DialogContent>

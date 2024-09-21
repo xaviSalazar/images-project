@@ -39,6 +39,15 @@
     "See gallery": "GALLERY",
     "Format": "Screen format",
     "Place image": "Place background and products here ",
-    "Results image msg": "See your results here"
+    "Results image msg": "See your results here",
+
+    
+    "CHOOSE BACKGROUND SAMPLES": "1. CHOOSE BACKGROUND SAMPLES",
+    "ADD OWN IMAGES":"2. ADD OWN IMAGES",
+    "REMOVE BACKGROUND":"3. REMOVE BACKGROUND",
+    "PLACE YOUR OBJECTS": "4. PLACE YOUR OBJECTS",
+    "KEEP ORIGINAL IMAGE": "5. KEEP ORIGINAL IMAGE",
+    "GENERATE PROMPT": "6. GENERATE PROMPT AUTOMATICALLY",
+    "GENERATE IMAGE": "7. GENERATE IMAGE"
   }
 }
