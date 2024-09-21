@@ -4,8 +4,8 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { MessageCircleQuestion } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-
-import { LazyLoadImage } from "react-lazy-load-image-component";
+import { Play } from "lucide-react"; // Import the Play icon
+import { useRef } from "react"; // Import useRef
 import "react-lazy-load-image-component/src/effects/blur.css";
 
 import { useEffect, useState } from "react";
@@ -72,6 +72,8 @@ export function InstructionsDialog() {
                     ]
 
   const [tab, setTab] = useState(TAB_ADD_EXAMPLE_BACKGROUND);
+  const [isPlaying, setIsPlaying] = useState(false);
+
   const [open, toggleOpen] = useToggle(false);
 
   const [
@@ -116,19 +118,41 @@ export function InstructionsDialog() {
   }
 
   function renderInstructions(videoIndex: number) {
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+  
+    const handlePlay = () => {
+      if (videoRef.current) {
+        videoRef.current.play();
+        setIsPlaying(true);
+      }
+    };
+  
+    const handlePause = () => setIsPlaying(false);
+  
     return (
-      <div className="w-full h-full overflow-hidden rounded-md">
+      <div className="relative w-full h-full overflow-hidden rounded-md">
         <figure key={works[videoIndex].artist} className="w-full h-full">
           <video
+            ref={videoRef}
             controls
             height="100%"
             width="100%"
             className="object-contain w-full h-full"
-            preload="auto" // Ensures the video is preloaded
+            preload="auto"
+            onPlay={() => setIsPlaying(true)}
+            onPause={handlePause}
           >
             <source src={works[videoIndex].art} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
+          {!isPlaying && (
+            <div
+              className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 cursor-pointer"
+              onClick={handlePlay}
+            >
+              <Play className="w-12 h-12 text-white" />
+            </div>
+          )}
           <figcaption className="pt-2 text-xs text-muted-foreground">
             Video by{" "}
             <span className="font-semibold text-foreground">
@@ -139,6 +163,11 @@ export function InstructionsDialog() {
       </div>
     );
   }
+  // Update setTab to also reset isPlaying
+const handleTabChange = (newTab: string) => {
+  setTab(newTab);
+  setIsPlaying(false); // Reset isPlaying when changing tabs
+};
 
   return (
     <>
@@ -188,7 +217,7 @@ export function InstructionsDialog() {
                 <Button
                   key={item}
                   variant="ghost"
-                  onClick={() => setTab(item)}
+                  onClick={() => handleTabChange(item)} // Call the new handleTabChange
                   className={cn(
                     tab === item ? "bg-muted " : "hover:bg-muted",
                     "justify-start",
