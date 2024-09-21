@@ -4,9 +4,8 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { MessageCircleQuestion } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Play } from "lucide-react"; // Import the Play icon
-import { useRef } from "react"; // Import useRef
-import "react-lazy-load-image-component/src/effects/blur.css";
+import ReactPlayer from 'react-player/lazy'
+
 
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
@@ -17,6 +16,7 @@ import {
   AlertDialog,
   AlertDialogContent,
   AlertDialogHeader,
+  AlertDialogDescription
 } from "./ui/alert-dialog";
 import { useTranslation } from "react-i18next";
 
@@ -65,14 +65,20 @@ export function InstructionsDialog() {
   const TAB_PLACE_OBJECTS = t("PLACE YOUR OBJECTS");
 
   const TAB_INSTR = [TAB_ADD_EXAMPLE_BACKGROUND, 
-                    TAB_ADD_IMAGES, 
-                    TAB_MODIFY_IMAGE,  
-                    TAB_KEEP_ORIGINAL_OBJECT,
-                    TAB_PLACE_OBJECTS, 
-                    ]
+    TAB_ADD_IMAGES, 
+    TAB_MODIFY_IMAGE,  
+    TAB_KEEP_ORIGINAL_OBJECT,
+    TAB_PLACE_OBJECTS, 
+    ]
 
+const tabToVideoIndex = {
+  [TAB_ADD_EXAMPLE_BACKGROUND]: 0,
+  [TAB_ADD_IMAGES]: 1,
+  [TAB_MODIFY_IMAGE]: 2,
+  [TAB_KEEP_ORIGINAL_OBJECT]: 3,
+  [TAB_PLACE_OBJECTS]: 4,
+};
   const [tab, setTab] = useState(TAB_ADD_EXAMPLE_BACKGROUND);
-  const [isPlaying, setIsPlaying] = useState(false);
 
   const [open, toggleOpen] = useToggle(false);
 
@@ -117,42 +123,17 @@ export function InstructionsDialog() {
     toggleOpen();
   }
 
-  function renderInstructions(videoIndex: number) {
-    const videoRef = useRef<HTMLVideoElement | null>(null);
-  
-    const handlePlay = () => {
-      if (videoRef.current) {
-        videoRef.current.play();
-        setIsPlaying(true);
-      }
-    };
-  
-    const handlePause = () => setIsPlaying(false);
-  
+
+  function renderInstructions(videoIndex: number) {  
     return (
       <div className="relative w-full h-full overflow-hidden rounded-md">
         <figure key={works[videoIndex].artist} className="w-full h-full">
-          <video
-            ref={videoRef}
-            controls
-            height="100%"
-            width="100%"
-            className="object-contain w-full h-full"
-            preload="auto"
-            onPlay={() => setIsPlaying(true)}
-            onPause={handlePause}
-          >
-            <source src={works[videoIndex].art} type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-          {!isPlaying && (
-            <div
-              className="absolute inset-0 flex justify-center items-center bg-black bg-opacity-50 cursor-pointer"
-              onClick={handlePlay}
-            >
-              <Play className="w-12 h-12 text-white" />
-            </div>
-          )}
+        <ReactPlayer
+          url={works[videoIndex].art}
+          controls
+          width="100%"
+          height="100%"
+        />
           <figcaption className="pt-2 text-xs text-muted-foreground">
             Video by{" "}
             <span className="font-semibold text-foreground">
@@ -164,9 +145,8 @@ export function InstructionsDialog() {
     );
   }
   // Update setTab to also reset isPlaying
-const handleTabChange = (newTab: string) => {
+function handleTabChange(newTab) {
   setTab(newTab);
-  setIsPlaying(false); // Reset isPlaying when changing tabs
 };
 
   return (
@@ -174,7 +154,7 @@ const handleTabChange = (newTab: string) => {
       <AlertDialog open={openModelSwitching}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            {/* <AlertDialogDescription> */}
+            <AlertDialogDescription>
             <div className="flex flex-col justify-center items-center gap-4">
               <div role="status">
                 <svg
@@ -196,7 +176,7 @@ const handleTabChange = (newTab: string) => {
                 <span className="sr-only">Loading...</span>
               </div>
             </div>
-            {/* </AlertDialogDescription> */}
+            </AlertDialogDescription>
           </AlertDialogHeader>
         </AlertDialogContent>
       </AlertDialog>
@@ -229,12 +209,8 @@ const handleTabChange = (newTab: string) => {
             </div>
             <Separator orientation="vertical" />
             <div className="flex flex-grow w-full justify-center">
-                {tab === TAB_ADD_EXAMPLE_BACKGROUND ? renderInstructions(0) : <></>}
-                {tab === TAB_ADD_IMAGES ? renderInstructions(1): <></>}
-                 {tab === TAB_MODIFY_IMAGE ? renderInstructions(2): <></>}
-                {tab === TAB_KEEP_ORIGINAL_OBJECT ? renderInstructions(3): <></>}
-                {tab ===  TAB_PLACE_OBJECTS ? renderInstructions(4): <></>}
-            </div> 
+              {tabToVideoIndex[tab] !== undefined && renderInstructions(tabToVideoIndex[tab])}
+            </div>
           </div>
         </DialogContent>
       </Dialog>
