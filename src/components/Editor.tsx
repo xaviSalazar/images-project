@@ -1545,6 +1545,7 @@ const Editor = React.forwardRef(() => {
     >
       <Menubar
         id="upper-button-options"
+        className="bg-[#349981]"
         style={{
           position: "absolute",
           left: buttonPosition.left,
@@ -1553,9 +1554,9 @@ const Editor = React.forwardRef(() => {
           zIndex: 9999,
         }}
       >
-        <MenubarMenu>
+        <MenubarMenu >
           <MenubarTrigger>{t("Edit")}</MenubarTrigger>
-          <MenubarContent>
+          <MenubarContent className="bg-[#349981]">
             <MenubarItem onClick={handleDownloadObject}>
               {t("Descargar")}
               <MenubarShortcut>
@@ -1588,6 +1589,7 @@ const Editor = React.forwardRef(() => {
               </MenubarShortcut>
             </MenubarItem>
           </MenubarContent>
+
         </MenubarMenu>
 
         <Separator orientation="vertical" />
@@ -1596,7 +1598,7 @@ const Editor = React.forwardRef(() => {
           <MenubarTrigger onClick={handleViewMenuOpen}>
             {t("Variation")}
           </MenubarTrigger>
-          <MenubarContent>
+          <MenubarContent className="bg-[#349981]">
             <MenubarCheckboxItem
               checked={isFixed}
               onClick={handleStayFixedClick}
@@ -1614,7 +1616,7 @@ const Editor = React.forwardRef(() => {
 
         <MenubarMenu>
           <MenubarTrigger>{t("RemoveBG")}</MenubarTrigger>
-          <MenubarContent>
+          <MenubarContent className="bg-[#349981]">
             <MenubarItem onClick={() => handleRemoveBg("u2netp")}>
               Producto
               <MenubarShortcut>
@@ -1634,6 +1636,7 @@ const Editor = React.forwardRef(() => {
 
       <Menubar
         id="bottom-button-options"
+        className="bg-[#349981]"
         style={{
           position: "absolute",
           left: BottomButtonPosition.left,
@@ -1647,7 +1650,7 @@ const Editor = React.forwardRef(() => {
             onClick={() => handleLayoutControl("toForward")}
             asChild
           >
-            <Button variant="secondary">
+            <Button variant="secondary" className="bg-[#349981]">
               {t("toFront")}
               <ArrowUpIcon className="h-4 w-4" />
             </Button>
@@ -1657,7 +1660,7 @@ const Editor = React.forwardRef(() => {
             onClick={() => handleLayoutControl("toBackward")}
             asChild
           >
-            <Button variant="secondary">
+            <Button variant="secondary"  className="bg-[#349981]">
               {t("toBack")}
               <ArrowDownIcon className="h-4 w-4" />
             </Button>
