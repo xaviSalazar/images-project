@@ -197,6 +197,8 @@ const Editor = React.forwardRef(() => {
   const [showRefBrush, setShowRefBrush] = useState(false);
 
   const [isPanning, setIsPanning] = useState<boolean>(false);
+  const rectangleGroupRef = useRef<fabric.Group | undefined>(undefined);
+  const groupCoordinatesRef = useRef<{ offsetX: number; offsetY: number }>();
   const isDragging = useRef(false);
   const lastPosX = useRef(0);
   const lastPosY = useRef(0);
@@ -558,14 +560,13 @@ const Editor = React.forwardRef(() => {
       opt.e.stopPropagation();
     });
 
+    initAligningGuidelines();
+
     // #### DISPOSE
     return () => {
       fabricRef.current?.dispose();
     };
   }, []);
-
-  const rectangleGroupRef = useRef<fabric.Group | undefined>(undefined);
-  const groupCoordinatesRef = useRef<{ offsetX: number; offsetY: number }>();
 
   useEffect(() => {
     const canvas_instance = fabricRef.current;
@@ -759,6 +760,195 @@ const Editor = React.forwardRef(() => {
     },
     [fabricRef.current],
   );
+
+  const aligningLineOffset = 5
+  const aligningLineMargin = 4
+  const aligningLineWidth = 5
+  const aligningLineColor = 'rgb(160,198,58)'
+  const aligningDash = [15, 2]
+  
+  function initAligningGuidelines() {
+    const canvas = fabricRef.current
+    if(!canvas) return;
+    let ctx = canvas.getSelectionContext()
+    let viewportTransform
+    let zoom = 1
+    let verticalLines = []
+    let horizontalLines = []
+  
+    canvas.on('mouse:down', function() {
+      viewportTransform = canvas.viewportTransform
+      zoom = canvas.getZoom()
+    })
+  
+    canvas.on('object:moving', function(e) {
+      if (!canvas._currentTransform) return
+      let activeObject = e.target
+      let activeObjectCenter = activeObject.getCenterPoint()
+      //let activeObjectBoundingRect = activeObject.getBoundingRect()
+      let activeObjectHalfWidth = activeObject.getScaledWidth() / 2;
+      let activeObjectHalfHeight = activeObject.getScaledHeight() /2;
+  
+      canvas
+        .getObjects()
+        .filter((object) => object !== activeObject && object.visible)
+        .forEach((object) => {
+          let objectCenter = object.getCenterPoint()
+          //let objectBoundingRect = object.getBoundingRect()
+          let objectHalfHeight = object.getScaledWidth() / 2;
+          let objectHalfWidth = object.getScaledHeight() /2;
+  
+          // snap by the horizontal center line
+          snapVertical(objectCenter.x, activeObjectCenter.x, objectCenter.x)
+          // snap by the left object edge matching left active edge
+          snapVertical(
+            objectCenter.x - objectHalfWidth,
+            activeObjectCenter.x - activeObjectHalfWidth,
+            objectCenter.x - objectHalfWidth + activeObjectHalfWidth
+          )
+          // snap by the left object edge matching right active edge
+          snapVertical(
+            objectCenter.x - objectHalfWidth,
+            activeObjectCenter.x + activeObjectHalfWidth,
+            objectCenter.x - objectHalfWidth - activeObjectHalfWidth
+          )
+          // snap by the right object edge matching right active edge
+          snapVertical(
+            objectCenter.x + objectHalfWidth,
+            activeObjectCenter.x + activeObjectHalfWidth,
+            objectCenter.x + objectHalfWidth - activeObjectHalfWidth
+          )
+          // snap by the right object edge matching left active edge
+          snapVertical(
+            objectCenter.x + objectHalfWidth,
+            activeObjectCenter.x - activeObjectHalfWidth,
+            objectCenter.x + objectHalfWidth + activeObjectHalfWidth
+          )
+  
+          function snapVertical(objEdge, activeEdge, snapCenter) {
+            if (isInRange(objEdge, activeEdge)) {
+              verticalLines.push({
+                x: objEdge,
+                y1: objectCenter.y < activeObjectCenter.y ?
+                  objectCenter.y - objectHalfHeight - aligningLineOffset : objectCenter.y + objectHalfHeight + aligningLineOffset,
+                y2: activeObjectCenter.y > objectCenter.y ?
+                  activeObjectCenter.y + activeObjectHalfHeight + aligningLineOffset : activeObjectCenter.y - activeObjectHalfHeight - aligningLineOffset,
+              })
+              activeObject.setPositionByOrigin(
+                new fabric.Point(snapCenter, activeObjectCenter.y),
+                'center',
+                'center'
+              )
+            }
+          }
+  
+          // snap by the vertical center line
+          snapHorizontal(objectCenter.y, activeObjectCenter.y, objectCenter.y)
+          // snap by the top object edge matching the top active edge
+          snapHorizontal(
+            objectCenter.y - objectHalfHeight,
+            activeObjectCenter.y - activeObjectHalfHeight,
+            objectCenter.y - objectHalfHeight + activeObjectHalfHeight
+          )
+          // snap by the top object edge matching the bottom active edge
+          snapHorizontal(
+            objectCenter.y - objectHalfHeight,
+            activeObjectCenter.y + activeObjectHalfHeight,
+            objectCenter.y - objectHalfHeight - activeObjectHalfHeight
+          )
+          // snap by the bottom object edge matching the bottom active edge
+          snapHorizontal(
+            objectCenter.y + objectHalfHeight,
+            activeObjectCenter.y + activeObjectHalfHeight,
+            objectCenter.y + objectHalfHeight - activeObjectHalfHeight
+          )
+          // snap by the bottom object edge matching the top active edge
+          snapHorizontal(
+            objectCenter.y + objectHalfHeight,
+            activeObjectCenter.y - activeObjectHalfHeight,
+            objectCenter.y + objectHalfHeight + activeObjectHalfHeight
+          )
+  
+          function snapHorizontal(objEdge, activeObjEdge, snapCenter) {
+            if (isInRange(objEdge, activeObjEdge)) {
+              horizontalLines.push({
+                y: objEdge,
+                x1: objectCenter.x < activeObjectCenter.x ?
+                  objectCenter.x - objectHalfWidth - aligningLineOffset : objectCenter.x + objectHalfWidth + aligningLineOffset,
+                x2: activeObjectCenter.x > objectCenter.x ?
+                  activeObjectCenter.x + activeObjectHalfWidth + aligningLineOffset : activeObjectCenter.x - activeObjectHalfWidth - aligningLineOffset,
+              })
+              activeObject.setPositionByOrigin(
+                new fabric.Point(activeObjectCenter.x, snapCenter),
+                'center',
+                'center'
+              )
+            }
+          }
+        })
+    })
+  
+    canvas.on('before:render', () => {
+      canvas.clearContext(canvas.contextTop)
+    })
+  
+  
+    canvas.on('after:render', function() {
+      verticalLines.forEach((line) => drawVerticalLine(line))
+      horizontalLines.forEach((line) => drawHorizontalLine(line))
+  
+      verticalLines = []
+      horizontalLines = []
+    })
+  
+    canvas.on('mouse:up', function() {
+      canvas.renderAll()
+    })
+  
+    function drawVerticalLine(coords) {
+      drawLine(
+        // coords.x + 0.5,
+        coords.x,
+        coords.y1 > coords.y2 ? coords.y2 : coords.y1,
+        // coords.x + 0.5,
+        coords.x,
+        coords.y2 > coords.y1 ? coords.y2 : coords.y1
+      )
+    }
+  
+    function drawHorizontalLine(coords) {
+      drawLine(
+        coords.x1 > coords.x2 ? coords.x2 : coords.x1,
+        //coords.y + 0.5,        
+        coords.y,
+        coords.x2 > coords.x1 ? coords.x2 : coords.x1,
+        // coords.y + 0.5,
+        coords.y,
+      )
+    }
+  
+    function drawLine(x1, y1, x2, y2) {
+      ctx.save()
+      ctx.lineWidth = aligningLineWidth
+      ctx.strokeStyle = aligningLineColor
+      ctx.setLineDash(aligningDash)
+      ctx.beginPath()
+      ctx.moveTo(x1 * zoom + viewportTransform[4], y1 * zoom + viewportTransform[5])
+      ctx.lineTo(x2 * zoom + viewportTransform[4], y2 * zoom + viewportTransform[5])
+      ctx.stroke()
+      ctx.restore()
+    }
+    /**
+     * return true if value2 is within value1 +/- aligningLineMargin
+     * @param {number} value1
+     * @param {number} value2
+     * @returns Boolean
+     */
+    function isInRange(value1, value2) {
+      return value2 > value1 - aligningLineMargin && value2 < value1 + aligningLineMargin
+    }
+  }
+  
 
   // COMING RENDERS FROM BACKEND
   useEffect(() => {
