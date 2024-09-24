@@ -30,7 +30,7 @@ export const predefinedRatios = [
   { name: "2:3", ratio: 2 / 3, width: 768, height: 1152 },
   { name: "4:3", ratio: 4 / 3, width: 1152, height: 864 },
   { name: "3:4", ratio: 3 / 4, width: 864, height: 1152 },
-  { name: "16:9", ratio: 16 / 9, width: 1024, height: 576 },
+  { name: "16:9", ratio: 16 / 9, width: 1280, height: 768 },
   { name: "9:16", ratio: 9 / 16, width: 576, height: 1024 },
 ];
 
