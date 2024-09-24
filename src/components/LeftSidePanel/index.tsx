@@ -219,7 +219,7 @@ const LeftSidePanel = () => {
           </MenubarContent>
         </MenubarMenu> */}
 
-        {/* <MenubarMenu>
+        <MenubarMenu>
           <MenubarTrigger>
             {" "}
             <Ratio /> {t("Format")}
@@ -227,7 +227,7 @@ const LeftSidePanel = () => {
           <MenubarContent>
             <RatioOptions />
           </MenubarContent>
-        </MenubarMenu> */}
+        </MenubarMenu>
       </Menubar>
     );
   }
