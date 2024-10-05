@@ -1,6 +1,6 @@
 import { IconButton } from "@/components/ui/button";
 import { useToggle } from "@uidotdev/usehooks";
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { MessageCircleQuestion } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -17,7 +17,7 @@ import {
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogDescription
-} from "./ui/alert-dialog";
+} from "../ui/alert-dialog";
 import { useTranslation } from "react-i18next";
 
 import useHotKey from "@/hooks/useHotkey";

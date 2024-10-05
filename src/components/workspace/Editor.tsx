@@ -10,7 +10,7 @@ import { predefinedRatios } from "@/lib/const";
 import { useToast } from "@/components/ui/use-toast";
 import { useKeyPressEvent } from "react-use";
 import { IconButton } from "@/components/ui/button";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { removeBackgroundApi } from "@/lib/api";
 import { useTranslation } from "react-i18next";
 import { resizeImageWithPica } from "@/lib/utils";
@@ -49,7 +49,7 @@ import {
   PersonIcon,
 } from "@radix-ui/react-icons";
 import { useImage } from "@/hooks/useImage";
-import { Slider } from "./ui/slider";
+import { Slider } from "../ui/slider";
 import { useStore } from "@/lib/states";
 import Cropper from "./Cropper";
 import { InteractiveSegPoints } from "./InteractiveSeg";

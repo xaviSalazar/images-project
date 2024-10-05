@@ -1,7 +1,7 @@
 import { useStore } from "@/lib/states";
 import { LabelTitle, RowContainer } from "./LabelTitle";
-import { NumberInput } from "../ui/input";
-import { Slider } from "../ui/slider";
+import { NumberInput } from "../../ui/input";
+import { Slider } from "../../ui/slider";
 import {
   Select,
   SelectContent,
@@ -9,7 +9,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "../../ui/select";
 import { LDMSampler } from "@/lib/types";
 
 const LDMOptions = () => {

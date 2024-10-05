@@ -1,10 +1,10 @@
 import { useToggle } from "react-use";
 import { useStore } from "@/lib/states";
-import { Separator } from "../ui/separator";
-import { ScrollArea } from "../ui/scroll-area";
-import { Sheet, SheetContent, SheetHeader, SheetTrigger } from "../ui/sheet";
+import { Separator } from "../../ui/separator";
+import { ScrollArea } from "../../ui/scroll-area";
+import { Sheet, SheetContent, SheetHeader, SheetTrigger } from "../../ui/sheet";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 import useHotKey from "@/hooks/useHotkey";
 import { RowContainer } from "./LabelTitle";
 import { CV2, LDM, MODEL_TYPE_INPAINT } from "@/lib/const";

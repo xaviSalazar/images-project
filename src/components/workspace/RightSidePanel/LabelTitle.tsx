@@ -1,6 +1,6 @@
-import { Button } from "../ui/button";
-import { Label } from "../ui/label";
-import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { Button } from "../../ui/button";
+import { Label } from "../../ui/label";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../../ui/tooltip";
 
 const RowContainer = ({ children }: { children: React.ReactNode }) => (
   <div className="flex justify-between items-center pr-2">{children}</div>

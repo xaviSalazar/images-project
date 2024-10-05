@@ -1,6 +1,6 @@
 import { IconButton } from "@/components/ui/button";
 import { useToggle } from "@uidotdev/usehooks";
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Settings } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -15,21 +15,21 @@ import {
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
-import { Switch } from "./ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Switch } from "../ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 // import { useQuery } from "@tanstack/react-query";
 import { switchPluginModel } from "@/lib/api";
 import { ModelInfo, PluginName } from "@/lib/types";
 import { useStore } from "@/lib/states";
-import { ScrollArea } from "./ui/scroll-area";
-import { useToast } from "./ui/use-toast";
+import { ScrollArea } from "../ui/scroll-area";
+import { useToast } from "../ui/use-toast";
 import {
   AlertDialog,
   AlertDialogContent,
   AlertDialogHeader,
-} from "./ui/alert-dialog";
+} from "../ui/alert-dialog";
 import {
   MODEL_TYPE_DIFFUSERS_SD,
   MODEL_TYPE_DIFFUSERS_SDXL,
@@ -46,7 +46,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
+} from "../ui/select";
 
 const formSchema = z.object({
   enableFileManager: z.boolean(),

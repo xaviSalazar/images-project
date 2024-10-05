@@ -1,6 +1,6 @@
 // import { PlayIcon } from "@radix-ui/react-icons";
 // import { useState } from "react";
-import Shortcuts from "@/components/Shortcuts";
+import Shortcuts from "@/components/workspace/Shortcuts";
 // import { useStore } from "@/lib/states";
 // import { RotateCw, Image, Upload } from "lucide-react";
 import SettingsDialog from "./Settings";

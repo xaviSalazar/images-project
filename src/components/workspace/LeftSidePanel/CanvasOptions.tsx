@@ -2,9 +2,9 @@ import { useStore } from "@/lib/states";
 
 import { useTranslation } from "react-i18next";
 import { IconButton } from "@/components/ui/button";
-import { useRefContext } from "@/components/RefCanvas";
+import { useRefContext } from "@/components/workspace/RefCanvas";
 
-import { Button, ImageUploadButton } from "../ui/button";
+import { Button, ImageUploadButton } from "../../ui/button";
 import { useImage } from "@/hooks/useImage";
 
 import { RowContainer, LabelTitle } from "./LabelTitle";

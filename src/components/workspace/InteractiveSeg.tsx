@@ -1,6 +1,6 @@
 import { useStore } from "@/lib/states";
-import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
+import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogTitle } from "../ui/dialog";
 
 interface InteractiveSegReplaceModal {
   show: boolean;

@@ -7,7 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "./ui/dialog";
+} from "../ui/dialog";
 import useHotKey from "@/hooks/useHotkey";
 import { useTranslation } from "react-i18next";
 

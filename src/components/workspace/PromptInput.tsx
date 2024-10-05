@@ -1,8 +1,8 @@
 import React, { FormEvent, useRef } from "react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { useStore } from "@/lib/states";
 import { useClickAway, useToggle } from "react-use";
-import { Textarea } from "./ui/textarea";
+import { Textarea } from "../ui/textarea";
 import { cn } from "@/lib/utils";
 import { ReloadIcon } from "@radix-ui/react-icons";
 

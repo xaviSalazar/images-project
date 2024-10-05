@@ -1,7 +1,7 @@
 import { useToggle } from "react-use";
 import { useStore } from "@/lib/states";
-import { Separator } from "../ui/separator";
-import { ScrollArea } from "../ui/scroll-area";
+import { Separator } from "../../ui/separator";
+import { ScrollArea } from "../../ui/scroll-area";
 // import { Sheet, SheetContent, SheetHeader, SheetTrigger } from "../ui/sheet";
 // import { ChevronLeft, ChevronRight } from "lucide-react";
 // import { Button } from "../ui/button";

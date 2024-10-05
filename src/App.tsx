@@ -1,13 +1,12 @@
 import { useCallback, useEffect, useRef } from "react";
 import { Toaster } from "./components/ui/toaster";
-import Header from "@/components/Header";
-import Workspace from "@/components/Workspace";
+import Header from "@/components/workspace/Header";
+import Workspace from "@/components/workspace/Workspace";
 import { useStore } from "./lib/states";
 import { useWindowSize } from "react-use";
-import { useRefContext } from "@/components/RefCanvas";
+import { useRefContext } from "@/components/workspace/RefCanvas";
 import { useImage } from "@/hooks/useImage";
 import { FabricImage } from "fabric";
-import * as fabric from "fabric";
 import { useToast } from "./components/ui/use-toast";
 
 import { LOG_LEVELS } from "./lib/const";
