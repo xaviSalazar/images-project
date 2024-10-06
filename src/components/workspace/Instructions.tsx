@@ -2,13 +2,16 @@ import { IconButton } from "@/components/ui/button";
 import { useToggle } from "@uidotdev/usehooks";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { MessageCircleQuestion } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import ReactPlayer from 'react-player/lazy'
-
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 
 import { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
 // import { useQuery } from "@tanstack/react-query";
 import { ModelInfo, PluginName } from "@/lib/types";
 import { useStore } from "@/lib/states";
@@ -123,6 +126,26 @@ const tabToVideoIndex = {
     toggleOpen();
   }
 
+function CarouselDemo() {
+  return (
+    <Carousel className="w-full h-full">
+      <CarouselContent>
+        {TAB_INSTR.map((item) => (
+          <CarouselItem key={item}>
+            <div className="flex flex-col w-full justify-center">
+            <span className="font-semibold">{item }</span> 
+                  <div className="flex flex-grow w-full justify-center">
+                  {tabToVideoIndex[item] !== undefined && renderInstructions(tabToVideoIndex[item])}
+                 </div>
+            </div>
+          </CarouselItem>
+        ))}
+      </CarouselContent>
+      <CarouselPrevious />
+      <CarouselNext />
+    </Carousel>
+  )
+}
 
   function renderInstructions(videoIndex: number) {  
     return (
@@ -132,7 +155,8 @@ const tabToVideoIndex = {
           url={works[videoIndex].art}
           controls
           width="100%"
-          height="100%"
+          height="auto"
+          className="max-h-[200px] sm:max-h-[400px] md:max-h-[600px]"
         />
           <figcaption className="pt-2 text-xs text-muted-foreground">
             Video by{" "}
@@ -144,10 +168,6 @@ const tabToVideoIndex = {
       </div>
     );
   }
-  // Update setTab to also reset isPlaying
-function handleTabChange(newTab) {
-  setTab(newTab);
-};
 
   return (
     <>
@@ -187,32 +207,12 @@ function handleTabChange(newTab) {
           </IconButton>
         </DialogTrigger>
         <DialogContent
-          className="max-w-7xl w-full h-[800px]"
-        >
-          <DialogTitle>Instructions</DialogTitle>
-          <Separator />
-          <div className="flex flex-row space-x-1 h-full">
-            <div className="flex flex-col space-y-3">
-              {TAB_INSTR.map((item) => (
-                <Button
-                  key={item}
-                  variant="ghost"
-                  onClick={() => handleTabChange(item)} // Call the new handleTabChange
-                  className={cn(
-                    tab === item ? "bg-muted " : "hover:bg-muted",
-                    "justify-start",
-                  )}
-                >
-                  {item}
-                </Button>
-              ))}
-            </div>
-            <Separator orientation="vertical" />
-            <div className="flex flex-grow w-full justify-center">
-              {tabToVideoIndex[tab] !== undefined && renderInstructions(tabToVideoIndex[tab])}
-            </div>
-          </div>
-        </DialogContent>
+  className="w-full max-w-md h-[500px] sm:max-w-xl sm:h-[700px] md:max-w-7xl md:h-[800px]"
+>
+  <DialogTitle>Instructions (swipe or click next for more) </DialogTitle>
+  {CarouselDemo()}
+</DialogContent>
+
       </Dialog>
     </>
   );
