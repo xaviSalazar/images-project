@@ -6,6 +6,7 @@ import ImageSize from "./ImageSize";
 import RightSidePanel from "./RightSidePanel";
 // import DiffusionProgress from "./DiffusionProgress"
 import { ModelInfo } from "@/lib/types";
+import useResolution from "@/hooks/useResolution";
 import LeftSidePanel from "./LeftSidePanel";
 
 const model: ModelInfo = {
@@ -26,6 +27,7 @@ const Workspace = () => {
   // remember only valid inside function
 
   const [updateSettings] = useStore((state) => [state.updateSettings]);
+  const resolution = useResolution();
 
   // TO UPDATE TO SELECT CURRENT MODEL WITHIN INTERFACE
   useEffect(() => {
@@ -39,10 +41,12 @@ const Workspace = () => {
 
   return (
     <>
-      <div className="flex gap-3 absolute top-[68px] left-[20px] items-center">
-        {/* <Plugins />  */}
-        <ImageSize />
-      </div>
+    { resolution !== "mobile" &&
+       <div className="flex gap-3 absolute top-[68px] left-[20px] items-center">
+       {/* <Plugins />  */}
+       <ImageSize />
+     </div>
+    }
       {/* <InteractiveSeg />
       <DiffusionProgress />*/}
       <LeftSidePanel />

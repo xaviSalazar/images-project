@@ -11,7 +11,6 @@ import PromptInput from "./PromptInput";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useStore } from "@/lib/states";
-import useResolution from "@/hooks/useResolution";
 
 // import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -89,7 +88,6 @@ const Header = () => {
   // ]);
 
   const [updateSettings] = useStore((state) => [state.updateSettings]);
-  const resolution = useResolution();
   const dev_mode = useStore((state) => state.settings.isDevModeActive);
   const handleSwitchChange = (checked: boolean) => {
     updateSettings({ isDevModeActive: checked });
@@ -107,7 +105,9 @@ const Header = () => {
           {dev_mode ? "Testing mode" : "Oficial mode"}
         </Label>
       </div>
-      {(resolution !== "mobile") ? <PromptInput /> : <></>}
+
+      <PromptInput />
+
       <div className="flex gap-1">
         <InstructionsDialog />
         <LanguageSwitcher />

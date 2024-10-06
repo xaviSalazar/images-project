@@ -5,6 +5,7 @@ import { useClickAway, useToggle } from "react-use";
 import { Textarea } from "../ui/textarea";
 import { cn } from "@/lib/utils";
 import { ReloadIcon } from "@radix-ui/react-icons";
+import useResolution from "@/hooks/useResolution";
 
 const PromptInput = () => {
   const [
@@ -28,7 +29,7 @@ const PromptInput = () => {
   ]);
 
   const prompt = useStore((state) => state.settings.prompt);
-
+  const resolution = useResolution();
   const [showScroll, toggleShowScroll] = useToggle(false);
 
   const ref = useRef(null);
@@ -78,17 +79,19 @@ const PromptInput = () => {
   // };
 
   return (
-    <div className="flex gap-4 relative w-full justify-center h-full">
-      <div className="absolute flex gap-4">
+    
+    <div className={cn(resolution === "mobile" ? "w-screen absolute top-[68px] left-[0px] flex gap-4" : "relative flex gap-4")} >
+      
         <Button
           variant="outline"
           size="sm"
+          className="w-[20%] px-2 text-sm whitespace-normal text-center" // Allow text to break onto new lines
           onClick={handleDescribeImg}
           disabled={isInpainting}
         >
           {isInpainting && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />}
-          GENERATE PROMPT
-        </Button>
+          GENERATE<br />PROMPT
+          </Button>
 
         <Textarea
           ref={ref}
@@ -107,6 +110,7 @@ const PromptInput = () => {
         />
         <Button
           size="sm"
+          className="px-2 text-sm" // Set width to 20% using Tailwind
           onClick={handleRepaintClick}
           disabled={isInpainting}
           // onMouseEnter={onMouseEnter}
@@ -116,7 +120,6 @@ const PromptInput = () => {
           Paint
         </Button>
       </div>
-    </div>
   );
 };
 
