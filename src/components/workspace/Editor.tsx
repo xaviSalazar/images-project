@@ -1949,7 +1949,9 @@ const Editor = React.forwardRef(() => {
       </Menubar>
 
       {renderCanvas()}
-      
+      {
+        resolution !== "mobile" &&
+        
       <div className="fixed flex bottom-5 border px-4 py-2 rounded-[3rem] gap-8 items-center justify-center backdrop-filter backdrop-blur-md bg-background/70">
         <Slider
           className="w-48"
@@ -2051,6 +2053,7 @@ const Editor = React.forwardRef(() => {
 
         </div>
       </div>
+  }
     </div>
   );
 });
