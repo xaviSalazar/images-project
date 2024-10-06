@@ -80,17 +80,16 @@ const PromptInput = () => {
 
   return (
     
-    <div className={cn(resolution === "mobile" ? "w-screen absolute top-[68px] left-[0px] flex gap-4" : "relative flex gap-4")} >
-      
+    <div className={cn(resolution === "mobile" ? "w-screen absolute top-[68px] left-[0px] flex gap-1 px-2" : "relative flex gap-4")} >
         <Button
-          variant="outline"
+          variant="custom"
           size="sm"
-          className="w-[20%] px-2 text-sm whitespace-normal text-center" // Allow text to break onto new lines
+          className="flex-shrink-0 w-[18%] px-2 py-1 text-xs flex items-center justify-center whitespace-normal text-center" // Added flex layout
           onClick={handleDescribeImg}
           disabled={isInpainting}
         >
           {isInpainting && <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />}
-          GENERATE<br />PROMPT
+          Generate Prompt
           </Button>
 
         <Textarea
