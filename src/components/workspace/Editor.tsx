@@ -1949,7 +1949,8 @@ const Editor = React.forwardRef(() => {
       </Menubar>
 
       {renderCanvas()}
-      {/* <div className="fixed flex bottom-5 border px-4 py-2 rounded-[3rem] gap-8 items-center justify-center backdrop-filter backdrop-blur-md bg-background/70">
+      
+      <div className="fixed flex bottom-5 border px-4 py-2 rounded-[3rem] gap-8 items-center justify-center backdrop-filter backdrop-blur-md bg-background/70">
         <Slider
           className="w-48"
           defaultValue={[50]}
@@ -2049,7 +2050,7 @@ const Editor = React.forwardRef(() => {
           </Toggle>
 
         </div>
-      </div> */}
+      </div>
     </div>
   );
 });

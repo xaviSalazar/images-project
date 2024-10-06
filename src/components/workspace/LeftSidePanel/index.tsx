@@ -14,11 +14,14 @@ import React, { useRef } from "react";
 // import { Settings } from "lucide-react";
 import { Images } from "lucide-react";
 import { Paperclip } from "lucide-react";
-import { WandSparkles } from "lucide-react";
 import { Ratio } from "lucide-react";
 import { SUPPORTED_FILE_TYPE } from "@/lib/const";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
+import { cn } from "@/lib/utils";
+import useResolution from "@/hooks/useResolution";
+
+ 
 
 import {
   Menubar,
@@ -71,6 +74,7 @@ export const works: Artwork[] = [
 ];
 
 const LeftSidePanel = () => {
+
   const [isInpainting, runImgRendering, windowSize, setFile] = useStore(
     (state) => [
       state.isInpainting,
@@ -82,7 +86,7 @@ const LeftSidePanel = () => {
 
   const fileInputRef = useRef(null);
   const { t } = useTranslation();
-
+  const resolution = useResolution();
   const [open, toggleOpen] = useToggle(true);
 
   useHotKey("c", () => {
@@ -125,15 +129,18 @@ const LeftSidePanel = () => {
     }
   };
 
-  function MenubarDemo() {
-    return (
-      <Menubar className="z-10 outline-none absolute top-[120px] left-6 rounded-lg border bg-background flex flex-col">
+  return (
+      <Menubar 
+        className={cn(resolution === "mobile" ? "bottom-2" : "top-[120px] left-6 rounded-lg bg-background flex-col","z-10 absolute")}      
+      >
         <MenubarMenu>
-          <MenubarTrigger>
+        <MenubarTrigger 
+          className={cn(resolution === "mobile" ? "" : "flex-col w-full")}      
+        > 
             {" "}
             <Images /> {t("See gallery")}
           </MenubarTrigger>
-          <MenubarContent>
+          <MenubarContent side={resolution === "mobile" ? "top": "right"} > 
             <ScrollArea
               style={{ height: windowSize.height - 160 }}
               className="pr-3"
@@ -168,11 +175,11 @@ const LeftSidePanel = () => {
             </ScrollArea>
           </MenubarContent>
         </MenubarMenu>
-
-        <Separator />
-
+        {/* <Separator /> */}
         <MenubarMenu>
-          <MenubarTrigger onClick={handleUploadClick}>
+          <MenubarTrigger 
+          className={cn(resolution === "mobile" ? "" : "flex-col w-full")}      
+          onClick={handleUploadClick}>
             <input
               ref={fileInputRef}
               className="hidden"
@@ -188,98 +195,20 @@ const LeftSidePanel = () => {
             <Paperclip /> {t("Upload Picture")}
           </MenubarTrigger>
         </MenubarMenu>
-
-        <Separator />
-
-        {/* <MenubarMenu>
-          <MenubarTrigger>
-            <WandSparkles /> Magic AI
-          </MenubarTrigger>
-          <MenubarContent>
-            <MenubarItem
-              disabled={isInpainting}
-              onClick={() => {
-                runImgRendering();
-              }}
-            >
-              Create image
-            </MenubarItem>
-          </MenubarContent>
-        </MenubarMenu>
-
-        <Separator /> */}
-
-        {/* <MenubarMenu>
-          <MenubarTrigger>
-            {" "}
-            <Layers /> AJUSTA IMAGEN
-          </MenubarTrigger>
-          <MenubarContent>
-            <CanvasOptions />
-          </MenubarContent>
-        </MenubarMenu> */}
-
+        {/* <Separator /> */}
         <MenubarMenu>
-          <MenubarTrigger>
+          <MenubarTrigger
+          className={cn(resolution === "mobile" ? "" : "flex-col w-full")}      
+          >
             {" "}
             <Ratio /> {t("Format")}
           </MenubarTrigger>
-          <MenubarContent>
+          <MenubarContent side={resolution === "mobile" ? "top": "right"} > 
             <RatioOptions />
           </MenubarContent>
         </MenubarMenu>
       </Menubar>
     );
-  }
-
-  return (
-    <MenubarDemo />
-
-    // <Sheet open={open} modal={false}>
-    //   <SheetTrigger
-    //     tabIndex={-1}
-    //     className="z-10 outline-none absolute top-[68px] left-6 rounded-lg border bg-background"
-    //     hidden={open}
-    //   >
-    //     <Button
-    //       variant="ghost"
-    //       size="icon"
-    //       asChild
-    //       className="p-1.5"
-    //       onClick={toggleOpen}
-    //     >
-    //       <ChevronRight strokeWidth={1} />
-    //     </Button>
-    //   </SheetTrigger>
-    //   <SheetContent
-    //     side="left"
-    //     className="w-[300px] mt-[60px] outline-none pl-4 pr-1"
-    //     onOpenAutoFocus={(event) => event.preventDefault()}
-    //     onPointerDownOutside={(event) => event.preventDefault()}
-    //   >
-    //     <SheetHeader>
-    //       <RowContainer>
-    //         <div className="overflow-hidden mr-8">{"OPTIONS"}</div>
-    //         <Button
-    //           variant="ghost"
-    //           size="icon"
-    //           className="border h-6 w-6"
-    //           onClick={toggleOpen}
-    //         >
-    //           <ChevronLeft strokeWidth={1} />
-    //         </Button>
-    //       </RowContainer>
-    //       <Separator />
-    //     </SheetHeader>
-    //     <ScrollArea
-    //       style={{ height: windowSize.height - 160 }}
-    //       className="pr-3"
-    //     >
-    //       <CanvasOptions fabricRef={fabricRef} />
-    //     </ScrollArea>
-    //   </SheetContent>
-    // </Sheet>
-  );
 };
 
 export default LeftSidePanel;

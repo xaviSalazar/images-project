@@ -11,6 +11,7 @@ import PromptInput from "./PromptInput";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useStore } from "@/lib/states";
+import useResolution from "@/hooks/useResolution";
 
 // import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -88,28 +89,14 @@ const Header = () => {
   // ]);
 
   const [updateSettings] = useStore((state) => [state.updateSettings]);
-
+  const resolution = useResolution();
   const dev_mode = useStore((state) => state.settings.isDevModeActive);
   const handleSwitchChange = (checked: boolean) => {
     updateSettings({ isDevModeActive: checked });
   };
 
   return (
-    <header className="h-[60px] px-6 py-4 absolute top-[0] flex justify-between items-center w-full z-20 border-b backdrop-filter backdrop-blur-md bg-background/70">
-      {/* <div className="flex items-center gap-1">
-        <ImageUploadButton
-          disabled={isInpainting}
-          tooltip="Upload image"
-          onFileUpload={(file) => {
-            setFile(file);
-          }}
-        >
-          <Image />
-        </ImageUploadButton>
-      </div> */}
-
-      {/* {model.need_prompt ? <PromptInput /> : <></>} */}
-
+    <header className="h-[60px] px-6 py-4 absolute top-[0] flex justify-between items-center z-20 border-b backdrop-filter backdrop-blur-md bg-background/70 w-full ">
       <div className="flex items-center space-x-2">
         <Switch
           id="development-mode"
@@ -120,20 +107,13 @@ const Header = () => {
           {dev_mode ? "Testing mode" : "Oficial mode"}
         </Label>
       </div>
-
-      <PromptInput />
-
+      {(resolution !== "mobile") ? <PromptInput /> : <></>}
       <div className="flex gap-1">
         <InstructionsDialog />
         <LanguageSwitcher />
         <Shortcuts />
         {/* <SettingsDialog /> */}
       </div>
-
-      {/* <div className="flex gap-3 absolute top-[150px] left-[24px] items-center">
-      <ScrollAreaImages images={images} />
-      </div>
-       */}
     </header>
   );
 };

@@ -95,7 +95,7 @@ const PromptInput = () => {
           placeholder="Write PROMPT here..."
           className={cn(
             showScroll ? "focus:overflow-y-auto" : "overflow-y-hidden",
-            "min-h-[32px] h-[32px] overflow-x-hidden focus:h-[120px] overflow-y-hidden transition-[height] w-[500px] py-2 px-3 bg-white text-black border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 resize-none",
+            "min-h-[32px] h-[32px] overflow-x-hidden focus:h-[120px] overflow-y-hidden transition-[height] w-[300px] lg:w-[500px] py-2 px-3 bg-white text-black border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 resize-none",
           )}
           style={{
             scrollbarGutter: "stable",

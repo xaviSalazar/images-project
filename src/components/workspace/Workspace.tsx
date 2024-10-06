@@ -46,7 +46,7 @@ const Workspace = () => {
       {/* <InteractiveSeg />
       <DiffusionProgress />*/}
       <LeftSidePanel />
-      <RightSidePanel />
+      {/* <RightSidePanel /> */}
       <Editor />
     </>
   );
