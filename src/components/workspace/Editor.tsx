@@ -179,7 +179,10 @@ const Editor = React.forwardRef(() => {
   const temporaryMasks = useStore((state) => state.editorState.temporaryMasks);
   const lineGroups = useStore((state) => state.editorState.lineGroups);
   const curLineGroup = useStore((state) => state.editorState.curLineGroup);
-  const isBrushActivated = useStore((state) => state.settings.showDrawing);
+  const showDrawing = useStore((state) => state.settings.showDrawing);
+  const isPanningActive = useStore((state) => state.settings.isPanningActive);
+  const isPanningActiveRef = useRef(isPanningActive);
+
   const dev_mode = useStore((state) => state.settings.isDevModeActive);
   const currCanvasGroups = useStore(
     (state) => state.editorState.currCanvasGroups,
@@ -196,7 +199,6 @@ const Editor = React.forwardRef(() => {
   const [showBrush, setShowBrush] = useState(false);
   const [showRefBrush, setShowRefBrush] = useState(false);
 
-  const [isPanning, setIsPanning] = useState<boolean>(false);
   const rectangleGroupRef = useRef<fabric.Group | undefined>(undefined);
   const groupCoordinatesRef = useRef<{ offsetX: number; offsetY: number }>();
   const isDragging = useRef(false);
@@ -204,7 +206,7 @@ const Editor = React.forwardRef(() => {
   const lastPosY = useRef(0);
   const windowSize = useWindowSize();
 
-  const isPanningActivated = useRef<boolean>(false);
+  // const isPanningActivated = useRef<boolean>(false);
 
   const [compatibleWidth, setCompatibleWidth] = useState<number>(
     windowSize.width,
@@ -518,6 +520,10 @@ const Editor = React.forwardRef(() => {
     });
 
     fabricRef.current?.on("selection:created", function (e) {
+      /*do not drag canvas when object selected */
+      // console.log("created selection")
+      isPanningActiveRef.current = false 
+      isDragging.current = false 
       positionBtn(e.selected[0]);
       positionBottomBtn(e.selected[0]);
     });
@@ -530,6 +536,11 @@ const Editor = React.forwardRef(() => {
     fabricRef.current?.on("selection:cleared", function () {
       setButtonVisible(false);
       setBottomButtonVisible(false);
+      /*return to default behaviour if object is deselected and panning is active */
+      if(isPanningActive) {
+        isPanningActiveRef.current = true 
+        isDragging.current = true 
+      }
     });
 
     fabricRef.current?.on("path:created", () => {
@@ -567,6 +578,11 @@ const Editor = React.forwardRef(() => {
       fabricRef.current?.dispose();
     };
   }, []);
+
+  useEffect(() => {
+    // Update the ref whenever isPanningActive changes
+    isPanningActiveRef.current = isPanningActive;
+  }, [isPanningActive]);
 
   useEffect(() => {
     const canvas_instance = fabricRef.current;
@@ -725,6 +741,7 @@ const Editor = React.forwardRef(() => {
     canvas_instance.overlayImage = rectangleGroupRef.current;
   }, [aspectRatio, t]);
 
+  // Mouse events for panning
   const stopPanning = useCallback((opt: fabric.TEvent<MouseEvent>) => {
     if (isLeftClick(opt)) {
       isDragging.current = false;
@@ -732,34 +749,32 @@ const Editor = React.forwardRef(() => {
   }, []);
 
   const startPanning = useCallback((opt: fabric.TEvent<MouseEvent>) => {
-    if (
-      isLeftClick(opt) &&
-      !fabricRef.current.getActiveObject() &&
-      !isBrushActivated &&
-      isPanningActivated.current
-    ) {
-      const evt = opt.e;
+    if(isLeftClick(opt) && isPanningActiveRef.current) 
+    {
+      console.log("start panning")
       isDragging.current = true;
+      const evt = opt.e;
       lastPosX.current = evt.clientX;
       lastPosY.current = evt.clientY;
     }
+  
   }, []);
 
-  const panCanvas = useCallback(
-    (opt: fabric.TEvent<MouseEvent>) => {
-      if (isDragging.current) {
-        if (!fabricRef.current) return;
-        const e = opt.e;
-        const vpt = fabricRef.current.viewportTransform;
-        vpt[4] += e.clientX - lastPosX.current;
-        vpt[5] += e.clientY - lastPosY.current;
-        fabricRef.current.requestRenderAll();
-        lastPosX.current = e.clientX;
-        lastPosY.current = e.clientY;
-      }
-    },
-    [fabricRef.current],
-  );
+  const panCanvas = useCallback((opt: fabric.TEvent<MouseEvent>) => {
+    if (isLeftClick(opt) && isDragging.current) 
+    {
+      console.log("panning")
+      const e = opt.e;
+      const vpt = fabricRef.current.viewportTransform;
+      vpt[4] += e.clientX - lastPosX.current;
+      vpt[5] += e.clientY - lastPosY.current;
+      fabricRef.current.requestRenderAll();
+      lastPosX.current = e.clientX;
+      lastPosY.current = e.clientY;
+    }
+  }, []);
+
+
 
   const aligningLineOffset = 5
   const aligningLineMargin = 4
@@ -1235,7 +1250,6 @@ const Editor = React.forwardRef(() => {
         ev?.preventDefault();
         ev?.stopPropagation();
         setShowBrush(false);
-        setIsPanning(true);
       }
     },
     (ev) => {
@@ -1243,7 +1257,6 @@ const Editor = React.forwardRef(() => {
         ev?.preventDefault();
         ev?.stopPropagation();
         setShowBrush(true);
-        setIsPanning(false);
       }
     },
   );
@@ -1425,13 +1438,6 @@ const Editor = React.forwardRef(() => {
   };
 
   useHotKey("meta+s,ctrl+s", handleDownload);
-
-  const handleDrawingMode = (value: boolean) => {
-    const fabricInstance = fabricRef.current;
-    if (fabricInstance) {
-      fabricInstance.isDrawingMode = value;
-    }
-  };
 
   const handleCopy = () => {
     const canvas_instance = fabricRef.current;
@@ -1728,9 +1734,91 @@ const Editor = React.forwardRef(() => {
     // });
   };
 
+  const lastDistance = useRef(0);
+
+
+  const handleGestureStart = (event) => {
+    console.log("touch start")
+    const touchCount = event.touches.length;
+    if (touchCount === 2) {
+      // Two-finger gesture started
+      const point1 = event.touches[0];
+      const point2 = event.touches[1];
+
+      // Calculate initial distance
+      const initialDistance = Math.hypot(
+        point2.pageX - point1.pageX,
+        point2.pageY - point1.pageY
+      );
+
+      lastDistance.current = initialDistance;
+    }
+
+    if (touchCount=== 1 && !fabricRef.current?.getActiveObject()) {
+      isDragging.current = true;
+      const touch = event.touches[0];
+      lastPosX.current = touch.clientX;
+      lastPosY.current = touch.clientY;
+    }
+  };
+
+  const handleGestureMove = (event) => {
+    const touchCount = event.touches.length;
+    if (touchCount === 2) {
+      // Calculate new distance between the two fingers
+      const point1 = event.touches[0];
+      const point2 = event.touches[1];
+      const currentDistance = Math.hypot(
+        point2.pageX - point1.pageX,
+        point2.pageY - point1.pageY
+      );
+
+      // Calculate the zoom factor
+      const zoomFactor = currentDistance / lastDistance.current;
+
+      let zoom = fabricRef.current?.getZoom();
+      zoom *= zoomFactor;
+
+      // Set boundaries for the zoom level
+      if (zoom > 20) zoom = 20;
+      if (zoom < 0.01) zoom = 0.01;
+
+      // Zoom the canvas at the center point between the two fingers
+      const centerPoint = {
+        x: (point1.pageX + point2.pageX) / 2,
+        y: (point1.pageY + point2.pageY) / 2,
+      };
+      fabricRef.current?.zoomToPoint(centerPoint, zoom);
+
+      // Update last distance
+      lastDistance.current = currentDistance;
+
+      //event.preventDefault();
+    }
+    if (touchCount === 1 && isDragging.current) {
+      const touch = event.touches[0];
+      const vpt = fabricRef.current.viewportTransform;
+      vpt[4] += touch.clientX - lastPosX.current;
+      vpt[5] += touch.clientY - lastPosY.current;
+      fabricRef.current.requestRenderAll();
+      lastPosX.current = touch.clientX;
+      lastPosY.current = touch.clientY;
+      //event.preventDefault(); // Prevent scrolling
+    }
+  };
+
+  const handleGestureEnd = () => {
+    lastDistance.current = 0; // Reset distance when gesture ends
+    isDragging.current = false
+  };
+
+
   return (
     <div
       className="flex w-screen h-screen justify-center items-center"
+      onTouchStart={handleGestureStart}
+      onTouchMove={handleGestureMove}
+      onTouchEnd={handleGestureEnd}
       aria-hidden="true"
     >
       <Menubar
@@ -1896,20 +1984,6 @@ const Editor = React.forwardRef(() => {
             <Redo />
           </IconButton>
 
-          <Toggle
-            aria-label="Toggle italic"
-            defaultPressed={isPanningActivated.current}
-            onPressedChange={(value: boolean) => {
-              isPanningActivated.current = value;
-              if (value) {
-              }
-            }}
-          >
-            <div className="icon-button-icon-wrapper">
-              <GrabIcon />
-            </div>
-          </Toggle>
-
           {/* <IconButton
             tooltip="Show original image"
             onPointerDown={(ev) => {
@@ -1964,12 +2038,16 @@ const Editor = React.forwardRef(() => {
 
           <Toggle
             aria-label="Toggle italic"
-            defaultPressed={settings.showDrawing}
+            defaultPressed={showDrawing}
+            disabled={isPanningActive}
             onPressedChange={(value: boolean) => {
               updateSettings({ showDrawing: value });
-              handleDrawingMode(value);
+                  const fabricInstance = fabricRef.current;
+                  if (fabricInstance) {
+                    fabricInstance.isDrawingMode = value;
+                  }
               if (value) {
-                updateSettings({ showSelectable: false });
+                updateSettings({ isPanningActive: false });
               }
             }}
           >
@@ -1977,6 +2055,23 @@ const Editor = React.forwardRef(() => {
               <Paintbrush />
             </div>
           </Toggle>
+
+          <Toggle
+            aria-label="Toggle italic"
+            defaultPressed={isPanningActive}
+            disabled={showDrawing}
+            onPressedChange={(value: boolean) => {
+              updateSettings({ isPanningActive: value });
+              if (value) {
+                updateSettings({ showDrawing: false })
+              }
+            }}
+          >
+            <div className="icon-button-icon-wrapper">
+              <GrabIcon />
+            </div>
+          </Toggle>
+
         </div>
       </div>
     </div>

@@ -80,6 +80,7 @@ export type Settings = {
   enableAutoExtractPrompt: boolean;
   showCropper: boolean;
   showDrawing: boolean;
+  isPanningActive: boolean;
   showSelectable: boolean;
   showExtender: boolean;
   extenderDirection: ExtenderDirection;
@@ -361,6 +362,7 @@ const defaultValues: AppState = {
     showCropper: false,
     showExtender: false,
     showDrawing: false,
+    isPanningActive: false,
     showSelectable: false,
     isDevModeActive: false,
     extenderDirection: ExtenderDirection.xy,
