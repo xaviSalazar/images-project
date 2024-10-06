@@ -15,6 +15,7 @@ import { removeBackgroundApi } from "@/lib/api";
 import { useTranslation } from "react-i18next";
 import { resizeImageWithPica } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import useResolution from "@/hooks/useResolution";
 
 import {
   Menubar,
@@ -103,7 +104,7 @@ const config = {
 const Editor = React.forwardRef(() => {
   const { fabricRef, canvasRef } = useRefContext();
   const { toast } = useToast();
-
+  const resolution = useResolution();
   const [
     disableShortCuts,
     isInpainting,
@@ -369,18 +370,18 @@ const Editor = React.forwardRef(() => {
   useEffect(() => {
     const initMainCanvas = (): fabric.Canvas => {
       oldWindowSize.current = {
-        width: window.innerWidth,
-        height: window.innerHeight,
+        width: windowSize.width,
+        height: windowSize.height,
       };
 
       updateAppState({
-        userWindowWidth: window.innerWidth,
-        userWindowHeight: window.innerHeight,
+        userWindowWidth: windowSize.width,
+        userWindowHeight: windowSize.height,
       });
 
       return new fabric.Canvas(canvasRef.current || undefined, {
-        width: window.innerWidth,
-        height: window.innerHeight,
+        width: windowSize.width,
+        height: windowSize.height,
         backgroundColor: "#27272a",
         imageSmoothingEnabled: false,
         fireMiddleClick: true,
@@ -405,11 +406,6 @@ const Editor = React.forwardRef(() => {
         ...myAdditional,
         ...additionalProperties,
       ]);
-    };
-
-    fabric.Canvas.prototype.getAbsoluteCoords = function (object) {
-      const m = object.calcTransformMatrix();
-      return { left: m[4], top: m[5] };
     };
 
     function positionBtn(obj) {
@@ -474,7 +470,6 @@ const Editor = React.forwardRef(() => {
   }
 
   // SEE DOCUMENTATION https://fabricjs.github.io/docs/configuring-controls/
-
   fabric.FabricObject.createControls = () => {
     const controls = fabric.controlsUtils.createObjectDefaultControls();
     delete controls.mtr;
@@ -609,15 +604,15 @@ const Editor = React.forwardRef(() => {
       canvas_instance.width,
       canvas_instance.height,
     ]);
-    debugLog(LOG_LEVELS.DEBUG, "<<user choosedWidth, choosedHeigth>> ", [
-      clipWidth,
-      clipHeight,
-    ]);
-    debugLog(
-      LOG_LEVELS.DEBUG,
-      "<<user transf canvas  matrix>>\n",
-      canvas_instance.viewportTransform,
-    );
+    // debugLog(LOG_LEVELS.DEBUG, "<<user choosedWidth, choosedHeigth>> ", [
+    //   clipWidth,
+    //   clipHeight,
+    // ]);
+    // debugLog(
+    //   LOG_LEVELS.DEBUG,
+    //   "<<user transf canvas  matrix>>\n",
+    //   canvas_instance.viewportTransform,
+    // );
 
     const zoomX = width / clipWidth;
     const zoomY = height / clipHeight;
@@ -627,7 +622,14 @@ const Editor = React.forwardRef(() => {
       zoomY,
     ]);
 
-    const calculated_zoom = Math.min(zoomX, zoomY) - 0.35;
+    let calculated_zoom;
+
+    if(resolution === "desktop")
+    {
+      calculated_zoom = Math.min(zoomX, zoomY) - 0.25;    
+    } else {
+      calculated_zoom = Math.min(zoomX, zoomY);
+    }
 
     debugLog(LOG_LEVELS.DEBUG, " <<calculated zoom>> ", calculated_zoom);
 
@@ -1093,16 +1095,16 @@ const Editor = React.forwardRef(() => {
 
   useEffect(() => {
     window.addEventListener("resize", () => {
-      const offsetX = oldWindowSize.current.width - window.innerWidth;
-      const offsetY = oldWindowSize.current.height - window.innerHeight;
-      setCompatibleWidth(window.innerWidth);
-      setCompatibleHeight(window.innerHeight);
+      const offsetX = oldWindowSize.current.width - windowSize.width;
+      const offsetY = oldWindowSize.current.height - windowSize.height;
+      setCompatibleWidth(windowSize.width);
+      setCompatibleHeight(windowSize.height);
       updateAppState({
-        userWindowWidth: window.innerWidth,
-        userWindowHeight: window.innerHeight,
+        userWindowWidth: windowSize.width,
+        userWindowHeight: windowSize.height,
       });
-      fabricRef.current.setWidth(window.innerWidth);
-      fabricRef.current.setHeight(window.innerHeight);
+      fabricRef.current.setWidth(windowSize.width);
+      fabricRef.current.setHeight(windowSize.height);
       moveGroupByOffset(rectangleGroupRef.current, offsetX, offsetY);
     });
     return () => {
@@ -1947,7 +1949,7 @@ const Editor = React.forwardRef(() => {
       </Menubar>
 
       {renderCanvas()}
-      <div className="fixed flex bottom-5 border px-4 py-2 rounded-[3rem] gap-8 items-center justify-center backdrop-filter backdrop-blur-md bg-background/70">
+      {/* <div className="fixed flex bottom-5 border px-4 py-2 rounded-[3rem] gap-8 items-center justify-center backdrop-filter backdrop-blur-md bg-background/70">
         <Slider
           className="w-48"
           defaultValue={[50]}
@@ -1983,32 +1985,6 @@ const Editor = React.forwardRef(() => {
           >
             <Redo />
           </IconButton>
-
-          {/* <IconButton
-            tooltip="Show original image"
-            onPointerDown={(ev) => {
-              ev.preventDefault();
-              setShowOriginal(() => {
-                window.setTimeout(() => {
-                  setSliderPos(100);
-                }, 10);
-                return true;
-              });
-            }}
-            onPointerUp={() => {
-              window.setTimeout(() => {
-                // 防止快速点击 show original image 按钮时图片消失
-                setSliderPos(0);
-              }, 10);
-
-              window.setTimeout(() => {
-                setShowOriginal(false);
-              }, COMPARE_SLIDER_DURATION_MS);
-            }}
-            disabled={renders.length === 0}
-          >
-            <Eye />
-          </IconButton> */}
 
           <IconButton
             tooltip="Save Image"
@@ -2073,7 +2049,7 @@ const Editor = React.forwardRef(() => {
           </Toggle>
 
         </div>
-      </div>
+      </div> */}
     </div>
   );
 });
