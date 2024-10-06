@@ -504,9 +504,7 @@ const Editor = React.forwardRef(() => {
 
     // Event listener for panning
     fabricRef.current?.on("mouse:up", stopPanning);
-
     fabricRef.current?.on("mouse:down", startPanning);
-
     fabricRef.current?.on("mouse:move", panCanvas);
 
     fabricRef.current?.on("selection:updated", function (e) {
@@ -516,9 +514,6 @@ const Editor = React.forwardRef(() => {
 
     fabricRef.current?.on("selection:created", function (e) {
       /*do not drag canvas when object selected */
-      // console.log("created selection")
-      isPanningActiveRef.current = false 
-      isDragging.current = false 
       positionBtn(e.selected[0]);
       positionBottomBtn(e.selected[0]);
     });
@@ -531,11 +526,6 @@ const Editor = React.forwardRef(() => {
     fabricRef.current?.on("selection:cleared", function () {
       setButtonVisible(false);
       setBottomButtonVisible(false);
-      /*return to default behaviour if object is deselected and panning is active */
-      if(isPanningActive) {
-        isPanningActiveRef.current = true 
-        isDragging.current = true 
-      }
     });
 
     fabricRef.current?.on("path:created", () => {
@@ -543,6 +533,7 @@ const Editor = React.forwardRef(() => {
     });
 
     fabricRef.current?.on("object:modified", (e) => { 
+      console.log("object:modified")
       const active_object = e.target.canvas?.getActiveObject()
       positionBtn(active_object);
       positionBottomBtn(active_object);
@@ -751,21 +742,19 @@ const Editor = React.forwardRef(() => {
   }, []);
 
   const startPanning = useCallback((opt: fabric.TEvent<MouseEvent>) => {
-    if(isLeftClick(opt) && isPanningActiveRef.current) 
+    if(fabricRef.current?.getActiveObject()) return;
+    if(isLeftClick(opt) && isPanningActiveRef.current ) 
     {
-      console.log("start panning")
       isDragging.current = true;
       const evt = opt.e;
       lastPosX.current = evt.clientX;
       lastPosY.current = evt.clientY;
     }
-  
   }, []);
 
   const panCanvas = useCallback((opt: fabric.TEvent<MouseEvent>) => {
     if (isLeftClick(opt) && isDragging.current) 
     {
-      console.log("panning")
       const e = opt.e;
       const vpt = fabricRef.current.viewportTransform;
       vpt[4] += e.clientX - lastPosX.current;
