@@ -175,7 +175,7 @@ const LeftSidePanel = () => {
             </ScrollArea>
           </MenubarContent>
         </MenubarMenu>
-        {/* <Separator /> */}
+        <Separator orientation={resolution === "mobile" ? "vertical": "horizontal"}/>
         <MenubarMenu>
           <MenubarTrigger 
           className={cn(resolution === "mobile" ? "" : "flex-col w-full")}      
@@ -195,7 +195,7 @@ const LeftSidePanel = () => {
             <Paperclip /> {t("Upload Picture")}
           </MenubarTrigger>
         </MenubarMenu>
-        {/* <Separator /> */}
+        <Separator orientation={resolution === "mobile" ? "vertical": "horizontal"}/>
         <MenubarMenu>
           <MenubarTrigger
           className={cn(resolution === "mobile" ? "" : "flex-col w-full")}      
