@@ -419,9 +419,8 @@ const Editor = React.forwardRef(() => {
         obj.calcTransformMatrix(),
       );
       const left = mTotal[4] - 150;
-      const top =
-        mTotal[5] -
-        (zoom * obj.height * obj.scaleY) / 2; /* size of div i guess */
+      // const top = mTotal[5] - (zoom * obj.height * obj.scaleY) / 2; /* size of div i guess */
+      const top = mTotal[5] - (zoom * obj.getScaledHeight()/2) + 10;
       setButtonPosition({ left, top });
       setButtonVisible(true);
     }
@@ -437,10 +436,8 @@ const Editor = React.forwardRef(() => {
         obj.calcTransformMatrix(),
       );
       const left = mTotal[4] - 100;
-      const top =
-        mTotal[5] +
-        (zoom * obj.height * obj.scaleY) / 2 +
-        77; /* size of div i guess */
+      // const top = mTotal[5] + (zoom * obj.height * obj.scaleY) / 2 + 77; /* size of div i guess */
+      const top = mTotal[5] + (zoom * obj.getScaledHeight()/2) + 80; /* size of div i guess */
       setBottomButtonPosition({ left, top });
       setBottomButtonVisible(true);
     }
