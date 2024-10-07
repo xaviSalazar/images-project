@@ -65,7 +65,7 @@ import {
 } from "@/lib/const";
 import { Toggle } from "@/components/ui/toggle";
 import * as fabric from "fabric"; // v6
-import { FabricObject, FabricImage, FabricText } from "fabric"; // migration path
+import { FabricObject, FabricImage, FabricText, Point } from "fabric"; // migration path
 
 // import {
 //   preload,
@@ -194,8 +194,6 @@ const Editor = React.forwardRef(() => {
   const [showOriginal, setShowOriginal] = useState(false);
   const [original, isOriginalLoaded] = useImage(null);
 
-  const [zoomLevel, setZoomLevel] = useState<number>(1); // Initial zoom level
-
   const [{ x, y }, setCoords] = useState({ x: -1, y: -1 });
   const [showBrush, setShowBrush] = useState(false);
   const [showRefBrush, setShowRefBrush] = useState(false);
@@ -206,14 +204,14 @@ const Editor = React.forwardRef(() => {
   const lastPosX = useRef(0);
   const lastPosY = useRef(0);
   const windowSize = useWindowSize();
-
-  // const isPanningActivated = useRef<boolean>(false);
+  const windowWidth = windowSize.width;
+  const windowHeight = windowSize.height;
 
   const [compatibleWidth, setCompatibleWidth] = useState<number>(
-    windowSize.width,
+    windowWidth,
   );
   const [compatibleHeight, setCompatibleHeight] = useState<number>(
-    windowSize.height,
+    windowHeight,
   );
 
   const [isDraging, setIsDraging] = useState(false);
@@ -367,21 +365,65 @@ const Editor = React.forwardRef(() => {
   });
   const [BottomButtonVisible, setBottomButtonVisible] = useState(false);
 
+  /* positionBtn: menu bar that displays on top of image */
+  function positionBtn(obj: FabricObject | undefined) {
+    if(!obj) return 
+    const btnContainer = document.getElementById("upper-button-options");
+    if (!btnContainer) return;
+    if (!fabricRef.current) return;
+    const zoom = fabricRef.current.getZoom();
+    const viewportTransform = fabricRef.current.viewportTransform;
+    const mTotal = fabric.util.multiplyTransformMatrices(
+      viewportTransform,
+      obj.calcTransformMatrix(),
+    );
+    const left = mTotal[4] - 150;
+    // const top = mTotal[5] - (zoom * obj.height * obj.scaleY) / 2; /* size of div i guess */
+    const top = mTotal[5] - (zoom * obj.getScaledHeight()/2) + 10;
+    setButtonPosition({ left, top });
+    setButtonVisible(true);
+  }
+
+  /* positionBottomBtn: menu bar that displays on bottom of image */
+  function positionBottomBtn(obj: FabricObject | undefined) {
+    if(!obj) return 
+    const btnContainer = document.getElementById("bottom-button-options");
+    if (!btnContainer) return;
+    if (!fabricRef.current) return;
+    const zoom = fabricRef.current.getZoom();
+    const viewportTransform = fabricRef.current.viewportTransform;
+    const mTotal = fabric.util.multiplyTransformMatrices(
+      viewportTransform,
+      obj.calcTransformMatrix(),
+    );
+    const left = mTotal[4] - 100;
+    // const top = mTotal[5] + (zoom * obj.height * obj.scaleY) / 2 + 77; /* size of div i guess */
+    const top = mTotal[5] + (zoom * obj.getScaledHeight()/2) + 100; /* size of div i guess */
+    setBottomButtonPosition({ left, top });
+    setBottomButtonVisible(true);
+  }
+
+
   useEffect(() => {
     const initMainCanvas = (): fabric.Canvas => {
       oldWindowSize.current = {
-        width: windowSize.width,
-        height: windowSize.height,
+        width: windowWidth,
+        height: windowHeight,
       };
 
       updateAppState({
-        userWindowWidth: windowSize.width,
-        userWindowHeight: windowSize.height,
+        userWindowWidth: windowWidth,
+        userWindowHeight: windowHeight,
       });
 
+      debugLog(LOG_LEVELS.DEBUG, " <<screen window size>>  width, heigth ", [
+        windowWidth,
+        windowHeight,
+      ]);
+
       return new fabric.Canvas(canvasRef.current || undefined, {
-        width: windowSize.width,
-        height: windowSize.height,
+        width: windowWidth,
+        height: windowHeight,
         backgroundColor: "#27272a",
         imageSmoothingEnabled: false,
         fireMiddleClick: true,
@@ -407,41 +449,6 @@ const Editor = React.forwardRef(() => {
         ...additionalProperties,
       ]);
     };
-
-    function positionBtn(obj) {
-      const btnContainer = document.getElementById("upper-button-options");
-      if (!btnContainer) return;
-      if (!fabricRef.current) return;
-      const zoom = fabricRef.current.getZoom();
-      const viewportTransform = fabricRef.current.viewportTransform;
-      const mTotal = fabric.util.multiplyTransformMatrices(
-        viewportTransform,
-        obj.calcTransformMatrix(),
-      );
-      const left = mTotal[4] - 150;
-      // const top = mTotal[5] - (zoom * obj.height * obj.scaleY) / 2; /* size of div i guess */
-      const top = mTotal[5] - (zoom * obj.getScaledHeight()/2) + 10;
-      setButtonPosition({ left, top });
-      setButtonVisible(true);
-    }
-
-    function positionBottomBtn(obj) {
-      const btnContainer = document.getElementById("bottom-button-options");
-      if (!btnContainer) return;
-      if (!fabricRef.current) return;
-      const zoom = fabricRef.current.getZoom();
-      const viewportTransform = fabricRef.current.viewportTransform;
-      const mTotal = fabric.util.multiplyTransformMatrices(
-        viewportTransform,
-        obj.calcTransformMatrix(),
-      );
-      const left = mTotal[4] - 100;
-      // const top = mTotal[5] + (zoom * obj.height * obj.scaleY) / 2 + 77; /* size of div i guess */
-      const top = mTotal[5] + (zoom * obj.getScaledHeight()/2) + 100; /* size of div i guess */
-      setBottomButtonPosition({ left, top });
-      setBottomButtonVisible(true);
-    }
-
     // Activate drawing mode for mask overlay
     if (fabricRef.current) {
       const brush = new fabric.PencilBrush(fabricRef.current);
@@ -543,11 +550,8 @@ const Editor = React.forwardRef(() => {
       zoom *= 0.999 ** delta;
       if (zoom > 20) zoom = 20;
       if (zoom < 0.01) zoom = 0.01;
-      fabricRef.current?.zoomToPoint(
-        { x: opt.e.offsetX, y: opt.e.offsetY },
-        zoom,
-      );
-
+      const point_zoom = new Point(opt.e.offsetX, opt.e.offsetY)
+      fabricRef.current?.zoomToPoint(point_zoom,zoom);
       setButtonVisible(false);
       setBottomButtonVisible(false);
       opt.e.preventDefault();
@@ -555,15 +559,14 @@ const Editor = React.forwardRef(() => {
     });
 
     initAligningGuidelines();
-
     // #### DISPOSE
     return () => {
       fabricRef.current?.dispose();
     };
   }, []);
 
+  // Update the ref whenever isPanningActive changes
   useEffect(() => {
-    // Update the ref whenever isPanningActive changes
     isPanningActiveRef.current = isPanningActive;
   }, [isPanningActive]);
 
@@ -582,7 +585,7 @@ const Editor = React.forwardRef(() => {
     );
 
     if (ratioObject) {
-      debugLog(LOG_LEVELS.DEBUG, "choosed Ratio\n", ratioObject);
+      debugLog(LOG_LEVELS.DEBUG, "Aspect Ratio ", ratioObject);
       const { width: ratioWidth, height: ratioHeight } = ratioObject;
       clipWidth = ratioWidth;
       clipHeight = ratioHeight;
@@ -596,11 +599,11 @@ const Editor = React.forwardRef(() => {
     //   clipWidth,
     //   clipHeight,
     // ]);
-    // debugLog(
-    //   LOG_LEVELS.DEBUG,
-    //   "<<user transf canvas  matrix>>\n",
-    //   canvas_instance.viewportTransform,
-    // );
+    debugLog(
+      LOG_LEVELS.DEBUG,
+      "<<user transf canvas  matrix>>\n",
+      canvas_instance.viewportTransform,
+    );
 
     const zoomX = width / clipWidth;
     const zoomY = height / clipHeight;
@@ -620,13 +623,10 @@ const Editor = React.forwardRef(() => {
     }
 
     debugLog(LOG_LEVELS.DEBUG, " <<calculated zoom>> ", calculated_zoom);
-
-    fabricRef.current.setViewportTransform([1, 0, 0, 1, -250, 0]); // Reset panning
-
-    fabricRef.current?.zoomToPoint(
-      { x: fabricRef.current?.width / 2, y: fabricRef.current?.height / 2 },
-      calculated_zoom,
-    );
+    const point_zoom = new Point(fabricRef.current?.width / 2, fabricRef.current?.height / 2)
+    // Here i can move to X and Y axis to show initial square working area
+    fabricRef.current.setViewportTransform([1, 0, 0, 1, 0, 0]);
+    fabricRef.current?.zoomToPoint(point_zoom, calculated_zoom);
 
     updateAppState({ scaledWidth: clipWidth, scaledHeight: clipHeight });
     setImageSize(clipWidth, clipHeight);
@@ -1045,12 +1045,6 @@ const Editor = React.forwardRef(() => {
   //   return [width, height];
   // }, [original, isOriginalLoaded, renders]);
 
-  // useEffect(() => {
-  //   console.log("[useEffect] centerView");
-  //   // render 改变尺寸以后，undo/redo 重新 center
-  //   viewportRef?.current?.centerView(minScale, 1);
-  // }, [imageHeight, imageWidth, viewportRef, minScale]);
-
   // Zoom reset
   const resetZoom = useCallback(() => {
     if (fabricRef.current) {
@@ -1081,16 +1075,16 @@ const Editor = React.forwardRef(() => {
 
   useEffect(() => {
     window.addEventListener("resize", () => {
-      const offsetX = oldWindowSize.current.width - windowSize.width;
-      const offsetY = oldWindowSize.current.height - windowSize.height;
-      setCompatibleWidth(windowSize.width);
-      setCompatibleHeight(windowSize.height);
+      const offsetX = oldWindowSize.current.width - windowWidth;
+      const offsetY = oldWindowSize.current.height - windowHeight;
+      setCompatibleWidth(windowWidth);
+      setCompatibleHeight(windowHeight);
       updateAppState({
-        userWindowWidth: windowSize.width,
-        userWindowHeight: windowSize.height,
+        userWindowWidth: windowWidth,
+        userWindowHeight: windowHeight,
       });
-      fabricRef.current.setWidth(windowSize.width);
-      fabricRef.current.setHeight(windowSize.height);
+      fabricRef.current.setWidth(windowWidth);
+      fabricRef.current.setHeight(windowHeight);
       moveGroupByOffset(rectangleGroupRef.current, offsetX, offsetY);
     });
     return () => {
@@ -1117,31 +1111,6 @@ const Editor = React.forwardRef(() => {
     // drawOnCurrentRender,
   ]);
 
-  // const onMouseMove = (ev: SyntheticEvent) => {
-  //   const mouseEvent = ev.nativeEvent as MouseEvent;
-  //   setCoords({ x: mouseEvent.pageX, y: mouseEvent.pageY });
-  // };
-
-  // const onMouseDrag = (ev: SyntheticEvent) => {
-  //   if (isProcessing) {
-  //     return;
-  //   }
-
-  //   if (interactiveSegState.isInteractiveSeg) {
-  //     return;
-  //   }
-  //   if (isPanning) {
-  //     return;
-  //   }
-  //   if (!isDraging) {
-  //     return;
-  //   }
-  //   if (curLineGroup.length === 0) {
-  //     return;
-  //   }
-
-  //   handleCanvasMouseMove(mouseXY(ev));
-  // };
 
   const handleUndo = () => {
     undo();
