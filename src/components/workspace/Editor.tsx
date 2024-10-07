@@ -1104,8 +1104,10 @@ const Editor = React.forwardRef(() => {
         userWindowWidth: windowWidth,
         userWindowHeight: windowHeight,
       });
-      fabricRef.current.setWidth(windowWidth);
-      fabricRef.current.setHeight(windowHeight);
+
+      fabricRef.current?.setDimensions({width: windowWidth, height: windowHeight })
+      // fabricRef.current.setWidth(windowWidth);
+      // fabricRef.current.setHeight(windowHeight);
       moveGroupByOffset(rectangleGroupRef.current, offsetX, offsetY);
     });
     return () => {
