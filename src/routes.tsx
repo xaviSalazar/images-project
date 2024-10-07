@@ -24,7 +24,7 @@ export default function Router() {
         // { path: 'chatpdf', element: <ProtectedRoute><ChatPdf /></ProtectedRoute> },
         // // { path: 'image-gen', element: <ProtectedRoute><ImgGenerator /></ProtectedRoute> },
         // // Public routes below
-        { path: "login", element: <AuthenticationPage /> },
+        { path: "registration", element: <AuthenticationPage /> },
         // { path: 'signup', element: <SignUp />},
       ],
     },
