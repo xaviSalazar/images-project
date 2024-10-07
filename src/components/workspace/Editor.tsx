@@ -1051,11 +1051,9 @@ const Editor = React.forwardRef(() => {
       const zoomX = fabricRef.current?.width / scaledWidth;
       const zoomY = fabricRef.current?.height / scaledHeight;
       const calculated_zoom = Math.min(zoomX, zoomY) - 0.35;
-      fabricRef.current.setViewportTransform([1, 0, 0, 1, -250, 0]); // Reset panning
-      fabricRef.current?.zoomToPoint(
-        { x: fabricRef.current?.width / 2, y: fabricRef.current?.height / 2 },
-        calculated_zoom,
-      );
+      fabricRef.current.setViewportTransform([1, 0, 0, 1, 0, 0]); // Reset panning
+      const zoom_point = new Point(fabricRef.current?.width / 2, fabricRef.current?.height / 2 )
+      fabricRef.current?.zoomToPoint(zoom_point,calculated_zoom,);
     }
   }, [scaledWidth, scaledHeight]);
 
@@ -1324,22 +1322,6 @@ const Editor = React.forwardRef(() => {
       // />
     );
   };
-
-  // const handleScroll = (event: React.WheelEvent<HTMLDivElement>) => {
-  //   // deltaY 是垂直滚动增量，正值表示向下滚动，负值表示向上滚动
-  //   // deltaX 是水平滚动增量，正值表示向右滚动，负值表示向左滚动
-  //   if (!isChangingBrushSizeByWheel) {
-  //     return;
-  //   }
-
-  //   const { deltaY } = event;
-  //   // console.log(`水平滚动增量: ${deltaX}, 垂直滚动增量: ${deltaY}`)
-  //   if (deltaY > 0) {
-  //     increaseBaseBrushSize();
-  //   } else if (deltaY < 0) {
-  //     decreaseBaseBrushSize();
-  //   }
-  // };
 
   const handleDownload = async (source: string) => {
     if (!fabricRef.current) return;
@@ -1741,12 +1723,12 @@ const Editor = React.forwardRef(() => {
       if (zoom < 0.01) zoom = 0.01;
 
       // Zoom the canvas at the center point between the two fingers
-      const centerPoint = {
-        x: (point1.pageX + point2.pageX) / 2,
-        y: (point1.pageY + point2.pageY) / 2,
-      };
-      fabricRef.current?.zoomToPoint(centerPoint, zoom);
-
+      // const centerPoint = {
+      //   x: (point1.pageX + point2.pageX) / 2,
+      //   y: (point1.pageY + point2.pageY) / 2,
+      // };
+      const zoom_point = new Point((point1.pageX + point2.pageX) / 2, (point1.pageY + point2.pageY) / 2 )
+      fabricRef.current?.zoomToPoint(zoom_point, zoom);
       // Update last distance
       lastDistance.current = currentDistance;
 
@@ -1754,10 +1736,10 @@ const Editor = React.forwardRef(() => {
     }
     if (touchCount === 1 && isDragging.current) {
       const touch = event.touches[0];
-      const vpt = fabricRef.current.viewportTransform;
+      const vpt = fabricRef.current?.viewportTransform;
       vpt[4] += touch.clientX - lastPosX.current;
       vpt[5] += touch.clientY - lastPosY.current;
-      fabricRef.current.requestRenderAll();
+      fabricRef.current?.requestRenderAll();
       lastPosX.current = touch.clientX;
       lastPosY.current = touch.clientY;
       //event.preventDefault(); // Prevent scrolling
