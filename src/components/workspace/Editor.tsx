@@ -217,6 +217,14 @@ const Editor = React.forwardRef(() => {
   const [isChangingBrushSizeByWheel, setIsChangingBrushSizeByWheel] =
     useState<boolean>(false);
 
+  const [buttonPosition, setButtonPosition] = useState({ left: 0, top: 0 });
+  const [buttonVisible, setButtonVisible] = useState(false);
+  const [BottomButtonPosition, setBottomButtonPosition] = useState({
+    left: 0,
+    top: 0,
+  });
+  const [BottomButtonVisible, setBottomButtonVisible] = useState(false);
+
   // crop
   const lastActiveObject = useRef<fabric.Object | null>(null);
   const rectangleCut = useRef<fabric.Object | null>(null);
@@ -352,15 +360,6 @@ const Editor = React.forwardRef(() => {
     // Reset the crop state
     isCropping.current = false;
   };
-
-  const [buttonPosition, setButtonPosition] = useState({ left: 0, top: 0 });
-  const [buttonVisible, setButtonVisible] = useState(false);
-
-  const [BottomButtonPosition, setBottomButtonPosition] = useState({
-    left: 0,
-    top: 0,
-  });
-  const [BottomButtonVisible, setBottomButtonVisible] = useState(false);
 
   /* positionBtn: menu bar that displays on top of image */
   function positionBtn(obj: FabricObject | undefined) {
@@ -546,7 +545,7 @@ const Editor = React.forwardRef(() => {
 
     fabricRef.current?.on("mouse:wheel", function (opt) {
       const delta = opt.e.deltaY;
-      let zoom = fabricRef.current?.getZoom();
+      let zoom = fabricRef.current?.getZoom() ?? 1;
       zoom *= 0.999 ** delta;
       if (zoom > 20) zoom = 20;
       if (zoom < 0.01) zoom = 0.01;
@@ -1737,13 +1736,11 @@ const Editor = React.forwardRef(() => {
       // Calculate the zoom factor
       const zoomFactor = currentDistance / lastDistance.current;
 
-      let zoom = fabricRef.current?.getZoom();
+      let zoom = fabricRef.current?.getZoom() ?? 1;
       zoom *= zoomFactor;
-
       // Set boundaries for the zoom level
       if (zoom > 20) zoom = 20;
       if (zoom < 0.01) zoom = 0.01;
-
       // Zoom the canvas at the center point between the two fingers
       // const centerPoint = {
       //   x: (point1.pageX + point2.pageX) / 2,
