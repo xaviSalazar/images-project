@@ -1463,55 +1463,53 @@ const Editor = React.forwardRef(() => {
   const handleCut = () => {
     const canvas_instance = fabricRef.current;
     if (!canvas_instance) return;
-
     if (isCropping.current) {
       isCropping.current = false;
       console.log("crop img");
       return cropImage();
     }
-
     isCropping.current = true;
     const target = canvas_instance.getActiveObject(); // object
-    if (target) {
-      const canvas = target.canvas;
+    if(!target) return;
 
-      const activeObject = canvas?.getActiveObject();
-      if (!activeObject || !canvas) return;
+    const canvas = target.canvas;
 
-      // Calculate the maximum width and height for the crop rectangle
-      const maxWidth = activeObject.width * activeObject.scaleX;
-      const maxHeight = activeObject.height * activeObject.scaleY;
+    const activeObject = canvas?.getActiveObject();
+    if (!activeObject || !canvas) return;
 
-      // Calculate initial dimensions of the crop rectangle
-      let width = maxWidth * 0.5;
-      let height = maxHeight * 0.5;
+    // Calculate the maximum width and height for the crop rectangle
+    const maxWidth = activeObject.getScaledWidth();
+    const maxHeight = activeObject.getScaledHeight();
 
-      const rectangle = new fabric.Rect({
-        fill: "rgba(0,0,0,0.3)",
-        originX: "center",
-        originY: "center",
-        stroke: "black",
-        opacity: 1,
-        width: width,
-        height: height,
-        left: activeObject.left,
-        top: activeObject.top,
-        hasRotatingPoint: false,
-        transparentCorners: false,
-        cornerColor: "white",
-        cornerStrokeColor: "black",
-        borderColor: "black",
-        lockMovementX: true,
-        lockMovementY: true,
-      });
+    // Calculate initial dimensions of the crop rectangle
+    let width = maxWidth * 0.5;
+    let height = maxHeight * 0.5;
 
-      // Save selected image and rectangle
-      lastActiveObject.current = activeObject;
-      rectangleCut.current = rectangle;
+    const rectangle = new fabric.Rect({
+      fill: "rgba(0,0,0,0.3)",
+      originX: "center",
+      originY: "center",
+      stroke: "black",
+      opacity: 1,
+      width: width,
+      height: height,
+      left: activeObject.left,
+      top: activeObject.top,
+      hasRotatingPoint: false,
+      transparentCorners: false,
+      cornerColor: "white",
+      cornerStrokeColor: "black",
+      borderColor: "black",
+      lockMovementX: true,
+      lockMovementY: true,
+    });
 
-      canvas.add(rectangle);
-      canvas.setActiveObject(rectangle);
-    }
+    // Save selected image and rectangle
+    lastActiveObject.current = activeObject;
+    rectangleCut.current = rectangle;
+
+    canvas.add(rectangle);
+    canvas.setActiveObject(rectangle);
   };
 
   const handleDelete = () => {
