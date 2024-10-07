@@ -10,6 +10,7 @@ import {
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import { UserAuthForm } from "@/components/authentication/components/user-auth-form";
+import LoginForm  from "@/components/authentication/components/authentication-03";
 
 // export const metadata: Metadata = {
 //   title: "Authentication",
@@ -66,7 +67,8 @@ export default function AuthenticationPage() {
                 Enter your email below to create your account
               </p>
             </div>
-            <UserAuthForm />
+            {/* <UserAuthForm /> */}
+            <LoginForm />
             <p className="px-8 text-center text-sm text-muted-foreground">
               By clicking continue, you agree to our{" "}
               <Link
