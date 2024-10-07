@@ -6,7 +6,7 @@ import "react-lazy-load-image-component/src/effects/blur.css";
 
 // import { cn } from "@/lib/utils"
 // import { buttonVariants } from "@/components/ui/button"
-import { UserAuthForm } from "@/components/authentication/components/user-auth-form"
+import { UserAuthForm } from "@/components/authentication/components/user-auth-form";
 
 // export const metadata: Metadata = {
 //   title: "Authentication",
@@ -102,5 +102,5 @@ export default function AuthenticationPage() {
         </div>
       </div>
     </>
-  )
+  );
 }

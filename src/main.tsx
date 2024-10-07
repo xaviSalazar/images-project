@@ -7,14 +7,14 @@ import { ThemeProvider } from "next-themes";
 import { TooltipProvider } from "./components/ui/tooltip.tsx";
 import "@/languages/index.tsx";
 import { RefProvider } from "@/components/workspace/RefCanvas.tsx";
-import { HashRouter } from 'react-router-dom'
+import { HashRouter } from "react-router-dom";
 
 // const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     {/* <QueryClientProvider client={queryClient}> */}
-      <ThemeProvider defaultTheme="dark" disableTransitionOnChange>
+    <ThemeProvider defaultTheme="dark" disableTransitionOnChange>
       <HashRouter>
         <TooltipProvider>
           <RefProvider>
@@ -22,7 +22,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           </RefProvider>
         </TooltipProvider>
       </HashRouter>
-      </ThemeProvider>
+    </ThemeProvider>
     {/* </QueryClientProvider> */}
   </React.StrictMode>,
 );

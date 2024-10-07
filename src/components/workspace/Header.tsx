@@ -13,7 +13,6 @@ import { Switch } from "@/components/ui/switch";
 import { useStore } from "@/lib/states";
 
 const Header = () => {
-
   const [updateSettings] = useStore((state) => [state.updateSettings]);
   const dev_mode = useStore((state) => state.settings.isDevModeActive);
   const handleSwitchChange = (checked: boolean) => {

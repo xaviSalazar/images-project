@@ -236,7 +236,7 @@ export async function removeBackgroundApi(
   const imageBase64 = await convertToBase64(imageFile);
   const api_call = dev_mode
     ? API_ENDPOINT_RENDER_IMAGE_DEV
-    :  `${API_ENDPOINT_RENDER_IMAGE}/run`;
+    : `${API_ENDPOINT_RENDER_IMAGE}/run`;
 
   const res = await fetch(`${api_call}`, {
     method: "POST",

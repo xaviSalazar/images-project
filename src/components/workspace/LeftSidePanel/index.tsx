@@ -21,8 +21,6 @@ import "react-lazy-load-image-component/src/effects/blur.css";
 import { cn } from "@/lib/utils";
 import useResolution from "@/hooks/useResolution";
 
- 
-
 import {
   Menubar,
   //MenubarCheckboxItem,
@@ -74,7 +72,6 @@ export const works: Artwork[] = [
 ];
 
 const LeftSidePanel = () => {
-
   const [isInpainting, runImgRendering, windowSize, setFile] = useStore(
     (state) => [
       state.isInpainting,
@@ -130,85 +127,95 @@ const LeftSidePanel = () => {
   };
 
   return (
-      <Menubar 
-        className={cn(resolution === "mobile" ? "bottom-2" : "top-[120px] left-6 rounded-lg bg-background flex-col","z-10 absolute")}      
-      >
-        <MenubarMenu>
-        <MenubarTrigger 
-          className={cn(resolution === "mobile" ? "" : "flex-col w-full")}      
-        > 
-            {" "}
-            <Images /> {t("See gallery")}
-          </MenubarTrigger>
-          <MenubarContent side={resolution === "mobile" ? "top": "right"} > 
-            <ScrollArea
-              style={{ height: windowSize.height - 160 }}
-              className="pr-3"
-            >
-              <div className="flex flex-col w-max space-x-4 p-4">
-                {works.map((artwork) => (
-                  <figure
-                    key={artwork.artist}
-                    className="shrink-0"
-                    draggable
-                    onDragStart={(event) => handleDragStart(event, artwork)}
-                  >
-                    <div className="overflow-hidden rounded-md">
-                      <LazyLoadImage
-                        alt={`Photo by ${artwork.artist}`}
-                        height={250}
-                        width={250}
-                        effect="blur"
-                        src={artwork.art}
-                      />
-                    </div>
-
-                    <figcaption className="pt-2 text-xs text-muted-foreground">
-                      Photo by{" "}
-                      <span className="font-semibold text-foreground">
-                        {artwork.artist}
-                      </span>
-                    </figcaption>
-                  </figure>
-                ))}
-              </div>
-            </ScrollArea>
-          </MenubarContent>
-        </MenubarMenu>
-        <Separator orientation={resolution === "mobile" ? "vertical": "horizontal"}/>
-        <MenubarMenu>
-          <MenubarTrigger 
-          className={cn(resolution === "mobile" ? "" : "flex-col w-full")}      
-          onClick={handleUploadClick}>
-            <input
-              ref={fileInputRef}
-              className="hidden"
-              type="file"
-              onChange={(ev) => {
-                const file = ev.currentTarget.files?.[0];
-                if (file) {
-                  onFileSelected(file);
-                }
-              }}
-              accept={SUPPORTED_FILE_TYPE.join(", ")}
-            />
-            <Paperclip /> {t("Upload Picture")}
-          </MenubarTrigger>
-        </MenubarMenu>
-        <Separator orientation={resolution === "mobile" ? "vertical": "horizontal"}/>
-        <MenubarMenu>
-          <MenubarTrigger
-          className={cn(resolution === "mobile" ? "" : "flex-col w-full")}      
+    <Menubar
+      className={cn(
+        resolution === "mobile"
+          ? "bottom-2"
+          : "top-[120px] left-6 rounded-lg bg-background flex-col",
+        "z-10 absolute",
+      )}
+    >
+      <MenubarMenu>
+        <MenubarTrigger
+          className={cn(resolution === "mobile" ? "" : "flex-col w-full")}
+        >
+          {" "}
+          <Images /> {t("See gallery")}
+        </MenubarTrigger>
+        <MenubarContent side={resolution === "mobile" ? "top" : "right"}>
+          <ScrollArea
+            style={{ height: windowSize.height - 160 }}
+            className="pr-3"
           >
-            {" "}
-            <Ratio /> {t("Format")}
-          </MenubarTrigger>
-          <MenubarContent side={resolution === "mobile" ? "top": "right"} > 
-            <RatioOptions />
-          </MenubarContent>
-        </MenubarMenu>
-      </Menubar>
-    );
+            <div className="flex flex-col w-max space-x-4 p-4">
+              {works.map((artwork) => (
+                <figure
+                  key={artwork.artist}
+                  className="shrink-0"
+                  draggable
+                  onDragStart={(event) => handleDragStart(event, artwork)}
+                >
+                  <div className="overflow-hidden rounded-md">
+                    <LazyLoadImage
+                      alt={`Photo by ${artwork.artist}`}
+                      height={250}
+                      width={250}
+                      effect="blur"
+                      src={artwork.art}
+                    />
+                  </div>
+
+                  <figcaption className="pt-2 text-xs text-muted-foreground">
+                    Photo by{" "}
+                    <span className="font-semibold text-foreground">
+                      {artwork.artist}
+                    </span>
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
+          </ScrollArea>
+        </MenubarContent>
+      </MenubarMenu>
+      <Separator
+        orientation={resolution === "mobile" ? "vertical" : "horizontal"}
+      />
+      <MenubarMenu>
+        <MenubarTrigger
+          className={cn(resolution === "mobile" ? "" : "flex-col w-full")}
+          onClick={handleUploadClick}
+        >
+          <input
+            ref={fileInputRef}
+            className="hidden"
+            type="file"
+            onChange={(ev) => {
+              const file = ev.currentTarget.files?.[0];
+              if (file) {
+                onFileSelected(file);
+              }
+            }}
+            accept={SUPPORTED_FILE_TYPE.join(", ")}
+          />
+          <Paperclip /> {t("Upload Picture")}
+        </MenubarTrigger>
+      </MenubarMenu>
+      <Separator
+        orientation={resolution === "mobile" ? "vertical" : "horizontal"}
+      />
+      <MenubarMenu>
+        <MenubarTrigger
+          className={cn(resolution === "mobile" ? "" : "flex-col w-full")}
+        >
+          {" "}
+          <Ratio /> {t("Format")}
+        </MenubarTrigger>
+        <MenubarContent side={resolution === "mobile" ? "top" : "right"}>
+          <RatioOptions />
+        </MenubarContent>
+      </MenubarMenu>
+    </Menubar>
+  );
 };
 
 export default LeftSidePanel;

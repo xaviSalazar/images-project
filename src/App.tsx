@@ -211,7 +211,7 @@ function Home() {
   });
 
   return (
-<main className="flex w-screen h-screen flex-col items-center overflow-hidden [background-size:20px_20px]">
+    <main className="flex w-screen h-screen flex-col items-center overflow-hidden [background-size:20px_20px]">
       <Toaster />
       <Header />
       <Workspace />

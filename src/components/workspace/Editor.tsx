@@ -207,12 +207,9 @@ const Editor = React.forwardRef(() => {
   const windowWidth = windowSize.width;
   const windowHeight = windowSize.height;
 
-  const [compatibleWidth, setCompatibleWidth] = useState<number>(
-    windowWidth,
-  );
-  const [compatibleHeight, setCompatibleHeight] = useState<number>(
-    windowHeight,
-  );
+  const [compatibleWidth, setCompatibleWidth] = useState<number>(windowWidth);
+  const [compatibleHeight, setCompatibleHeight] =
+    useState<number>(windowHeight);
 
   const [isDraging, setIsDraging] = useState(false);
 
@@ -367,7 +364,7 @@ const Editor = React.forwardRef(() => {
 
   /* positionBtn: menu bar that displays on top of image */
   function positionBtn(obj: FabricObject | undefined) {
-    if(!obj) return 
+    if (!obj) return;
     const btnContainer = document.getElementById("upper-button-options");
     if (!btnContainer) return;
     if (!fabricRef.current) return;
@@ -379,14 +376,14 @@ const Editor = React.forwardRef(() => {
     );
     const left = mTotal[4] - 150;
     // const top = mTotal[5] - (zoom * obj.height * obj.scaleY) / 2; /* size of div i guess */
-    const top = mTotal[5] - (zoom * obj.getScaledHeight()/2) + 10;
+    const top = mTotal[5] - (zoom * obj.getScaledHeight()) / 2 + 10;
     setButtonPosition({ left, top });
     setButtonVisible(true);
   }
 
   /* positionBottomBtn: menu bar that displays on bottom of image */
   function positionBottomBtn(obj: FabricObject | undefined) {
-    if(!obj) return 
+    if (!obj) return;
     const btnContainer = document.getElementById("bottom-button-options");
     if (!btnContainer) return;
     if (!fabricRef.current) return;
@@ -398,11 +395,13 @@ const Editor = React.forwardRef(() => {
     );
     const left = mTotal[4] - 100;
     // const top = mTotal[5] + (zoom * obj.height * obj.scaleY) / 2 + 77; /* size of div i guess */
-    const top = mTotal[5] + (zoom * obj.getScaledHeight()/2) + 100; /* size of div i guess */
+    const top =
+      mTotal[5] +
+      (zoom * obj.getScaledHeight()) / 2 +
+      100; /* size of div i guess */
     setBottomButtonPosition({ left, top });
     setBottomButtonVisible(true);
   }
-
 
   useEffect(() => {
     const initMainCanvas = (): fabric.Canvas => {
@@ -461,50 +460,51 @@ const Editor = React.forwardRef(() => {
     fabric.InteractiveFabricObject.ownDefaults = {
       ...fabric.InteractiveFabricObject.ownDefaults,
       noScaleCache: true,
-      cornerStyle: 'rect',
-      cornerStrokeColor: '#0E98FC',
-      cornerColor: 'white',
+      cornerStyle: "rect",
+      cornerStrokeColor: "#0E98FC",
+      cornerColor: "white",
       padding: 7,
       transparentCorners: false,
       cornerDashArray: [2, 2],
-      borderColor: '#51B9F9',
+      borderColor: "#51B9F9",
       borderDashArray: [3, 1, 3],
       borderScaleFactor: 2.0,
       borderOpacityWhenMoving: 1,
-  }
+    };
 
-  // SEE DOCUMENTATION https://fabricjs.github.io/docs/configuring-controls/
-  fabric.FabricObject.createControls = () => {
-    const controls = fabric.controlsUtils.createObjectDefaultControls();
-    delete controls.mtr;
-    return {
-      controls: {
-        ...controls,
-        mySpecialControl: new fabric.Control({
-          x: 0.55,
-          y: -0.55,
-          withConnection: true,
-          actionName: 'rotate',
-          actionHandler: fabric.controlsUtils.rotationWithSnapping,
-          cursorStyleHandler: fabric.controlsUtils.rotationStyleHandler,
-          sizeX: 50, // Increase the hit area width
-          sizeY: 50, // Increase the hit area height
-          render: function (ctx, left, top) {
-            // Custom icon image
-            const rotateImgIcon = new Image();
-            rotateImgIcon.src = "data:image/png;base64,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"
-            rotateImgIcon.onload = function () {
-              const size = 60;
-              ctx.save();
-              ctx.translate(left, top);
-              ctx.drawImage(rotateImgIcon, -size / 2, -size / 2, size, size);
-              ctx.restore();
-            };
-          }
-        })
-      }
-    }
-  }
+    // SEE DOCUMENTATION https://fabricjs.github.io/docs/configuring-controls/
+    fabric.FabricObject.createControls = () => {
+      const controls = fabric.controlsUtils.createObjectDefaultControls();
+      delete controls.mtr;
+      return {
+        controls: {
+          ...controls,
+          mySpecialControl: new fabric.Control({
+            x: 0.55,
+            y: -0.55,
+            withConnection: true,
+            actionName: "rotate",
+            actionHandler: fabric.controlsUtils.rotationWithSnapping,
+            cursorStyleHandler: fabric.controlsUtils.rotationStyleHandler,
+            sizeX: 50, // Increase the hit area width
+            sizeY: 50, // Increase the hit area height
+            render: function (ctx, left, top) {
+              // Custom icon image
+              const rotateImgIcon = new Image();
+              rotateImgIcon.src =
+                "data:image/png;base64,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";
+              rotateImgIcon.onload = function () {
+                const size = 60;
+                ctx.save();
+                ctx.translate(left, top);
+                ctx.drawImage(rotateImgIcon, -size / 2, -size / 2, size, size);
+                ctx.restore();
+              };
+            },
+          }),
+        },
+      };
+    };
 
     // Event listener for panning
     fabricRef.current?.on("mouse:up", stopPanning);
@@ -536,12 +536,12 @@ const Editor = React.forwardRef(() => {
       saveState();
     });
 
-    fabricRef.current?.on("object:modified", (e) => { 
-      console.log("object:modified")
-      const active_object = e.target.canvas?.getActiveObject()
+    fabricRef.current?.on("object:modified", (e) => {
+      console.log("object:modified");
+      const active_object = e.target.canvas?.getActiveObject();
       positionBtn(active_object);
       positionBottomBtn(active_object);
-      saveState();  
+      saveState();
     });
 
     fabricRef.current?.on("mouse:wheel", function (opt) {
@@ -550,8 +550,8 @@ const Editor = React.forwardRef(() => {
       zoom *= 0.999 ** delta;
       if (zoom > 20) zoom = 20;
       if (zoom < 0.01) zoom = 0.01;
-      const point_zoom = new Point(opt.e.offsetX, opt.e.offsetY)
-      fabricRef.current?.zoomToPoint(point_zoom,zoom);
+      const point_zoom = new Point(opt.e.offsetX, opt.e.offsetY);
+      fabricRef.current?.zoomToPoint(point_zoom, zoom);
       setButtonVisible(false);
       setBottomButtonVisible(false);
       opt.e.preventDefault();
@@ -615,15 +615,17 @@ const Editor = React.forwardRef(() => {
 
     let calculated_zoom;
 
-    if(resolution === "desktop")
-    {
-      calculated_zoom = Math.min(zoomX, zoomY) - 0.25;    
+    if (resolution === "desktop") {
+      calculated_zoom = Math.min(zoomX, zoomY) - 0.25;
     } else {
       calculated_zoom = Math.min(zoomX, zoomY);
     }
 
     debugLog(LOG_LEVELS.DEBUG, " <<calculated zoom>> ", calculated_zoom);
-    const point_zoom = new Point(fabricRef.current?.width / 2, fabricRef.current?.height / 2)
+    const point_zoom = new Point(
+      fabricRef.current?.width / 2,
+      fabricRef.current?.height / 2,
+    );
     // Here i can move to X and Y axis to show initial square working area
     fabricRef.current.setViewportTransform([1, 0, 0, 1, 0, 0]);
     fabricRef.current?.zoomToPoint(point_zoom, calculated_zoom);
@@ -739,9 +741,8 @@ const Editor = React.forwardRef(() => {
   }, []);
 
   const startPanning = useCallback((opt: fabric.TEvent<MouseEvent>) => {
-    if(fabricRef.current?.getActiveObject()) return;
-    if(isLeftClick(opt) && isPanningActiveRef.current ) 
-    {
+    if (fabricRef.current?.getActiveObject()) return;
+    if (isLeftClick(opt) && isPanningActiveRef.current) {
       isDragging.current = true;
       const evt = opt.e;
       lastPosX.current = evt.clientX;
@@ -750,8 +751,7 @@ const Editor = React.forwardRef(() => {
   }, []);
 
   const panCanvas = useCallback((opt: fabric.TEvent<MouseEvent>) => {
-    if (isLeftClick(opt) && isDragging.current) 
-    {
+    if (isLeftClick(opt) && isDragging.current) {
       const e = opt.e;
       const vpt = fabricRef.current.viewportTransform;
       vpt[4] += e.clientX - lastPosX.current;
@@ -762,152 +762,165 @@ const Editor = React.forwardRef(() => {
     }
   }, []);
 
+  const aligningLineOffset = 5;
+  const aligningLineMargin = 4;
+  const aligningLineWidth = 5;
+  const aligningLineColor = "rgb(160,198,58)";
+  const aligningDash = [15, 2];
 
-
-  const aligningLineOffset = 5
-  const aligningLineMargin = 4
-  const aligningLineWidth = 5
-  const aligningLineColor = 'rgb(160,198,58)'
-  const aligningDash = [15, 2]
-  
   function initAligningGuidelines() {
-    const canvas = fabricRef.current
-    if(!canvas) return;
-    let ctx = canvas.getSelectionContext()
-    let viewportTransform
-    let zoom = 1
-    let verticalLines = []
-    let horizontalLines = []
-  
-    canvas.on('mouse:down', function() {
-      viewportTransform = canvas.viewportTransform
-      zoom = canvas.getZoom()
-    })
-  
-    canvas.on('object:moving', function(e) {
-      if (!canvas._currentTransform) return
-      let activeObject = e.target
-      let activeObjectCenter = activeObject.getCenterPoint()
+    const canvas = fabricRef.current;
+    if (!canvas) return;
+    let ctx = canvas.getSelectionContext();
+    let viewportTransform;
+    let zoom = 1;
+    let verticalLines = [];
+    let horizontalLines = [];
+
+    canvas.on("mouse:down", function () {
+      viewportTransform = canvas.viewportTransform;
+      zoom = canvas.getZoom();
+    });
+
+    canvas.on("object:moving", function (e) {
+      if (!canvas._currentTransform) return;
+      let activeObject = e.target;
+      let activeObjectCenter = activeObject.getCenterPoint();
       //let activeObjectBoundingRect = activeObject.getBoundingRect()
       let activeObjectHalfWidth = activeObject.getScaledWidth() / 2;
-      let activeObjectHalfHeight = activeObject.getScaledHeight() /2;
-  
+      let activeObjectHalfHeight = activeObject.getScaledHeight() / 2;
+
       canvas
         .getObjects()
         .filter((object) => object !== activeObject && object.visible)
         .forEach((object) => {
-          let objectCenter = object.getCenterPoint()
+          let objectCenter = object.getCenterPoint();
           //let objectBoundingRect = object.getBoundingRect()
           let objectHalfHeight = object.getScaledWidth() / 2;
-          let objectHalfWidth = object.getScaledHeight() /2;
-  
+          let objectHalfWidth = object.getScaledHeight() / 2;
+
           // snap by the horizontal center line
-          snapVertical(objectCenter.x, activeObjectCenter.x, objectCenter.x)
+          snapVertical(objectCenter.x, activeObjectCenter.x, objectCenter.x);
           // snap by the left object edge matching left active edge
           snapVertical(
             objectCenter.x - objectHalfWidth,
             activeObjectCenter.x - activeObjectHalfWidth,
-            objectCenter.x - objectHalfWidth + activeObjectHalfWidth
-          )
+            objectCenter.x - objectHalfWidth + activeObjectHalfWidth,
+          );
           // snap by the left object edge matching right active edge
           snapVertical(
             objectCenter.x - objectHalfWidth,
             activeObjectCenter.x + activeObjectHalfWidth,
-            objectCenter.x - objectHalfWidth - activeObjectHalfWidth
-          )
+            objectCenter.x - objectHalfWidth - activeObjectHalfWidth,
+          );
           // snap by the right object edge matching right active edge
           snapVertical(
             objectCenter.x + objectHalfWidth,
             activeObjectCenter.x + activeObjectHalfWidth,
-            objectCenter.x + objectHalfWidth - activeObjectHalfWidth
-          )
+            objectCenter.x + objectHalfWidth - activeObjectHalfWidth,
+          );
           // snap by the right object edge matching left active edge
           snapVertical(
             objectCenter.x + objectHalfWidth,
             activeObjectCenter.x - activeObjectHalfWidth,
-            objectCenter.x + objectHalfWidth + activeObjectHalfWidth
-          )
-  
+            objectCenter.x + objectHalfWidth + activeObjectHalfWidth,
+          );
+
           function snapVertical(objEdge, activeEdge, snapCenter) {
             if (isInRange(objEdge, activeEdge)) {
               verticalLines.push({
                 x: objEdge,
-                y1: objectCenter.y < activeObjectCenter.y ?
-                  objectCenter.y - objectHalfHeight - aligningLineOffset : objectCenter.y + objectHalfHeight + aligningLineOffset,
-                y2: activeObjectCenter.y > objectCenter.y ?
-                  activeObjectCenter.y + activeObjectHalfHeight + aligningLineOffset : activeObjectCenter.y - activeObjectHalfHeight - aligningLineOffset,
-              })
+                y1:
+                  objectCenter.y < activeObjectCenter.y
+                    ? objectCenter.y - objectHalfHeight - aligningLineOffset
+                    : objectCenter.y + objectHalfHeight + aligningLineOffset,
+                y2:
+                  activeObjectCenter.y > objectCenter.y
+                    ? activeObjectCenter.y +
+                      activeObjectHalfHeight +
+                      aligningLineOffset
+                    : activeObjectCenter.y -
+                      activeObjectHalfHeight -
+                      aligningLineOffset,
+              });
               activeObject.setPositionByOrigin(
                 new fabric.Point(snapCenter, activeObjectCenter.y),
-                'center',
-                'center'
-              )
+                "center",
+                "center",
+              );
             }
           }
-  
+
           // snap by the vertical center line
-          snapHorizontal(objectCenter.y, activeObjectCenter.y, objectCenter.y)
+          snapHorizontal(objectCenter.y, activeObjectCenter.y, objectCenter.y);
           // snap by the top object edge matching the top active edge
           snapHorizontal(
             objectCenter.y - objectHalfHeight,
             activeObjectCenter.y - activeObjectHalfHeight,
-            objectCenter.y - objectHalfHeight + activeObjectHalfHeight
-          )
+            objectCenter.y - objectHalfHeight + activeObjectHalfHeight,
+          );
           // snap by the top object edge matching the bottom active edge
           snapHorizontal(
             objectCenter.y - objectHalfHeight,
             activeObjectCenter.y + activeObjectHalfHeight,
-            objectCenter.y - objectHalfHeight - activeObjectHalfHeight
-          )
+            objectCenter.y - objectHalfHeight - activeObjectHalfHeight,
+          );
           // snap by the bottom object edge matching the bottom active edge
           snapHorizontal(
             objectCenter.y + objectHalfHeight,
             activeObjectCenter.y + activeObjectHalfHeight,
-            objectCenter.y + objectHalfHeight - activeObjectHalfHeight
-          )
+            objectCenter.y + objectHalfHeight - activeObjectHalfHeight,
+          );
           // snap by the bottom object edge matching the top active edge
           snapHorizontal(
             objectCenter.y + objectHalfHeight,
             activeObjectCenter.y - activeObjectHalfHeight,
-            objectCenter.y + objectHalfHeight + activeObjectHalfHeight
-          )
-  
+            objectCenter.y + objectHalfHeight + activeObjectHalfHeight,
+          );
+
           function snapHorizontal(objEdge, activeObjEdge, snapCenter) {
             if (isInRange(objEdge, activeObjEdge)) {
               horizontalLines.push({
                 y: objEdge,
-                x1: objectCenter.x < activeObjectCenter.x ?
-                  objectCenter.x - objectHalfWidth - aligningLineOffset : objectCenter.x + objectHalfWidth + aligningLineOffset,
-                x2: activeObjectCenter.x > objectCenter.x ?
-                  activeObjectCenter.x + activeObjectHalfWidth + aligningLineOffset : activeObjectCenter.x - activeObjectHalfWidth - aligningLineOffset,
-              })
+                x1:
+                  objectCenter.x < activeObjectCenter.x
+                    ? objectCenter.x - objectHalfWidth - aligningLineOffset
+                    : objectCenter.x + objectHalfWidth + aligningLineOffset,
+                x2:
+                  activeObjectCenter.x > objectCenter.x
+                    ? activeObjectCenter.x +
+                      activeObjectHalfWidth +
+                      aligningLineOffset
+                    : activeObjectCenter.x -
+                      activeObjectHalfWidth -
+                      aligningLineOffset,
+              });
               activeObject.setPositionByOrigin(
                 new fabric.Point(activeObjectCenter.x, snapCenter),
-                'center',
-                'center'
-              )
+                "center",
+                "center",
+              );
             }
           }
-        })
-    })
-  
-    canvas.on('before:render', () => {
-      canvas.clearContext(canvas.contextTop)
-    })
-  
-  
-    canvas.on('after:render', function() {
-      verticalLines.forEach((line) => drawVerticalLine(line))
-      horizontalLines.forEach((line) => drawHorizontalLine(line))
-  
-      verticalLines = []
-      horizontalLines = []
-    })
-  
-    canvas.on('mouse:up', function() {
-      canvas.renderAll()
-    })
-  
+        });
+    });
+
+    canvas.on("before:render", () => {
+      canvas.clearContext(canvas.contextTop);
+    });
+
+    canvas.on("after:render", function () {
+      verticalLines.forEach((line) => drawVerticalLine(line));
+      horizontalLines.forEach((line) => drawHorizontalLine(line));
+
+      verticalLines = [];
+      horizontalLines = [];
+    });
+
+    canvas.on("mouse:up", function () {
+      canvas.renderAll();
+    });
+
     function drawVerticalLine(coords) {
       drawLine(
         // coords.x + 0.5,
@@ -915,31 +928,37 @@ const Editor = React.forwardRef(() => {
         coords.y1 > coords.y2 ? coords.y2 : coords.y1,
         // coords.x + 0.5,
         coords.x,
-        coords.y2 > coords.y1 ? coords.y2 : coords.y1
-      )
+        coords.y2 > coords.y1 ? coords.y2 : coords.y1,
+      );
     }
-  
+
     function drawHorizontalLine(coords) {
       drawLine(
         coords.x1 > coords.x2 ? coords.x2 : coords.x1,
-        //coords.y + 0.5,        
+        //coords.y + 0.5,
         coords.y,
         coords.x2 > coords.x1 ? coords.x2 : coords.x1,
         // coords.y + 0.5,
         coords.y,
-      )
+      );
     }
-  
+
     function drawLine(x1, y1, x2, y2) {
-      ctx.save()
-      ctx.lineWidth = aligningLineWidth
-      ctx.strokeStyle = aligningLineColor
-      ctx.setLineDash(aligningDash)
-      ctx.beginPath()
-      ctx.moveTo(x1 * zoom + viewportTransform[4], y1 * zoom + viewportTransform[5])
-      ctx.lineTo(x2 * zoom + viewportTransform[4], y2 * zoom + viewportTransform[5])
-      ctx.stroke()
-      ctx.restore()
+      ctx.save();
+      ctx.lineWidth = aligningLineWidth;
+      ctx.strokeStyle = aligningLineColor;
+      ctx.setLineDash(aligningDash);
+      ctx.beginPath();
+      ctx.moveTo(
+        x1 * zoom + viewportTransform[4],
+        y1 * zoom + viewportTransform[5],
+      );
+      ctx.lineTo(
+        x2 * zoom + viewportTransform[4],
+        y2 * zoom + viewportTransform[5],
+      );
+      ctx.stroke();
+      ctx.restore();
     }
     /**
      * return true if value2 is within value1 +/- aligningLineMargin
@@ -948,10 +967,12 @@ const Editor = React.forwardRef(() => {
      * @returns Boolean
      */
     function isInRange(value1, value2) {
-      return value2 > value1 - aligningLineMargin && value2 < value1 + aligningLineMargin
+      return (
+        value2 > value1 - aligningLineMargin &&
+        value2 < value1 + aligningLineMargin
+      );
     }
   }
-  
 
   // COMING RENDERS FROM BACKEND
   useEffect(() => {
@@ -1052,8 +1073,11 @@ const Editor = React.forwardRef(() => {
       const zoomY = fabricRef.current?.height / scaledHeight;
       const calculated_zoom = Math.min(zoomX, zoomY) - 0.35;
       fabricRef.current.setViewportTransform([1, 0, 0, 1, 0, 0]); // Reset panning
-      const zoom_point = new Point(fabricRef.current?.width / 2, fabricRef.current?.height / 2 )
-      fabricRef.current?.zoomToPoint(zoom_point,calculated_zoom,);
+      const zoom_point = new Point(
+        fabricRef.current?.width / 2,
+        fabricRef.current?.height / 2,
+      );
+      fabricRef.current?.zoomToPoint(zoom_point, calculated_zoom);
     }
   }, [scaledWidth, scaledHeight]);
 
@@ -1108,7 +1132,6 @@ const Editor = React.forwardRef(() => {
     resetZoom,
     // drawOnCurrentRender,
   ]);
-
 
   const handleUndo = () => {
     undo();
@@ -1675,9 +1698,8 @@ const Editor = React.forwardRef(() => {
 
   const lastDistance = useRef(0);
 
-
   const handleGestureStart = (event) => {
-    console.log("touch start")
+    console.log("touch start");
     const touchCount = event.touches.length;
     if (touchCount === 2) {
       // Two-finger gesture started
@@ -1687,13 +1709,13 @@ const Editor = React.forwardRef(() => {
       // Calculate initial distance
       const initialDistance = Math.hypot(
         point2.pageX - point1.pageX,
-        point2.pageY - point1.pageY
+        point2.pageY - point1.pageY,
       );
 
       lastDistance.current = initialDistance;
     }
 
-    if (touchCount=== 1 && !fabricRef.current?.getActiveObject()) {
+    if (touchCount === 1 && !fabricRef.current?.getActiveObject()) {
       isDragging.current = true;
       const touch = event.touches[0];
       lastPosX.current = touch.clientX;
@@ -1709,7 +1731,7 @@ const Editor = React.forwardRef(() => {
       const point2 = event.touches[1];
       const currentDistance = Math.hypot(
         point2.pageX - point1.pageX,
-        point2.pageY - point1.pageY
+        point2.pageY - point1.pageY,
       );
 
       // Calculate the zoom factor
@@ -1727,7 +1749,10 @@ const Editor = React.forwardRef(() => {
       //   x: (point1.pageX + point2.pageX) / 2,
       //   y: (point1.pageY + point2.pageY) / 2,
       // };
-      const zoom_point = new Point((point1.pageX + point2.pageX) / 2, (point1.pageY + point2.pageY) / 2 )
+      const zoom_point = new Point(
+        (point1.pageX + point2.pageX) / 2,
+        (point1.pageY + point2.pageY) / 2,
+      );
       fabricRef.current?.zoomToPoint(zoom_point, zoom);
       // Update last distance
       lastDistance.current = currentDistance;
@@ -1748,9 +1773,8 @@ const Editor = React.forwardRef(() => {
 
   const handleGestureEnd = () => {
     lastDistance.current = 0; // Reset distance when gesture ends
-    isDragging.current = false
+    isDragging.current = false;
   };
-
 
   return (
     <div
@@ -1771,7 +1795,7 @@ const Editor = React.forwardRef(() => {
           zIndex: 9999,
         }}
       >
-        <MenubarMenu >
+        <MenubarMenu>
           <MenubarTrigger>{t("Edit")}</MenubarTrigger>
           <MenubarContent className="bg-[#349981]">
             <MenubarItem onClick={handleDownloadObject}>
@@ -1806,7 +1830,6 @@ const Editor = React.forwardRef(() => {
               </MenubarShortcut>
             </MenubarItem>
           </MenubarContent>
-
         </MenubarMenu>
 
         <Separator orientation="vertical" />
@@ -1877,7 +1900,7 @@ const Editor = React.forwardRef(() => {
             onClick={() => handleLayoutControl("toBackward")}
             asChild
           >
-            <Button variant="secondary"  className="bg-[#349981]">
+            <Button variant="secondary" className="bg-[#349981]">
               {t("toBack")}
               <ArrowDownIcon className="h-4 w-4" />
             </Button>
@@ -1886,111 +1909,108 @@ const Editor = React.forwardRef(() => {
       </Menubar>
 
       {renderCanvas()}
-      {
-        resolution !== "mobile" &&
-        
-      <div className="fixed flex bottom-5 border px-4 py-2 rounded-[3rem] gap-8 items-center justify-center backdrop-filter backdrop-blur-md bg-background/70">
-        <Slider
-          className="w-48"
-          defaultValue={[50]}
-          min={MIN_BRUSH_SIZE}
-          max={MAX_BRUSH_SIZE}
-          step={1}
-          tabIndex={-1}
-          value={[baseBrushSize]}
-          onValueChange={(vals) => handleSliderChange(vals[0])}
-          onClick={() => setShowRefBrush(false)}
-        />
-        <div className="flex gap-2">
-          <IconButton
-            tooltip="Reset zoom & pan"
-            // disabled={scale === minScale && panned === false}
-            onClick={resetZoom}
-          >
-            <Expand />
-          </IconButton>
+      {resolution !== "mobile" && (
+        <div className="fixed flex bottom-5 border px-4 py-2 rounded-[3rem] gap-8 items-center justify-center backdrop-filter backdrop-blur-md bg-background/70">
+          <Slider
+            className="w-48"
+            defaultValue={[50]}
+            min={MIN_BRUSH_SIZE}
+            max={MAX_BRUSH_SIZE}
+            step={1}
+            tabIndex={-1}
+            value={[baseBrushSize]}
+            onValueChange={(vals) => handleSliderChange(vals[0])}
+            onClick={() => setShowRefBrush(false)}
+          />
+          <div className="flex gap-2">
+            <IconButton
+              tooltip="Reset zoom & pan"
+              // disabled={scale === minScale && panned === false}
+              onClick={resetZoom}
+            >
+              <Expand />
+            </IconButton>
 
-          <IconButton
-            tooltip="Undo"
-            onClick={handleUndo}
-            disabled={undoDisabled}
-          >
-            <Undo />
-          </IconButton>
+            <IconButton
+              tooltip="Undo"
+              onClick={handleUndo}
+              disabled={undoDisabled}
+            >
+              <Undo />
+            </IconButton>
 
-          <IconButton
-            tooltip="Redo"
-            onClick={handleRedo}
-            disabled={redoDisabled}
-          >
-            <Redo />
-          </IconButton>
+            <IconButton
+              tooltip="Redo"
+              onClick={handleRedo}
+              disabled={redoDisabled}
+            >
+              <Redo />
+            </IconButton>
 
-          <IconButton
-            tooltip="Save Image"
-            //disabled={!renders.length}
-            // onClick={ () => {
-            //   download("image");
-            //   download("path")
-            // }}
-            onClick={() => {
-              handleDownload("image");
-            }}
-          >
-            <Download />
-          </IconButton>
+            <IconButton
+              tooltip="Save Image"
+              //disabled={!renders.length}
+              // onClick={ () => {
+              //   download("image");
+              //   download("path")
+              // }}
+              onClick={() => {
+                handleDownload("image");
+              }}
+            >
+              <Download />
+            </IconButton>
 
-          <IconButton
-            tooltip="Run Inpainting"
-            disabled={
-              isProcessing || (!hadDrawSomething() && extraMasks.length === 0)
-            }
-            onClick={() => {
-              runInpainting("lama");
-            }}
-          >
-            <Eraser />
-          </IconButton>
-
-          <Toggle
-            aria-label="Toggle italic"
-            defaultPressed={showDrawing}
-            disabled={isPanningActive}
-            onPressedChange={(value: boolean) => {
-              updateSettings({ showDrawing: value });
-                  const fabricInstance = fabricRef.current;
-                  if (fabricInstance) {
-                    fabricInstance.isDrawingMode = value;
-                  }
-              if (value) {
-                updateSettings({ isPanningActive: false });
+            <IconButton
+              tooltip="Run Inpainting"
+              disabled={
+                isProcessing || (!hadDrawSomething() && extraMasks.length === 0)
               }
-            }}
-          >
-            <div className="icon-button-icon-wrapper">
-              <Paintbrush />
-            </div>
-          </Toggle>
+              onClick={() => {
+                runInpainting("lama");
+              }}
+            >
+              <Eraser />
+            </IconButton>
 
-          <Toggle
-            aria-label="Toggle italic"
-            defaultPressed={isPanningActive}
-            disabled={showDrawing}
-            onPressedChange={(value: boolean) => {
-              updateSettings({ isPanningActive: value });
-              if (value) {
-                updateSettings({ showDrawing: false })
-              }
-            }}
-          >
-            <div className="icon-button-icon-wrapper">
-              <GrabIcon />
-            </div>
-          </Toggle>
+            <Toggle
+              aria-label="Toggle italic"
+              defaultPressed={showDrawing}
+              disabled={isPanningActive}
+              onPressedChange={(value: boolean) => {
+                updateSettings({ showDrawing: value });
+                const fabricInstance = fabricRef.current;
+                if (fabricInstance) {
+                  fabricInstance.isDrawingMode = value;
+                }
+                if (value) {
+                  updateSettings({ isPanningActive: false });
+                }
+              }}
+            >
+              <div className="icon-button-icon-wrapper">
+                <Paintbrush />
+              </div>
+            </Toggle>
 
+            <Toggle
+              aria-label="Toggle italic"
+              defaultPressed={isPanningActive}
+              disabled={showDrawing}
+              onPressedChange={(value: boolean) => {
+                updateSettings({ isPanningActive: value });
+                if (value) {
+                  updateSettings({ showDrawing: false });
+                }
+              }}
+            >
+              <div className="icon-button-icon-wrapper">
+                <GrabIcon />
+              </div>
+            </Toggle>
+          </div>
         </div>
-      </div>
-  }
+      )}
     </div>
   );
 });
