@@ -55,6 +55,10 @@ export default function LoginForm() {
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" />
           </div>
+          <div className="grid gap-2">
+            <Label htmlFor="verify-password">Verify Password</Label>
+            <Input id="verify-password" type="password" />
+          </div>
           <Button type="submit" className="w-full">
             Create an account
           </Button>
