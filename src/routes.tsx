@@ -5,6 +5,7 @@ import { useRoutes, Navigate, useLocation } from "react-router-dom";
 
 import App from "./App.tsx";
 import AuthenticationPage from "@/components/authentication/page.tsx";
+import LoginPage from "@/components/authentication/LoginPage.tsx";
 
 export default function Router() {
   // Define routes using useRoutes() hook for dynamic route config
@@ -24,6 +25,7 @@ export default function Router() {
         // { path: 'chatpdf', element: <ProtectedRoute><ChatPdf /></ProtectedRoute> },
         // // { path: 'image-gen', element: <ProtectedRoute><ImgGenerator /></ProtectedRoute> },
         // // Public routes below
+        { path: 'login', element: <LoginPage />},
         { path: "registration", element: <AuthenticationPage /> },
         // { path: 'signup', element: <SignUp />},
       ],
