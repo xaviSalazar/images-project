@@ -2,6 +2,7 @@ import "react-lazy-load-image-component/src/effects/blur.css";
 import {
   Link,
 } from "react-router-dom";
+import { Toaster } from "@/components/ui/toaster";
 
 import { cn } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
@@ -11,6 +12,7 @@ export default function LoginPage() {
   return (
     <>
       <div className="flex w-screen h-screen flex-row justify-center overflow-hidden [background-size:20px_20px]">
+      <Toaster />
         <Link
           to="/registration"
           className={cn(

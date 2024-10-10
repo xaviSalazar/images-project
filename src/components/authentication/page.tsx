@@ -4,6 +4,7 @@ import {
 } from "react-router-dom";
 
 import { cn } from "@/lib/utils"
+import { Toaster } from "@/components/ui/toaster";
 import { buttonVariants } from "@/components/ui/button"
 import LoginForm  from "@/components/authentication/components/authentication-03";
 
@@ -11,6 +12,7 @@ export default function AuthenticationPage() {
   return (
     <>
       <div className="flex w-screen h-screen flex-row justify-center overflow-hidden [background-size:20px_20px]">
+        <Toaster />
         <Link
           to="/login"
           className={cn(
@@ -57,7 +59,6 @@ export default function AuthenticationPage() {
                 Enter your email below to create your account
               </p>
             </div>
-            {/* <UserAuthForm /> */}
             <LoginForm />
             <p className="px-8 text-center text-sm text-muted-foreground">
               By clicking continue, you agree to our{" "}

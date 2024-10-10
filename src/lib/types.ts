@@ -154,3 +154,16 @@ export interface LanguageState {
 }
 
 export type AdjustMaskOperate = "expand" | "shrink" | "reverse";
+
+// created for CRUD user 
+export interface UserRegistered { 
+  id: string; 
+  name: string; 
+  lastname: string; 
+  email: string 
+}
+
+export interface ErrorResponse {
+  error: string;
+  message?: string; // Optional field for additional context
+}
