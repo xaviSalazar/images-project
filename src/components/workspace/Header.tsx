@@ -11,6 +11,7 @@ import PromptInput from "./PromptInput";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useStore } from "@/lib/states";
+import { UserNav } from "./UserNav"
 
 const Header = () => {
   const [updateSettings] = useStore((state) => [state.updateSettings]);
@@ -38,6 +39,7 @@ const Header = () => {
         <InstructionsDialog />
         <LanguageSwitcher />
         <Shortcuts />
+        <UserNav/>
         {/* <SettingsDialog /> */}
       </div>
     </header>
