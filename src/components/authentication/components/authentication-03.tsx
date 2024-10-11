@@ -49,7 +49,11 @@ export default function LoginForm() {
     validationSchema,
     onSubmit: async (values) => {
       try {
-        const { data, status } = await registerUser(values); // Destructure to get data and status
+         // Add the host URL to the form values
+        const hostUrl = window.location.href;
+        const baseUrl = hostUrl.substring(0, hostUrl.indexOf('#/') + 2);
+        const updatedValues = { ...values, host: baseUrl };
+        const { data, status } = await registerUser(updatedValues); // Destructure to get data and status
         if(status === 200){
           navigate("/login") 
           toast({
