@@ -1105,7 +1105,10 @@ const Editor = React.forwardRef(() => {
         userWindowHeight: windowHeight,
       });
 
-      fabricRef.current?.setDimensions({width: windowWidth, height: windowHeight })
+      fabricRef.current?.setDimensions({
+        width: windowWidth,
+        height: windowHeight,
+      });
       // fabricRef.current.setWidth(windowWidth);
       // fabricRef.current.setHeight(windowHeight);
       moveGroupByOffset(rectangleGroupRef.current, offsetX, offsetY);
@@ -1470,7 +1473,7 @@ const Editor = React.forwardRef(() => {
     }
     isCropping.current = true;
     const target = canvas_instance.getActiveObject(); // object
-    if(!target) return;
+    if (!target) return;
 
     const canvas = target.canvas;
 

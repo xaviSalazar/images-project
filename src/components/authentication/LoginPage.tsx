@@ -1,23 +1,21 @@
 import "react-lazy-load-image-component/src/effects/blur.css";
-import {
-  Link,
-} from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 
-import { cn } from "@/lib/utils"
-import { buttonVariants } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
 import { UserAuthForm } from "@/components/authentication/components/user-auth-form";
 
 export default function LoginPage() {
   return (
     <>
       <div className="flex w-screen h-screen flex-row justify-center overflow-hidden [background-size:20px_20px]">
-      <Toaster />
+        <Toaster />
         <Link
           to="/registration"
           className={cn(
             buttonVariants({ variant: "ghost" }),
-            "absolute right-4 top-4 md:right-8 md:top-8"
+            "absolute right-4 top-4 md:right-8 md:top-8",
           )}
         >
           Sign up
@@ -42,25 +40,22 @@ export default function LoginPage() {
           <div className="relative z-20 mt-auto">
             <blockquote className="space-y-2">
               <p className="text-lg">
-                &ldquo;This website is powered with AI, allowing you to save 
-                time and do whatever you do
-                .&rdquo;
+                &ldquo;This website is powered with AI, allowing you to save
+                time and do whatever you do .&rdquo;
               </p>
               {/* <footer className="text-sm">Sofia Davis</footer> */}
             </blockquote>
           </div>
         </div>
-          <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-            <div className="flex flex-col space-y-2 text-center">
-              <h1 className="text-2xl font-semibold tracking-tight">
-                Sign in
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Enter your email and password or choose gmail sign in
-              </p>
-            </div>
-            <UserAuthForm />
+        <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
+          <div className="flex flex-col space-y-2 text-center">
+            <h1 className="text-2xl font-semibold tracking-tight">Sign in</h1>
+            <p className="text-sm text-muted-foreground">
+              Enter your email and password or choose gmail sign in
+            </p>
           </div>
+          <UserAuthForm />
+        </div>
       </div>
     </>
   );

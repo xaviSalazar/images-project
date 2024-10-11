@@ -1,5 +1,5 @@
 import { useRoutes, Navigate, useLocation } from "react-router-dom";
-import { useEffect } from 'react';
+import { useEffect } from "react";
 // import { useSelector } from 'react-redux';
 // import { useEffect } from 'react';
 // import { useDispatch } from 'react-redux';
@@ -9,7 +9,11 @@ import LoginPage from "@/components/authentication/LoginPage.tsx";
 import { useAuthStore } from "@/lib/states";
 
 function ProtectedRoute({ children }) {
-  const [isLoggedIn] = useAuthStore((state) => [state.isLoggedIn, state.login, state.logout]);
+  const [isLoggedIn] = useAuthStore((state) => [
+    state.isLoggedIn,
+    state.login,
+    state.logout,
+  ]);
   const location = useLocation();
   if (!isLoggedIn) {
     // Redirect to login but remember the location we're trying to access
@@ -35,8 +39,16 @@ export default function Router() {
         // Redirects immediately to /home
         { element: <Navigate to="/images-project" />, index: true },
         // Your routes wrapped in ProtectedRoute component
-        { path: "images-project", element: <ProtectedRoute> <App /> </ProtectedRoute>},
-        { path: 'login', element: <LoginPage />},
+        {
+          path: "images-project",
+          element: (
+            <ProtectedRoute>
+              {" "}
+              <App />{" "}
+            </ProtectedRoute>
+          ),
+        },
+        { path: "login", element: <LoginPage /> },
         { path: "registration", element: <AuthenticationPage /> },
         // { path: 'signup', element: <SignUp />},
       ],

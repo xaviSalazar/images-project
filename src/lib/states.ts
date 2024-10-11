@@ -55,8 +55,7 @@ import inpaint, {
   runPlugin,
 } from "./api";
 import { toast } from "@/components/ui/use-toast";
-import { autoLogin, loginUser, logOutUser} from "@/lib/user-api"; // Adjust the import path as necessary
-
+import { autoLogin, loginUser, logOutUser } from "@/lib/user-api"; // Adjust the import path as necessary
 
 //
 type FileManagerState = {
@@ -418,80 +417,77 @@ type SessionAction = {
   login: (values) => Promise<void>;
   logout: () => Promise<void>;
   updateSesionUserState: (newState: Partial<AuthStore>) => void;
-}
+};
 
 export const useAuthStore = createWithEqualityFn<AuthStore & SessionAction>()(
   persist(
-      (set) => ({
-          isLoggedIn: false,
-          isLoading: false,
-          sessionUser: {id:'', name:'', lastname:'', email: ''},
-          autoLogin: async() => {
-            const { data, status } = await autoLogin();
-            console.log(data)
-            if (status === 200) {
-              set({ isLoggedIn: true });   
-              set({ sessionUser: data?.user });         
-            } else {
-              set({ isLoggedIn: false });  
-              localStorage.clear();          
-            }
-          },
-          login: async(values) => {
-            try {
-              set({ isLoading: true });
-              console.log("Submitting form:", values);
-              const {data, status} = await loginUser(values);
-              console.log(data)
-              if(status == 200)
-              {
-                localStorage.setItem('accessToken', data?.token)
-                set({ sessionUser: data?.user });         
-                toast({
-                  variant: "success",
-                  title: "LOGIN SUCCESS",
-                  description: `${data?.message}`,
-                });
-                set({ isLoading: false });
-              const userLocalStorage = localStorage.getItem('accessToken');
-              if (userLocalStorage) {
-                  set({ isLoggedIn: true });
-                  console.log("zustand logged in to true")
-              }
-              }
-              if(status === 401){
-                toast({
-                  variant: "destructive",
-                  title: "LOGIN FAIL",
-                  description: `${data?.error}`,
-                });
-                set({ isLoading: false });
-              }
-              set({ isLoading: false });
-            } catch (error) {
-              console.error("Submission error:", error);
-              set({ isLoading: false });
-            }
-
-          },
-          logout: async () => {
-            const {data, status} = await logOutUser();
-            console.log(data);
-            console.log(status)
-            if(status == 200) {
-              set({ isLoggedIn: false });
-              localStorage.clear();
-            }
-          },
-          updateSesionUserState: (newState: Partial<AuthStore>) => {
-            set(() => newState);
-          },
-    
-      }),
-      {
-          name: 'userLoginStatus', // local storage
+    (set) => ({
+      isLoggedIn: false,
+      isLoading: false,
+      sessionUser: { id: "", name: "", lastname: "", email: "" },
+      autoLogin: async () => {
+        const { data, status } = await autoLogin();
+        console.log(data);
+        if (status === 200) {
+          set({ isLoggedIn: true });
+          set({ sessionUser: data?.user });
+        } else {
+          set({ isLoggedIn: false });
+          localStorage.clear();
+        }
       },
-  )
+      login: async (values) => {
+        try {
+          set({ isLoading: true });
+          console.log("Submitting form:", values);
+          const { data, status } = await loginUser(values);
+          console.log(data);
+          if (status == 200) {
+            localStorage.setItem("accessToken", data?.token);
+            set({ sessionUser: data?.user });
+            toast({
+              variant: "success",
+              title: "LOGIN SUCCESS",
+              description: `${data?.message}`,
+            });
+            set({ isLoading: false });
+            const userLocalStorage = localStorage.getItem("accessToken");
+            if (userLocalStorage) {
+              set({ isLoggedIn: true });
+              console.log("zustand logged in to true");
+            }
+          }
+          if (status === 401) {
+            toast({
+              variant: "destructive",
+              title: "LOGIN FAIL",
+              description: `${data?.error}`,
+            });
+            set({ isLoading: false });
+          }
+          set({ isLoading: false });
+        } catch (error) {
+          console.error("Submission error:", error);
+          set({ isLoading: false });
+        }
+      },
+      logout: async () => {
+        const { data, status } = await logOutUser();
+        console.log(data);
+        console.log(status);
+        if (status == 200) {
+          set({ isLoggedIn: false });
+          localStorage.clear();
+        }
+      },
+      updateSesionUserState: (newState: Partial<AuthStore>) => {
+        set(() => newState);
+      },
+    }),
+    {
+      name: "userLoginStatus", // local storage
+    },
+  ),
 );
 
 export const useStore = createWithEqualityFn<AppState & AppAction>()(

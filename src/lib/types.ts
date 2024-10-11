@@ -153,7 +153,7 @@ type userSession = {
   name: string;
   lastname: string;
   email: string;
-}
+};
 
 // CHANGE LANGUAGES PURPOSE
 export interface LanguageState {
@@ -161,7 +161,7 @@ export interface LanguageState {
   setLanguage: (lang: string) => void;
 }
 
-// AUTHENTIFICATION PURPOSES 
+// AUTHENTIFICATION PURPOSES
 export interface AuthStore {
   isLoggedIn: boolean;
   isLoading: boolean;
@@ -170,18 +170,18 @@ export interface AuthStore {
 
 export type AdjustMaskOperate = "expand" | "shrink" | "reverse";
 
-// created for CRUD user 
-export interface UserRegistered { 
-  id: string; 
-  name: string; 
-  lastname: string; 
-  email: string 
+// created for CRUD user
+export interface UserRegistered {
+  id: string;
+  name: string;
+  lastname: string;
+  email: string;
 }
 
-export interface UserLogIn { 
-  message: string; 
-  user: UserRegistered; 
-  token?: string; 
+export interface UserLogIn {
+  message: string;
+  user: UserRegistered;
+  token?: string;
 }
 
 export interface ErrorResponse {

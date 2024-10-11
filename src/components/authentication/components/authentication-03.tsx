@@ -1,7 +1,4 @@
-import {
-  Link,
-  useNavigate
-} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/ui/icons";
 import {
@@ -29,7 +26,9 @@ export const containerClassName =
 const validationSchema = Yup.object({
   name: Yup.string().required("First name is required"),
   lastname: Yup.string().required("Last name is required"),
-  email: Yup.string().email("Invalid email format").required("Email is required"),
+  email: Yup.string()
+    .email("Invalid email format")
+    .required("Email is required"),
   password: Yup.string().required("Password is required"),
   verifyPassword: Yup.string()
     .oneOf([Yup.ref("password"), null], "Passwords must match")
@@ -49,20 +48,20 @@ export default function LoginForm() {
     validationSchema,
     onSubmit: async (values) => {
       try {
-         // Add the host URL to the form values
+        // Add the host URL to the form values
         const hostUrl = window.location.href;
-        const baseUrl = hostUrl.substring(0, hostUrl.indexOf('#/') + 2);
+        const baseUrl = hostUrl.substring(0, hostUrl.indexOf("#/") + 2);
         const updatedValues = { ...values, host: baseUrl };
         const { data, status } = await registerUser(updatedValues); // Destructure to get data and status
-        if(status === 200){
-          navigate("/login") 
+        if (status === 200) {
+          navigate("/login");
           toast({
             variant: "success",
             title: "REGISTRATION SUCCESS:",
             description: `Login with your created credentials`,
           });
         }
-        if(status === 500){
+        if (status === 500) {
           toast({
             variant: "destructive",
             title: "REGISTRATION FAILED",
@@ -113,7 +112,9 @@ export default function LoginForm() {
                 onBlur={formik.handleBlur}
               />
               {formik.touched.lastname && formik.errors.lastname && (
-                <div className="text-red-500 text-sm">{formik.errors.lastname}</div>
+                <div className="text-red-500 text-sm">
+                  {formik.errors.lastname}
+                </div>
               )}
             </div>
           </div>
@@ -145,7 +146,9 @@ export default function LoginForm() {
               onBlur={formik.handleBlur}
             />
             {formik.touched.password && formik.errors.password && (
-              <div className="text-red-500 text-sm">{formik.errors.password}</div>
+              <div className="text-red-500 text-sm">
+                {formik.errors.password}
+              </div>
             )}
           </div>
           <div className="grid gap-2">
@@ -160,7 +163,9 @@ export default function LoginForm() {
               onBlur={formik.handleBlur}
             />
             {formik.touched.verifyPassword && formik.errors.verifyPassword && (
-              <div className="text-red-500 text-sm">{formik.errors.verifyPassword}</div>
+              <div className="text-red-500 text-sm">
+                {formik.errors.verifyPassword}
+              </div>
             )}
           </div>
           <Button type="submit" className="w-full">

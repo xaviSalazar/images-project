@@ -1,6 +1,6 @@
 import {
   // Link,
-  useNavigate
+  useNavigate,
 } from "react-router-dom";
 import * as React from "react";
 import { useFormik } from "formik";
@@ -17,36 +17,32 @@ interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
 const validationSchema = Yup.object({
   email: Yup.string()
-    .email('Invalid email address')
-    .required('Email is required'),
-  password: Yup.string()
-    .required('Password is required'),
+    .email("Invalid email address")
+    .required("Email is required"),
+  password: Yup.string().required("Password is required"),
 });
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   // const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const [login, 
-        isLoading,
-        isLoggedIn
-        ] = useAuthStore(
-          (state) => 
-        [state.login, 
-        state.isLoading,
-        state.isLoggedIn]);
+  const [login, isLoading, isLoggedIn] = useAuthStore((state) => [
+    state.login,
+    state.isLoading,
+    state.isLoggedIn,
+  ]);
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    if(isLoggedIn)  navigate("/images-project") 
-  }, [isLoggedIn])
+    if (isLoggedIn) navigate("/images-project");
+  }, [isLoggedIn]);
 
   const formik = useFormik({
     initialValues: {
-      email: '',
-      password: '',
+      email: "",
+      password: "",
     },
     validationSchema,
     onSubmit: async (values) => {
-      login(values)
+      login(values);
     },
   });
 
@@ -64,7 +60,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               autoComplete="email"
               autoCorrect="off"
               disabled={isLoading}
-              {...formik.getFieldProps('email')}
+              {...formik.getFieldProps("email")}
             />
             {formik.touched.email && formik.errors.email ? (
               <div className="text-red-500">{formik.errors.email}</div>
@@ -80,7 +76,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               autoComplete="password"
               autoCorrect="off"
               disabled={isLoading}
-              {...formik.getFieldProps('password')}
+              {...formik.getFieldProps("password")}
             />
             {formik.touched.password && formik.errors.password ? (
               <div className="text-red-500">{formik.errors.password}</div>
