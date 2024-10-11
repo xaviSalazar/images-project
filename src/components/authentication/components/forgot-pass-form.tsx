@@ -21,8 +21,8 @@ import {
   });
   
   export function ForgotPassForm({ className, ...props }: ForgotPassFormProps) {
-    const [login, isLoading, isLoggedIn] = useAuthStore((state) => [
-      state.login,
+    const [forgotPassword, isLoading, isLoggedIn] = useAuthStore((state) => [
+      state.forgotPassword,
       state.isLoading,
       state.isLoggedIn,
     ]);
@@ -38,7 +38,11 @@ import {
       },
       validationSchema,
       onSubmit: async (values) => {
-        login(values);
+        // Add the host URL to the form values
+        const hostUrl = window.location.href;
+        const baseUrl = hostUrl.substring(0, hostUrl.indexOf("#/") + 2);
+        const updatedValues = { ...values, host: baseUrl };
+        forgotPassword(updatedValues);
       },
     });
   

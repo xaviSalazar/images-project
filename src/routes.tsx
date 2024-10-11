@@ -7,6 +7,7 @@ import App from "./App.tsx";
 import AuthenticationPage from "@/components/authentication/RegisterPage.tsx";
 import LoginPage from "@/components/authentication/LoginPage.tsx";
 import ForgotPasswordPage from "@/components/authentication/ForgotPassword.tsx"
+import ResetPasswordPage from "@/components/authentication/ResetPassword.tsx"
 import { useAuthStore } from "@/lib/states";
 
 function ProtectedRoute({ children }) {
@@ -51,7 +52,8 @@ export default function Router() {
         },
         { path: "login", element: <LoginPage /> },
         { path: "registration", element: <AuthenticationPage /> },
-        { path: "forgot-password", element: <ForgotPasswordPage/>},
+        { path: "forgot-password", element: <ForgotPasswordPage />},
+        { path: "reset-password", element: <ResetPasswordPage />}
         // { path: 'signup', element: <SignUp />},
       ],
     },

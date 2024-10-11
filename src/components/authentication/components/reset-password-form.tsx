@@ -1,0 +1,121 @@
+import { Link, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Icons } from "@/components/ui/icons";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { registerUser } from "@/lib/user-api"; // Adjust the import path as necessary
+import { toast } from "@/components/ui/use-toast";
+
+export const description =
+  "A sign up form with first name, last name, email and password inside a card. There's an option to sign up with GitHub and a link to login if you already have an account";
+
+export const iframeHeight = "600px";
+
+export const containerClassName =
+  "w-full h-screen flex items-center justify-center px-4";
+
+const validationSchema = Yup.object({
+  password: Yup.string().required("Password is required"),
+  verifyPassword: Yup.string()
+    .oneOf([Yup.ref("password"), null], "Passwords must match")
+    .required("Verify Password is required"),
+});
+
+export default function ResetPassForm() {
+  const navigate = useNavigate();
+  const formik = useFormik({
+    initialValues: {
+      password: "",
+      verifyPassword: "",
+    },
+    validationSchema,
+    onSubmit: async (values) => {
+        console.log(values)
+    //   try {
+    //     // Add the host URL to the form values
+    //     const hostUrl = window.location.href;
+    //     const baseUrl = hostUrl.substring(0, hostUrl.indexOf("#/") + 2);
+    //     const updatedValues = { ...values, host: baseUrl };
+    //     const { data, status } = await registerUser(updatedValues); // Destructure to get data and status
+    //     if (status === 200) {
+    //       navigate("/login");
+    //       toast({
+    //         variant: "success",
+    //         title: "REGISTRATION SUCCESS:",
+    //         description: `Login with your created credentials`,
+    //       });
+    //     }
+    //     if (status === 500) {
+    //       toast({
+    //         variant: "destructive",
+    //         title: "REGISTRATION FAILED",
+    //         description: "USER ALREADY EXISTS",
+    //       });
+    //     }
+    //   } catch (error) {
+    //     console.error("Error registering user:", error);
+    //   }
+    },
+  });
+
+  return (
+    <Card className="mx-auto max-w-sm">
+      <CardHeader>
+        <CardTitle className="text-xl">Reset password</CardTitle>
+        <CardDescription>
+          Enter your new password
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={formik.handleSubmit} className="grid gap-4">
+          <div className="grid gap-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              required
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            />
+            {formik.touched.password && formik.errors.password && (
+              <div className="text-red-500 text-sm">
+                {formik.errors.password}
+              </div>
+            )}
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="verify-password">Verify Password</Label>
+            <Input
+              id="verify-password"
+              name="verifyPassword"
+              type="password"
+              required
+              value={formik.values.verifyPassword}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            />
+            {formik.touched.verifyPassword && formik.errors.verifyPassword && (
+              <div className="text-red-500 text-sm">
+                {formik.errors.verifyPassword}
+              </div>
+            )}
+          </div>
+          <Button type="submit" className="w-full">
+            Create an account
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}

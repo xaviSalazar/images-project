@@ -55,7 +55,12 @@ import inpaint, {
   runPlugin,
 } from "./api";
 import { toast } from "@/components/ui/use-toast";
-import { autoLogin, loginUser, logOutUser } from "@/lib/user-api"; // Adjust the import path as necessary
+import { 
+  autoLogin, 
+  loginUser, 
+  logOutUser,
+  forgotPassword } 
+  from "@/lib/user-api"; // Adjust the import path as necessary
 
 //
 type FileManagerState = {
@@ -416,6 +421,7 @@ type SessionAction = {
   autoLogin: () => Promise<void>;
   login: (values) => Promise<void>;
   logout: () => Promise<void>;
+  forgotPassword:(value) => Promise<void>;
   updateSesionUserState: (newState: Partial<AuthStore>) => void;
 };
 
@@ -479,6 +485,16 @@ export const useAuthStore = createWithEqualityFn<AuthStore & SessionAction>()(
           set({ isLoggedIn: false });
           localStorage.clear();
         }
+      },
+      forgotPassword: async (value) => {
+        set({ isLoading: true });
+        const { data, status } = await forgotPassword(value);
+        console.log(data);
+        console.log(status);
+        if (status == 200) {
+          set({ isLoading: false });
+        }
+          set({ isLoading: false });
       },
       updateSesionUserState: (newState: Partial<AuthStore>) => {
         set(() => newState);
