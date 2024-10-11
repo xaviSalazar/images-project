@@ -1,13 +1,9 @@
-// import React from "react";
 import {
+    UserLogIn,
     UserRegistered,
-    ErrorResponse
+    ErrorResponse,
 } from "@/lib/types";
-
 import axios from "axios";
-// import { toast } from "@/components/ui/use-toast";
-// export const API_USER_CRUD = import.meta.env
-//   .VITE_BACKEND_RENDER_IMAGE;
 export const API_USER_CRUD_DEV = import.meta.env
   .VITE_BACKEND_USER_CRUD_DEV;
 
@@ -30,3 +26,41 @@ export async function registerUser(userObject: { name: string; lastname: string;
       }
     }
   }
+
+export async function loginUser(userObjectLog: {email: string, password: string}): Promise<{ data: UserLogIn | ErrorResponse; status: number }> {
+  try{
+    const res = await api.post<UserLogIn>(`/login`, userObjectLog);
+    return { data: res.data, status: res.status }; // Return both data and status
+  } catch (error) {
+    // Handle errors from axios
+    if (axios.isAxiosError(error) && error.response) {
+      const errorData: ErrorResponse = error.response.data; // Get the error response data
+      return { data: errorData, status: error.response.status }; // Return error data and status code
+    } else {
+      // Handle unexpected errors
+      return { data: { error: "Unexpected Error", message: "An unexpected error occurred." }, status: 500 };
+    }
+  }
+}
+
+export async function autoLogin(): Promise<{ data: UserLogIn | ErrorResponse; status: number }> {
+  try{
+    const token = localStorage.getItem('accessToken')
+    // Check if the token is empty or null
+    if (!token) {
+      throw new Error("Access token is missing.");
+    }
+    const config = {headers: {Authorization: `Bearer ${token}`}} 
+    const res = await api.get<UserLogIn>(`/auth-user`, config);
+    return { data: res.data, status: res.status }; // Return both data and status
+  } catch (error) {
+    // Handle errors from axios
+    if (axios.isAxiosError(error) && error.response) {
+      const errorData: ErrorResponse = error.response.data; // Get the error response data
+      return { data: errorData, status: error.response.status }; // Return error data and status code
+    } else {
+      // Handle unexpected errors
+      return { data: { error: "Unexpected Error", message: "An unexpected error occurred." }, status: 500 };
+    }
+  }
+}

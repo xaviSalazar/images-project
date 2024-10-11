@@ -22,6 +22,7 @@ import {
   SortBy,
   SortOrder,
   LanguageState,
+  AuthStore,
   CanvaState,
 } from "./types";
 import { paintByExampleConfig } from "./models";
@@ -409,6 +410,28 @@ export const useLanguageStore = createWithEqualityFn<LanguageState>((set) => ({
   language: "",
   setLanguage: (lang) => set({ language: lang }),
 }));
+
+export const useAuthStore = createWithEqualityFn<AuthStore>()(
+  persist(
+      (set) => ({
+          isLoggedIn: false,
+          login: () => {
+              const userLocalStorage = localStorage.getItem('accessToken');
+              if (userLocalStorage) {
+                  set({ isLoggedIn: true });
+                  console.log("zustand logged in to true")
+              }
+          },
+          logout: () => {
+              set({ isLoggedIn: false });
+              localStorage.clear();
+          },
+      }),
+      {
+          name: 'userLoginStatus', // local storage
+      }
+  )
+);
 
 export const useStore = createWithEqualityFn<AppState & AppAction>()(
   persist(

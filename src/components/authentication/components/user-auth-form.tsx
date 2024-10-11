@@ -1,35 +1,80 @@
-"use client";
-
+import {
+  // Link,
+  useNavigate
+} from "react-router-dom";
 import * as React from "react";
-
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import { cn } from "@/lib/utils";
 import { Icons } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { loginUser } from "@/lib/user-api"; // Adjust the import path as necessary
+import { toast } from "@/components/ui/use-toast";
+import { useAuthStore } from "@/lib/states";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
+const validationSchema = Yup.object({
+  email: Yup.string()
+    .email('Invalid email address')
+    .required('Email is required'),
+  password: Yup.string()
+    .required('Password is required'),
+});
+
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [login] = useAuthStore((state) => [state.login]);
+  const navigate = useNavigate();
 
-  async function onSubmit(event: React.SyntheticEvent) {
-    event.preventDefault();
-    setIsLoading(true);
-
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
-  }
+  const formik = useFormik({
+    initialValues: {
+      email: '',
+      password: '',
+    },
+    validationSchema,
+    onSubmit: async (values) => {
+      setIsLoading(true);
+      try {
+        // Call your registerUser function or API endpoint here
+        //console.log("Submitting form:", values);
+        const {data, status} = await loginUser(values);
+        console.log(data)
+        if(status == 200)
+        {
+          localStorage.setItem('accessToken', data?.token)
+          toast({
+            variant: "success",
+            title: "LOGIN SUCCESS",
+            description: `${data?.message}`,
+          });
+          setIsLoading(false);
+          login()
+          navigate("/images-project") 
+        }
+        if(status === 401){
+          toast({
+            variant: "destructive",
+            title: "LOGIN FAIL",
+            description: `${data?.error}`,
+          });
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("Submission error:", error);
+        setIsLoading(false);
+      }
+    },
+  });
 
   return (
     <div className={cn("grid gap-4", className)} {...props}>
-      <form onSubmit={onSubmit}>
+      <form onSubmit={formik.handleSubmit}>
         <div className="grid gap-2">
           <div className="grid gap-1">
-            <Label htmlFor="email">
-              Email
-            </Label>
+            <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               placeholder="name@example.com"
@@ -38,12 +83,14 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               autoComplete="email"
               autoCorrect="off"
               disabled={isLoading}
+              {...formik.getFieldProps('email')}
             />
+            {formik.touched.email && formik.errors.email ? (
+              <div className="text-red-500">{formik.errors.email}</div>
+            ) : null}
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="password">
-              Password
-            </Label>
+            <Label htmlFor="password">Password</Label>
             <Input
               id="password"
               placeholder="enter your password"
@@ -52,7 +99,11 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               autoComplete="password"
               autoCorrect="off"
               disabled={isLoading}
+              {...formik.getFieldProps('password')}
             />
+            {formik.touched.password && formik.errors.password ? (
+              <div className="text-red-500">{formik.errors.password}</div>
+            ) : null}
           </div>
           <Button disabled={isLoading}>
             {isLoading && (

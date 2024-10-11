@@ -147,10 +147,17 @@ export enum PowerPaintTask {
   object_remove = "object-remove",
   outpainting = "outpainting",
 }
-
+// CHANGE LANGUAGES PURPOSE
 export interface LanguageState {
   language: string;
   setLanguage: (lang: string) => void;
+}
+
+// AUTHENTIFICATION PURPOSES 
+export interface AuthStore {
+  isLoggedIn: boolean;
+  login: () => void;
+  logout: () => void;
 }
 
 export type AdjustMaskOperate = "expand" | "shrink" | "reverse";
@@ -161,6 +168,12 @@ export interface UserRegistered {
   name: string; 
   lastname: string; 
   email: string 
+}
+
+export interface UserLogIn { 
+  message: string; 
+  user: UserRegistered; 
+  token?: string; 
 }
 
 export interface ErrorResponse {
