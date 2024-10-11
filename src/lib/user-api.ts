@@ -64,3 +64,26 @@ export async function autoLogin(): Promise<{ data: UserLogIn | ErrorResponse; st
     }
   }
 }
+
+export async function logOutUser(): Promise<{ data: UserLogIn | ErrorResponse; status: number }> {
+  try {
+    const token = localStorage.getItem('accessToken')
+    console.log(token)
+    if (!token) {
+        throw new Error("Access token is missing.");
+    }
+    const config = {headers: {Authorization: `Bearer ${token}`}} 
+    const res = await api.get<UserLogIn>(`/logout`, config);
+    return { data: res.data, status: res.status }; // Return both data and status
+    } catch (error) {
+      // Handle errors from axios
+    if (axios.isAxiosError(error) && error.response) {
+      const errorData: ErrorResponse = error.response.data; // Get the error response data
+      return { data: errorData, status: error.response.status }; // Return error data and status code
+    } else {
+        // Handle unexpected errors
+        return { data: { error: "Unexpected Error", message: "An unexpected error occurred." }, status: 500 };
+      }
+    }
+
+}

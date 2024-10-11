@@ -18,13 +18,13 @@ import {
 
   
   export function UserNav() {
-    
-    const [logout] = useAuthStore((state) => [state.login]);
+
+    const [sessionUser, logout] = useAuthStore((state) => [state.sessionUser, state.logout]);
+    const initials = `${sessionUser.name.charAt(0)}${sessionUser.lastname.charAt(0)}`.toUpperCase();
 
     const onLogOut = () => {
-
+        logout()
     };
-
 
     return (
       <DropdownMenu>
@@ -32,20 +32,20 @@ import {
           <Button variant="ghost" className="relative h-8 w-8 rounded-full">
             <Avatar className="h-9 w-9">
               {/* <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" /> */}
-              <AvatarFallback>SC</AvatarFallback>
+              <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="end" forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">shadcn</p>
+              <p className="text-sm font-medium leading-none"> {sessionUser.name} {sessionUser.lastname} </p>
               <p className="text-xs leading-none text-muted-foreground">
-                m@example.com
+                {sessionUser.email}
               </p>
             </div>
           </DropdownMenuLabel>
-          <DropdownMenuSeparator />
+          {/* <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem>
               Profile
@@ -61,7 +61,7 @@ import {
             </DropdownMenuItem>
             <DropdownMenuItem>New Team</DropdownMenuItem>
           </DropdownMenuGroup>
-          <DropdownMenuSeparator />
+          <DropdownMenuSeparator /> */}
           <DropdownMenuItem onClick={() => onLogOut()}>
             Log out
             <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>

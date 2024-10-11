@@ -55,7 +55,7 @@ import inpaint, {
   runPlugin,
 } from "./api";
 import { toast } from "@/components/ui/use-toast";
-import { autoLogin, loginUser } from "@/lib/user-api"; // Adjust the import path as necessary
+import { autoLogin, loginUser, logOutUser} from "@/lib/user-api"; // Adjust the import path as necessary
 
 
 //
@@ -416,7 +416,7 @@ export const useLanguageStore = createWithEqualityFn<LanguageState>((set) => ({
 type SessionAction = {
   autoLogin: () => Promise<void>;
   login: (values) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   updateSesionUserState: (newState: Partial<AuthStore>) => void;
 }
 
@@ -446,6 +446,7 @@ export const useAuthStore = createWithEqualityFn<AuthStore & SessionAction>()(
               if(status == 200)
               {
                 localStorage.setItem('accessToken', data?.token)
+                set({ sessionUser: data?.user });         
                 toast({
                   variant: "success",
                   title: "LOGIN SUCCESS",
@@ -466,15 +467,21 @@ export const useAuthStore = createWithEqualityFn<AuthStore & SessionAction>()(
                 });
                 set({ isLoading: false });
               }
+              set({ isLoading: false });
             } catch (error) {
               console.error("Submission error:", error);
               set({ isLoading: false });
             }
 
           },
-          logout: () => {
+          logout: async () => {
+            const {data, status} = await logOutUser();
+            console.log(data);
+            console.log(status)
+            if(status == 200) {
               set({ isLoggedIn: false });
               localStorage.clear();
+            }
           },
           updateSesionUserState: (newState: Partial<AuthStore>) => {
             set(() => newState);
