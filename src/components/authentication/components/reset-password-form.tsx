@@ -1,6 +1,5 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Icons } from "@/components/ui/icons";
 import {
   Card,
   CardContent,
@@ -12,8 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { registerUser } from "@/lib/user-api"; // Adjust the import path as necessary
-import { toast } from "@/components/ui/use-toast";
+import { useAuthStore } from "@/lib/states";
 
 export const description =
   "A sign up form with first name, last name, email and password inside a card. There's an option to sign up with GitHub and a link to login if you already have an account";
@@ -31,7 +29,13 @@ const validationSchema = Yup.object({
 });
 
 export default function ResetPassForm() {
-  const navigate = useNavigate();
+  const location = useLocation();
+  const [resetPassword, isLoading, isLoggedIn] = useAuthStore((state) => [
+    state.resetPassword,
+    state.isLoading,
+    state.isLoggedIn,
+  ]);
+
   const formik = useFormik({
     initialValues: {
       password: "",
@@ -39,31 +43,12 @@ export default function ResetPassForm() {
     },
     validationSchema,
     onSubmit: async (values) => {
-        console.log(values)
-    //   try {
-    //     // Add the host URL to the form values
-    //     const hostUrl = window.location.href;
-    //     const baseUrl = hostUrl.substring(0, hostUrl.indexOf("#/") + 2);
-    //     const updatedValues = { ...values, host: baseUrl };
-    //     const { data, status } = await registerUser(updatedValues); // Destructure to get data and status
-    //     if (status === 200) {
-    //       navigate("/login");
-    //       toast({
-    //         variant: "success",
-    //         title: "REGISTRATION SUCCESS:",
-    //         description: `Login with your created credentials`,
-    //       });
-    //     }
-    //     if (status === 500) {
-    //       toast({
-    //         variant: "destructive",
-    //         title: "REGISTRATION FAILED",
-    //         description: "USER ALREADY EXISTS",
-    //       });
-    //     }
-    //   } catch (error) {
-    //     console.error("Error registering user:", error);
-    //   }
+      const queryParams = new URLSearchParams(location.search);
+      // Extract the "id" query parameter
+      const id = queryParams.get('id');
+      const token = queryParams.get('token');
+      const updatedValues = {...values, id: id, token: token};
+      resetPassword(updatedValues)
     },
   });
 

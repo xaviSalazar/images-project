@@ -1,9 +1,6 @@
 import "react-lazy-load-image-component/src/effects/blur.css";
-import { Link } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
 import ResetPassForm from "@/components/authentication/components/reset-password-form"
 
 export default function ResetPasswordPage() {

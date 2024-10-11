@@ -59,7 +59,8 @@ import {
   autoLogin, 
   loginUser, 
   logOutUser,
-  forgotPassword } 
+  forgotPassword,
+  resetPassword } 
   from "@/lib/user-api"; // Adjust the import path as necessary
 
 //
@@ -422,6 +423,7 @@ type SessionAction = {
   login: (values) => Promise<void>;
   logout: () => Promise<void>;
   forgotPassword:(value) => Promise<void>;
+  resetPassword:(value) => Promise<void>;
   updateSesionUserState: (newState: Partial<AuthStore>) => void;
 };
 
@@ -489,6 +491,16 @@ export const useAuthStore = createWithEqualityFn<AuthStore & SessionAction>()(
       forgotPassword: async (value) => {
         set({ isLoading: true });
         const { data, status } = await forgotPassword(value);
+        console.log(data);
+        console.log(status);
+        if (status == 200) {
+          set({ isLoading: false });
+        }
+          set({ isLoading: false });
+      },
+      resetPassword: async (value) => {
+        set({ isLoading: true });
+        const { data, status } = await resetPassword(value);
         console.log(data);
         console.log(status);
         if (status == 200) {
