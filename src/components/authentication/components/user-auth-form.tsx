@@ -10,8 +10,7 @@ import { Icons } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { loginUser } from "@/lib/user-api"; // Adjust the import path as necessary
-import { toast } from "@/components/ui/use-toast";
+// import { loginUser } from "@/lib/user-api"; // Adjust the import path as necessary
 import { useAuthStore } from "@/lib/states";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
@@ -25,9 +24,20 @@ const validationSchema = Yup.object({
 });
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const [login] = useAuthStore((state) => [state.login]);
+  // const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [login, 
+        isLoading,
+        isLoggedIn
+        ] = useAuthStore(
+          (state) => 
+        [state.login, 
+        state.isLoading,
+        state.isLoggedIn]);
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if(isLoggedIn)  navigate("/images-project") 
+  }, [isLoggedIn])
 
   const formik = useFormik({
     initialValues: {
@@ -36,36 +46,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     },
     validationSchema,
     onSubmit: async (values) => {
-      setIsLoading(true);
-      try {
-        // Call your registerUser function or API endpoint here
-        //console.log("Submitting form:", values);
-        const {data, status} = await loginUser(values);
-        console.log(data)
-        if(status == 200)
-        {
-          localStorage.setItem('accessToken', data?.token)
-          toast({
-            variant: "success",
-            title: "LOGIN SUCCESS",
-            description: `${data?.message}`,
-          });
-          setIsLoading(false);
-          login()
-          navigate("/images-project") 
-        }
-        if(status === 401){
-          toast({
-            variant: "destructive",
-            title: "LOGIN FAIL",
-            description: `${data?.error}`,
-          });
-          setIsLoading(false);
-        }
-      } catch (error) {
-        console.error("Submission error:", error);
-        setIsLoading(false);
-      }
+      login(values)
     },
   });
 

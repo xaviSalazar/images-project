@@ -147,6 +147,14 @@ export enum PowerPaintTask {
   object_remove = "object-remove",
   outpainting = "outpainting",
 }
+
+type userSession = {
+  id: string;
+  name: string;
+  lastname: string;
+  email: string;
+}
+
 // CHANGE LANGUAGES PURPOSE
 export interface LanguageState {
   language: string;
@@ -156,8 +164,8 @@ export interface LanguageState {
 // AUTHENTIFICATION PURPOSES 
 export interface AuthStore {
   isLoggedIn: boolean;
-  login: () => void;
-  logout: () => void;
+  isLoading: boolean;
+  sessionUser: userSession;
 }
 
 export type AdjustMaskOperate = "expand" | "shrink" | "reverse";

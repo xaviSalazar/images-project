@@ -3,14 +3,10 @@ import { useEffect } from 'react';
 // import { useSelector } from 'react-redux';
 // import { useEffect } from 'react';
 // import { useDispatch } from 'react-redux';
-import { autoLogin } from "@/lib/user-api"; // Adjust the import path as necessary
-
 import App from "./App.tsx";
 import AuthenticationPage from "@/components/authentication/page.tsx";
 import LoginPage from "@/components/authentication/LoginPage.tsx";
 import { useAuthStore } from "@/lib/states";
-
-
 
 function ProtectedRoute({ children }) {
   const [isLoggedIn] = useAuthStore((state) => [state.isLoggedIn, state.login, state.logout]);
@@ -24,22 +20,11 @@ function ProtectedRoute({ children }) {
 }
 
 export default function Router() {
-  const [login, logout] = useAuthStore((state) => [state.login, state.logout]);
+  const [autoLogin] = useAuthStore((state) => [state.autoLogin]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const { data, status } = await autoLogin();
-      // Handle data and status as needed
-      if (status === 200) {
-        console.log('Login successful:', data);
-        login()
-      } else {
-        console.error('Login failed:', data);
-        logout()
-      }
-    };
-    fetchData(); // Call the inner async function
-  }, []); // Empty dependency array to run once on mount
+    autoLogin();
+  }, []);
 
   // Define routes using useRoutes() hook for dynamic route config
   const routes = useRoutes([
