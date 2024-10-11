@@ -204,12 +204,13 @@ const Editor = React.forwardRef(() => {
   const lastPosX = useRef(0);
   const lastPosY = useRef(0);
   const windowSize = useWindowSize();
-  const windowWidth = windowSize.width;
-  const windowHeight = windowSize.height;
 
-  const [compatibleWidth, setCompatibleWidth] = useState<number>(windowWidth);
-  const [compatibleHeight, setCompatibleHeight] =
-    useState<number>(windowHeight);
+  const [compatibleWidth, setCompatibleWidth] = useState<number>(
+    windowSize.width,
+  );
+  const [compatibleHeight, setCompatibleHeight] = useState<number>(
+    windowSize.height,
+  );
 
   const [isDraging, setIsDraging] = useState(false);
 
@@ -405,23 +406,23 @@ const Editor = React.forwardRef(() => {
   useEffect(() => {
     const initMainCanvas = (): fabric.Canvas => {
       oldWindowSize.current = {
-        width: windowWidth,
-        height: windowHeight,
+        width: windowSize.width,
+        height: windowSize.height,
       };
 
       updateAppState({
-        userWindowWidth: windowWidth,
-        userWindowHeight: windowHeight,
+        userWindowWidth: windowSize.width,
+        userWindowHeight: windowSize.height,
       });
 
       debugLog(LOG_LEVELS.DEBUG, " <<screen window size>>  width, heigth ", [
-        windowWidth,
-        windowHeight,
+        windowSize.width,
+        windowSize.height,
       ]);
 
       return new fabric.Canvas(canvasRef.current || undefined, {
-        width: windowWidth,
-        height: windowHeight,
+        width: windowSize.width,
+        height: windowSize.height,
         backgroundColor: "#27272a",
         imageSmoothingEnabled: false,
         fireMiddleClick: true,
@@ -1096,21 +1097,21 @@ const Editor = React.forwardRef(() => {
 
   useEffect(() => {
     window.addEventListener("resize", () => {
-      const offsetX = oldWindowSize.current.width - windowWidth;
-      const offsetY = oldWindowSize.current.height - windowHeight;
-      setCompatibleWidth(windowWidth);
-      setCompatibleHeight(windowHeight);
+      const offsetX = oldWindowSize.current.width - windowSize.width;
+      const offsetY = oldWindowSize.current.height - windowSize.height;
+      setCompatibleWidth(windowSize.width);
+      setCompatibleHeight(windowSize.height);
       updateAppState({
-        userWindowWidth: windowWidth,
-        userWindowHeight: windowHeight,
+        userWindowWidth: windowSize.width,
+        userWindowHeight: windowSize.height,
       });
 
       fabricRef.current?.setDimensions({
-        width: windowWidth,
-        height: windowHeight,
+        width: windowSize.width,
+        height: windowSize.height,
       });
-      // fabricRef.current.setWidth(windowWidth);
-      // fabricRef.current.setHeight(windowHeight);
+      // fabricRef.current.setWidth(windowSize.width);
+      // fabricRef.current.setHeight(windowSize.height);
       moveGroupByOffset(rectangleGroupRef.current, offsetX, offsetY);
     });
     return () => {
