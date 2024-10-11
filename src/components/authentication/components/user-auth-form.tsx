@@ -1,5 +1,5 @@
 import {
-  // Link,
+  Link,
   useNavigate,
 } from "react-router-dom";
 import * as React from "react";
@@ -10,7 +10,6 @@ import { Icons } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-// import { loginUser } from "@/lib/user-api"; // Adjust the import path as necessary
 import { useAuthStore } from "@/lib/states";
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
@@ -23,7 +22,6 @@ const validationSchema = Yup.object({
 });
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
-  // const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [login, isLoading, isLoggedIn] = useAuthStore((state) => [
     state.login,
     state.isLoading,
@@ -82,6 +80,11 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               <div className="text-red-500">{formik.errors.password}</div>
             ) : null}
           </div>
+          <div className="text-right">
+            <Link to="/forgot-password" className="text-sm underline">
+              Forgot password?
+            </Link>
+          </div>
           <Button disabled={isLoading}>
             {isLoading && (
               <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
@@ -108,6 +111,12 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         )}{" "}
         Google
       </Button>
+      <div className="mt-4 text-center text-sm">
+        Don't have an account?{" "}
+        <Link to="/registration" className="underline">
+          Sign up
+        </Link>
+      </div>
     </div>
   );
 }

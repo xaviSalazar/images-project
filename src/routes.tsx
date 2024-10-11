@@ -4,8 +4,9 @@ import { useEffect } from "react";
 // import { useEffect } from 'react';
 // import { useDispatch } from 'react-redux';
 import App from "./App.tsx";
-import AuthenticationPage from "@/components/authentication/page.tsx";
+import AuthenticationPage from "@/components/authentication/RegisterPage.tsx";
 import LoginPage from "@/components/authentication/LoginPage.tsx";
+import ForgotPasswordPage from "@/components/authentication/ForgotPassword.tsx"
 import { useAuthStore } from "@/lib/states";
 
 function ProtectedRoute({ children }) {
@@ -50,6 +51,7 @@ export default function Router() {
         },
         { path: "login", element: <LoginPage /> },
         { path: "registration", element: <AuthenticationPage /> },
+        { path: "forgot-password", element: <ForgotPasswordPage/>},
         // { path: 'signup', element: <SignUp />},
       ],
     },
