@@ -1,18 +1,23 @@
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { useAuthStore } from "@/lib/states";
+import { toast } from "@/components/ui/use-toast";
 
 export const GOOGLE_CRED = import.meta.env.VITE_GOOGLE_AUTH_CRED;
 
 export default function GoogleAuth() {
+    const [googleLogin] = useAuthStore((state) => [state.googleLogin]);
+
     const onSuccess = async (res: CredentialResponse) => {
-        console.log(res);
-        // Assuming res has 'clientId' and 'credential' properties for your dispatch
-        // dispatch(doGoogleLogin({ clientId: res.clientId, credential: res.credential }));
+        googleLogin({ clientId: res.clientId, credential: res.credential })
     };
     
     // Modify onFailure to not expect any arguments
     const onFailure = () => {
-        console.log('failed');
+        toast({
+            variant: "destructive",
+            title: "GOOGLELOGIN FAILED",
+          });
     };
 
     return (

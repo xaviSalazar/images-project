@@ -58,6 +58,7 @@ import { toast } from "@/components/ui/use-toast";
 import { 
   autoLogin, 
   loginUser, 
+  GoogleLoginUser,
   logOutUser,
   forgotPassword,
   resetPassword } 
@@ -420,6 +421,7 @@ export const useLanguageStore = createWithEqualityFn<LanguageState>((set) => ({
 
 type SessionAction = {
   autoLogin: () => Promise<void>;
+  googleLogin: (values) => Promise<void>;
   login: (values) => Promise<void>;
   logout: () => Promise<void>;
   forgotPassword:(value) => Promise<void>;
@@ -442,6 +444,40 @@ export const useAuthStore = createWithEqualityFn<AuthStore & SessionAction>()(
         } else {
           set({ isLoggedIn: false });
           localStorage.clear();
+        }
+      },
+      googleLogin: async(values) => {
+        try {
+          set({ isLoading: true });
+          const { data, status } = await GoogleLoginUser(values);
+          console.log(data)
+          if (status == 200) {
+            localStorage.setItem("accessToken", data?.token);
+            set({ sessionUser: data?.user });
+            toast({
+              variant: "success",
+              title: "LOGIN SUCCESS",
+              description: `${data?.message}`,
+            });
+            set({ isLoading: false });
+            const userLocalStorage = localStorage.getItem("accessToken");
+            if (userLocalStorage) {
+              set({ isLoggedIn: true });
+              console.log("zustand logged in to true");
+            }
+          }
+          if (status === 401) {
+            toast({
+              variant: "destructive",
+              title: "LOGIN FAIL",
+              description: `${data?.error}`,
+            });
+            set({ isLoading: false });
+          }
+          set({ isLoading: false });
+        }catch (error) {
+          console.error("Submission error:", error);
+          set({ isLoading: false });
         }
       },
       login: async (values) => {
