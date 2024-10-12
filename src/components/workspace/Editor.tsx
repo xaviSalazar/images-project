@@ -1110,8 +1110,8 @@ const Editor = React.forwardRef(() => {
       //   width: windowSize.width,
       //   height: windowSize.height,
       // });
-      fabricRef.current.setWidth(windowSize.width);
-      fabricRef.current.setHeight(windowSize.height);
+      fabricRef.current?.setWidth(windowSize.width);
+      fabricRef.current?.setHeight(windowSize.height);
       moveGroupByOffset(rectangleGroupRef.current, offsetX, offsetY);
     });
     return () => {
