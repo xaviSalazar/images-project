@@ -14,6 +14,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { registerUser } from "@/lib/user-api"; // Adjust the import path as necessary
 import { toast } from "@/components/ui/use-toast";
+import GoogleAuth from "@/components/authentication/components/auth-google"
 
 export const description =
   "A sign up form with first name, last name, email and password inside a card. There's an option to sign up with GitHub and a link to login if you already have an account";
@@ -171,10 +172,11 @@ export default function LoginForm() {
           <Button type="submit" className="w-full">
             Create an account
           </Button>
-          <Button variant="outline" className="w-full">
+          <GoogleAuth />
+          {/* <Button variant="outline" className="w-full">
             <Icons.google className="mr-2 h-4 w-4" />
             Sign up with Google
-          </Button>
+          </Button> */}
         </form>
         <div className="mt-4 text-center text-sm">
           Already have an account?{" "}

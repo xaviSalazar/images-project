@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuthStore } from "@/lib/states";
+import GoogleAuth from "@/components/authentication/components/auth-google"
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -103,14 +104,15 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           </span>
         </div>
       </div>
-      <Button variant="outline" type="button" disabled={isLoading}>
+      <GoogleAuth/>
+      {/* <Button variant="outline" type="button" disabled={isLoading}>
         {isLoading ? (
           <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
         ) : (
           <Icons.google className="mr-2 h-4 w-4" />
         )}{" "}
         Google
-      </Button>
+      </Button> */}
       <div className="mt-4 text-center text-sm">
         Don't have an account?{" "}
         <Link to="/registration" className="underline">
