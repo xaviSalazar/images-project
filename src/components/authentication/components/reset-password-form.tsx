@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -44,7 +44,6 @@ export default function ResetPassForm() {
     validationSchema,
     onSubmit: async (values) => {
       const queryParams = new URLSearchParams(location.search);
-      // Extract the "id" query parameter
       const id = queryParams.get('id');
       const token = queryParams.get('token');
       const updatedValues = {...values, id: id, token: token};
@@ -97,9 +96,15 @@ export default function ResetPassForm() {
             )}
           </div>
           <Button type="submit" className="w-full">
-            Create an account
+            Reset password
           </Button>
         </form>
+        <div className="mt-4 text-center text-sm">
+          Did you change your password?{" "}
+          <Link to="/login" className="underline">
+            Sign in
+          </Link>
+        </div>
       </CardContent>
     </Card>
   );

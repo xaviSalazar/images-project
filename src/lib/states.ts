@@ -495,7 +495,18 @@ export const useAuthStore = createWithEqualityFn<AuthStore & SessionAction>()(
         console.log(status);
         if (status == 200) {
           set({ isLoading: false });
+          toast({
+            variant: "success",
+            title: `${data?.message}`,
+            // description: `${data?.error}`,
+          });
+          return;
         }
+        toast({
+          variant: "destructive",
+          title: `${data?.error}`,
+          // description: `${data?.error}`,
+        });
           set({ isLoading: false });
       },
       resetPassword: async (value) => {
@@ -504,8 +515,19 @@ export const useAuthStore = createWithEqualityFn<AuthStore & SessionAction>()(
         console.log(data);
         console.log(status);
         if (status == 200) {
+          toast({
+            variant: "success",
+            title: `${data?.message}`,
+            // description: `${data?.error}`,
+          });
           set({ isLoading: false });
+          return;
         }
+        toast({
+          variant: "destructive",
+          title: `${data?.error}`,
+          // description: `${data?.error}`,
+        });
           set({ isLoading: false });
       },
       updateSesionUserState: (newState: Partial<AuthStore>) => {
