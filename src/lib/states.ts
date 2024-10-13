@@ -61,7 +61,8 @@ import {
   GoogleLoginUser,
   logOutUser,
   forgotPassword,
-  resetPassword } 
+  resetPassword,
+  storeImgExecutionTime } 
   from "@/lib/user-api"; // Adjust the import path as necessary
 
 //
@@ -1008,6 +1009,11 @@ export const useStore = createWithEqualityFn<AppState & AppAction & AuthStore & 
             title: "GENERATION IMAGE SUCCESS",
             description: `Created in ${executionTime * 0.001} seconds`,
           });
+          const {
+            sessionUser,
+          } = get();
+          console.log(sessionUser)
+          await storeImgExecutionTime({id: sessionUser?.id, delayTime,  executionTime})
         } catch (e: any) {
           toast({
             variant: "destructive",
