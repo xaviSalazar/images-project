@@ -128,7 +128,7 @@ const pollStatus = (taskId: string) => {
           // Task is completed, stop polling and retrieve the result
           clearInterval(intervalId);
           resolve({
-            output: statusData.output,
+            dataResponse: statusData,
             req_id: statusData.id, // Return the id from the response
           });
         } else if (statusData.status === "FAILED") {
@@ -211,9 +211,9 @@ export async function renderImage(
       });
 
       try {
-        const { output, req_id } = await pollStatus(id);
+        const { dataResponse, req_id } = await pollStatus(id);
         return {
-          img_list: output.result, // Assuming result contains the image list
+          img_list: dataResponse?.output?.result, // Assuming result contains the image list
           seed: req_id, // Return the id from the response
         };
       } catch (error) {
@@ -275,8 +275,8 @@ export async function removeBackgroundApi(
 
       // await the result of pollstatus
       try {
-        const { output, req_id } = await pollStatus(id);
-        const blob = base64ToBlob(output.result[0]);
+        const { dataResponse, req_id } = await pollStatus(id);
+        const blob = base64ToBlob(dataResponse?.output?.result[0]);
         return {
           blob: URL.createObjectURL(blob),
           seed: req_id, // Return the id from the response
@@ -328,9 +328,9 @@ export async function uploadImageToDescriptor(
       });
       // await the result of pollstatus
       try {
-        const { output, req_id } = await pollStatus(id);
+        const { dataResponse, req_id } = await pollStatus(id);
         return {
-          words_list: output.result[0],
+          words_list: dataResponse?.output?.result[0],
         };
       } catch (error) {
         throw new Error(`Polling failed: ${error.message}`);
