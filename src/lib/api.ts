@@ -215,6 +215,8 @@ export async function renderImage(
         return {
           img_list: dataResponse?.output?.result, // Assuming result contains the image list
           seed: req_id, // Return the id from the response
+          delayTime: dataResponse?.delayTime,
+          executionTime: dataResponse?.executionTime,
         };
       } catch (error) {
         throw new Error(`Polling failed: ${error.message}`);

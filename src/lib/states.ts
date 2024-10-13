@@ -986,7 +986,10 @@ export const useStore = createWithEqualityFn<AppState & AppAction & AuthStore & 
             colorTransition,
             isDevModeActive,
           );
-          const { img_list, seed } = res;
+          const { img_list, 
+                  seed,
+                  delayTime,
+                  executionTime } = res;
           for (const base64Image of img_list) {
             const blob = base64ToBlob(base64Image);
             const newRender = new Image();
@@ -996,14 +999,14 @@ export const useStore = createWithEqualityFn<AppState & AppAction & AuthStore & 
               renders: newRenders,
             });
           }
-
           // if (seed) {
           //   get().setSeed(parseInt(seed, 10));
           // }
           //get().setImageSize(newRender.width, newRender.height);
           toast({
             variant: "success",
-            description: `LOADED NEW IMAGE SUCCESS`,
+            title: "GENERATION IMAGE SUCCESS",
+            description: `Created in ${executionTime * 0.001} seconds`,
           });
         } catch (e: any) {
           toast({
