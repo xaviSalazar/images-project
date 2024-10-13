@@ -1,3 +1,4 @@
+import * as React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Icons } from "@/components/ui/icons";
@@ -15,6 +16,8 @@ import * as Yup from "yup";
 import { registerUser } from "@/lib/user-api"; // Adjust the import path as necessary
 import { toast } from "@/components/ui/use-toast";
 import GoogleAuth from "@/components/authentication/components/auth-google"
+import { useAuthStore } from "@/lib/states";
+
 
 export const description =
   "A sign up form with first name, last name, email and password inside a card. There's an option to sign up with GitHub and a link to login if you already have an account";
@@ -37,7 +40,15 @@ const validationSchema = Yup.object({
 });
 
 export default function LoginForm() {
+  const [isLoggedIn] = useAuthStore((state) => [
+    state.isLoggedIn,
+  ]);
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (isLoggedIn) navigate("/images-project");
+  }, [isLoggedIn]);
+
   const formik = useFormik({
     initialValues: {
       name: "",

@@ -140,7 +140,6 @@ export async function autoLogin(): Promise<{
 }> {
   try {
     const token = localStorage.getItem("accessToken");
-    console.log(token)
     // Check if the token is empty or null
     if (!token) {
       throw new Error("Access token is missing.");
