@@ -8,10 +8,10 @@ import AuthenticationPage from "@/components/authentication/RegisterPage.tsx";
 import LoginPage from "@/components/authentication/LoginPage.tsx";
 import ForgotPasswordPage from "@/components/authentication/ForgotPassword.tsx"
 import ResetPasswordPage from "@/components/authentication/ResetPassword.tsx"
-import { useAuthStore } from "@/lib/states";
+import { useStore } from "@/lib/states";
 
 function ProtectedRoute({ children }) {
-  const [isLoggedIn] = useAuthStore((state) => [
+  const [isLoggedIn] = useStore((state) => [
     state.isLoggedIn,
     state.login,
     state.logout,
@@ -26,7 +26,7 @@ function ProtectedRoute({ children }) {
 }
 
 export default function Router() {
-  const [autoLogin] = useAuthStore((state) => [state.autoLogin]);
+  const [autoLogin] = useStore((state) => [state.autoLogin]);
 
   useEffect(() => {
     autoLogin();

@@ -10,10 +10,10 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuthStore } from "@/lib/states";
+import { useStore } from "@/lib/states";
 
 export function UserNav() {
-  const [sessionUser, logout] = useAuthStore((state) => [
+  const [sessionUser, logout] = useStore((state) => [
     state.sessionUser,
     state.logout,
   ]);

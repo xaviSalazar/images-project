@@ -10,7 +10,7 @@ import {
   import { Button } from "@/components/ui/button";
   import { Input } from "@/components/ui/input";
   import { Label } from "@/components/ui/label";
-  import { useAuthStore } from "@/lib/states";
+  import { useStore } from "@/lib/states";
   
   interface ForgotPassFormProps extends React.HTMLAttributes<HTMLDivElement> {}
   
@@ -21,7 +21,7 @@ import {
   });
   
   export function ForgotPassForm({ className, ...props }: ForgotPassFormProps) {
-    const [forgotPassword, isLoading, isLoggedIn] = useAuthStore((state) => [
+    const [forgotPassword, isLoading, isLoggedIn] = useStore((state) => [
       state.forgotPassword,
       state.isLoading,
       state.isLoggedIn,

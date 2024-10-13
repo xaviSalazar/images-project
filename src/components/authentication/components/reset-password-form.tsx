@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { useAuthStore } from "@/lib/states";
+import { useStore } from "@/lib/states";
 
 export const description =
   "A sign up form with first name, last name, email and password inside a card. There's an option to sign up with GitHub and a link to login if you already have an account";
@@ -30,7 +30,7 @@ const validationSchema = Yup.object({
 
 export default function ResetPassForm() {
   const location = useLocation();
-  const [resetPassword, isLoading, isLoggedIn] = useAuthStore((state) => [
+  const [resetPassword, isLoading, isLoggedIn] = useStore((state) => [
     state.resetPassword,
     state.isLoading,
     state.isLoggedIn,

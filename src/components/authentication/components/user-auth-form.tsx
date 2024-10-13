@@ -10,7 +10,7 @@ import { Icons } from "@/components/ui/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuthStore } from "@/lib/states";
+import { useStore } from "@/lib/states";
 import GoogleAuth from "@/components/authentication/components/auth-google"
 
 interface UserAuthFormProps extends React.HTMLAttributes<HTMLDivElement> {}
@@ -23,7 +23,7 @@ const validationSchema = Yup.object({
 });
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
-  const [login, isLoading, isLoggedIn] = useAuthStore((state) => [
+  const [login, isLoading, isLoggedIn] = useStore((state) => [
     state.login,
     state.isLoading,
     state.isLoggedIn,

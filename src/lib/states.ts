@@ -414,11 +414,6 @@ const defaultValues: AppState = {
   },
 };
 
-export const useLanguageStore = createWithEqualityFn<LanguageState>((set) => ({
-  language: "",
-  setLanguage: (lang) => set({ language: lang }),
-}));
-
 type SessionAction = {
   autoLogin: () => Promise<void>;
   googleLogin: (values) => Promise<void>;
@@ -429,15 +424,164 @@ type SessionAction = {
   updateSesionUserState: (newState: Partial<AuthStore>) => void;
 };
 
-export const useAuthStore = createWithEqualityFn<AuthStore & SessionAction>()(
+const defaultSessionValues: AuthStore = {
+  isLoggedIn: false,
+  isLoading: false,
+  sessionUser: { id: "", name: "", lastname: "", email: "" },
+}
+
+export const useLanguageStore = createWithEqualityFn<LanguageState>((set) => ({
+  language: "",
+  setLanguage: (lang) => set({ language: lang }),
+}));
+
+
+
+// export const useAuthStore = createWithEqualityFn<AuthStore & SessionAction>()(
+//   persist(
+//     (set) => ({
+//       isLoggedIn: false,
+//       isLoading: false,
+//       sessionUser: { id: "", name: "", lastname: "", email: "" },
+//       autoLogin: async () => {
+//         const { data, status } = await autoLogin();
+//         if (status === 200) {
+//           set({ isLoggedIn: true });
+//           set({ sessionUser: data?.user });
+//         } else {
+//           set({ isLoggedIn: false });
+//           localStorage.clear();
+//         }
+//       },
+//       googleLogin: async(values) => {
+//         try {
+//           set({ isLoading: true });
+//           const { data, status } = await GoogleLoginUser(values);
+//           if (status == 200) {
+//             localStorage.setItem("accessToken", data?.token);
+//             set({ sessionUser: data?.user });
+//             toast({
+//               variant: "success",
+//               title: "LOGIN SUCCESS",
+//               description: `${data?.message}`,
+//             });
+//             set({ isLoading: false });
+//             const userLocalStorage = localStorage.getItem("accessToken");
+//             if (userLocalStorage) {
+//               set({ isLoggedIn: true });
+//               console.log("zustand logged in to true");
+//             }
+//           }
+//           if (status === 401) {
+//             toast({
+//               variant: "destructive",
+//               title: "LOGIN FAIL",
+//               description: `${data?.error}`,
+//             });
+//             set({ isLoading: false });
+//           }
+//           set({ isLoading: false });
+//         }catch (error) {
+//           console.error("Submission error:", error);
+//           set({ isLoading: false });
+//         }
+//       },
+//       login: async (values) => {
+//         try {
+//           set({ isLoading: true });
+//           console.log("Submitting form:", values);
+//           const { data, status } = await loginUser(values);
+//           if (status == 200) {
+//             localStorage.setItem("accessToken", data?.token);
+//             set({ sessionUser: data?.user });
+//             toast({
+//               variant: "success",
+//               title: "LOGIN SUCCESS",
+//               description: `${data?.message}`,
+//             });
+//             set({ isLoading: false });
+//             const userLocalStorage = localStorage.getItem("accessToken");
+//             if (userLocalStorage) {
+//               set({ isLoggedIn: true });
+//               console.log("zustand logged in to true");
+//             }
+//           }
+//           if (status === 401) {
+//             toast({
+//               variant: "destructive",
+//               title: "LOGIN FAIL",
+//               description: `${data?.error}`,
+//             });
+//             set({ isLoading: false });
+//           }
+//           set({ isLoading: false });
+//         } catch (error) {
+//           console.error("Submission error:", error);
+//           set({ isLoading: false });
+//         }
+//       },
+//       logout: async () => {
+//         const { data, status } = await logOutUser();
+//         if (status == 200) {
+//           set({ isLoggedIn: false });
+//           localStorage.clear();
+//         }
+//       },
+//       forgotPassword: async (value) => {
+//         set({ isLoading: true });
+//         const { data, status } = await forgotPassword(value);
+//         if (status == 200) {
+//           set({ isLoading: false });
+//           toast({
+//             variant: "success",
+//             title: `${data?.message}`,
+//             // description: `${data?.error}`,
+//           });
+//           return;
+//         }
+//         toast({
+//           variant: "destructive",
+//           title: `${data?.error}`,
+//           // description: `${data?.error}`,
+//         });
+//           set({ isLoading: false });
+//       },
+//       resetPassword: async (value) => {
+//         set({ isLoading: true });
+//         const { data, status } = await resetPassword(value);
+//         if (status == 200) {
+//           toast({
+//             variant: "success",
+//             title: `${data?.message}`,
+//             // description: `${data?.error}`,
+//           });
+//           set({ isLoading: false });
+//           return;
+//         }
+//         toast({
+//           variant: "destructive",
+//           title: `${data?.error}`,
+//           // description: `${data?.error}`,
+//         });
+//           set({ isLoading: false });
+//       },
+//       updateSesionUserState: (newState: Partial<AuthStore>) => {
+//         set(() => newState);
+//       },
+//     }),
+//     {
+//       name: "userLoginStatus", // local storage
+//     },
+//   ),
+// );
+
+export const useStore = createWithEqualityFn<AppState & AppAction & AuthStore & SessionAction>()(
   persist(
-    (set) => ({
-      isLoggedIn: false,
-      isLoading: false,
-      sessionUser: { id: "", name: "", lastname: "", email: "" },
+    immer((set, get) => ({
+      ...defaultValues,
+      ...defaultSessionValues,
       autoLogin: async () => {
         const { data, status } = await autoLogin();
-        console.log(data);
         if (status === 200) {
           set({ isLoggedIn: true });
           set({ sessionUser: data?.user });
@@ -450,7 +594,6 @@ export const useAuthStore = createWithEqualityFn<AuthStore & SessionAction>()(
         try {
           set({ isLoading: true });
           const { data, status } = await GoogleLoginUser(values);
-          console.log(data)
           if (status == 200) {
             localStorage.setItem("accessToken", data?.token);
             set({ sessionUser: data?.user });
@@ -485,7 +628,6 @@ export const useAuthStore = createWithEqualityFn<AuthStore & SessionAction>()(
           set({ isLoading: true });
           console.log("Submitting form:", values);
           const { data, status } = await loginUser(values);
-          console.log(data);
           if (status == 200) {
             localStorage.setItem("accessToken", data?.token);
             set({ sessionUser: data?.user });
@@ -517,8 +659,6 @@ export const useAuthStore = createWithEqualityFn<AuthStore & SessionAction>()(
       },
       logout: async () => {
         const { data, status } = await logOutUser();
-        console.log(data);
-        console.log(status);
         if (status == 200) {
           set({ isLoggedIn: false });
           localStorage.clear();
@@ -527,8 +667,6 @@ export const useAuthStore = createWithEqualityFn<AuthStore & SessionAction>()(
       forgotPassword: async (value) => {
         set({ isLoading: true });
         const { data, status } = await forgotPassword(value);
-        console.log(data);
-        console.log(status);
         if (status == 200) {
           set({ isLoading: false });
           toast({
@@ -548,8 +686,6 @@ export const useAuthStore = createWithEqualityFn<AuthStore & SessionAction>()(
       resetPassword: async (value) => {
         set({ isLoading: true });
         const { data, status } = await resetPassword(value);
-        console.log(data);
-        console.log(status);
         if (status == 200) {
           toast({
             variant: "success",
@@ -569,18 +705,6 @@ export const useAuthStore = createWithEqualityFn<AuthStore & SessionAction>()(
       updateSesionUserState: (newState: Partial<AuthStore>) => {
         set(() => newState);
       },
-    }),
-    {
-      name: "userLoginStatus", // local storage
-    },
-  ),
-);
-
-export const useStore = createWithEqualityFn<AppState & AppAction>()(
-  persist(
-    immer((set, get) => ({
-      ...defaultValues,
-
       showPrevMask: async () => {
         if (get().settings.showExtender) {
           return;

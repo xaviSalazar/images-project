@@ -1,12 +1,12 @@
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { useAuthStore } from "@/lib/states";
+import { useStore } from "@/lib/states";
 import { toast } from "@/components/ui/use-toast";
 
 export const GOOGLE_CRED = import.meta.env.VITE_GOOGLE_AUTH_CRED;
 
 export default function GoogleAuth() {
-    const [googleLogin] = useAuthStore((state) => [state.googleLogin]);
+    const [googleLogin] = useStore((state) => [state.googleLogin]);
 
     const onSuccess = async (res: CredentialResponse) => {
         googleLogin({ clientId: res.clientId, credential: res.credential })

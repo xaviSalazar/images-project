@@ -16,7 +16,7 @@ import * as Yup from "yup";
 import { registerUser } from "@/lib/user-api"; // Adjust the import path as necessary
 import { toast } from "@/components/ui/use-toast";
 import GoogleAuth from "@/components/authentication/components/auth-google"
-import { useAuthStore } from "@/lib/states";
+import { useStore } from "@/lib/states";
 
 
 export const description =
@@ -40,7 +40,7 @@ const validationSchema = Yup.object({
 });
 
 export default function LoginForm() {
-  const [isLoggedIn] = useAuthStore((state) => [
+  const [isLoggedIn] = useStore((state) => [
     state.isLoggedIn,
   ]);
   const navigate = useNavigate();
